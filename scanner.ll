@@ -37,8 +37,9 @@ integer_const       decimal_const | octal_const | hexadecimal_const
 /* http://westes.github.io/flex/manual/How-can-I-match-C_002dstyle-comments_003f.html */
 
 <INITIAL>{
-    "/*"              BEGIN(IN_COMMENT);
-    
+    "/*"                BEGIN(IN_COMMENT);
+    {identifier}        return yy::parser::make_IDENT(yytext);
+    {integer_const}     return yy::parser::make_INT_CONST(stoi(yytext));
 }
 
 <IN_COMMENT>{
