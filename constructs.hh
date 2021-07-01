@@ -150,7 +150,7 @@ struct ident_t: public terminal_wrapper {
 
 struct int_const_t: public terminal_wrapper {
     long long value;
-}
+};
 
 // ; , { } ( ) 等和语义无关的符号未列出
 struct operator_t: public terminal_wrapper {
