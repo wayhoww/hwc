@@ -23,31 +23,14 @@
 %%
 
 %token YYEOF  0  "end of file";
+%token <string> INT;
 
-%nterm <std::vector<char>> program;
-program: list {
-    for(auto item: $1) {
-        std::cout << item << ", ";
-    }
-    std::cout << std::endl;
-}
-;
-
-%nterm <std::vector<int>> list;
-list: 
-    %empty {}
-  | integer list { 
-        $$ = $2; $$.push_back($1);
-    }
-;
-
-%nterm <int> integer;
-integer:
-    INT
-;
-
-%token <int> INT;
-
+/** 
+ * 将生成一个语法树。之所以使用语法树，而非课上所用方式，
+ * 是为了减少解析时候的思维量，
+ * 也便于后期优化的时候做手脚。
+ * 如果想要使用课上的方式，只要后序遍历即可。
+ **/
 
 %%
 
