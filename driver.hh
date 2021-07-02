@@ -30,7 +30,7 @@ YY_DECL;
 struct symbol_info {
     int scoop_depth;
     std::string identifier;
-}
+};
 
 class driver {
 protected:

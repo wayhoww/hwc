@@ -126,25 +126,22 @@ struct l_or_exp_applied_t;
 // 这里遵照了语言规范中的定义
 // const 与否要在语义分析中分析，语法分析不能保证其 const 性
 // 当然也可以给 const 类型定义特殊的一套非终结符号
-// 把这个检查留到语义分析部分，可能也可以更容易得提供准确的报错信息。
+// 把这个检查留到语义分析（TODO）部分，可能也可以更容易得提供准确的报错信息。
 struct const_exp_t;
 struct const_exp_add_t;
 
-struct construct{};
 struct terminal_wrapper: public construct{};
 
 // 下面是终结符号的包装
+// 受限于LALR(1)的能力（是吗？），func_type_t 和 b_type_t 不做区分，放在语义分析（TODO）部分判断
 struct b_type_t: public terminal_wrapper {
-    enum Type {INT};
-    Type type;
-};
-
-struct func_type_t: public terminal_wrapper {
     enum Type {VOID, INT};
+    b_type_t(const Type& type):type(type){}
     Type type;
 };
 
 struct ident_t: public terminal_wrapper {
+    ident_t(const std::string& name):name(name){}
     std::string name;
 };
 
@@ -158,6 +155,8 @@ struct operator_t: public terminal_wrapper {
         POSITIVE,
         NEGATIVE,
         
+        PLUS,
+        MINUS,
         MULTIPLY,
         DIVIDE,
         MODULE,
@@ -188,17 +187,21 @@ struct comp_unit_t: public construct {
 
 struct comp_unit_item_t: public construct {}; // Decl | FuncDef
 struct comp_unit_item_decl_t: public comp_unit_item_t {
+    comp_unit_item_decl_t(const std::shared_ptr<decl_t>& decl): decl(decl){}
     std::shared_ptr<decl_t> decl;
 }; 
 struct comp_unit_item_func_def_t: public comp_unit_item_t {
+    comp_unit_item_func_def_t(const std::shared_ptr<func_def_t>& func_def): func_def(func_def){}
     std::shared_ptr<func_def_t> func_def;
 }; 
 
 struct decl_t: public construct {};
 struct decl_const_decl_t: public decl_t {
+    decl_const_decl_t(const std::shared_ptr<const_decl_t>& const_decl): const_decl(const_decl){}
     std::shared_ptr<const_decl_t> const_decl;
 };
 struct decl_var_decl_t: public decl_t {
+    decl_var_decl_t(const std::shared_ptr<var_decl_t>& var_decl): var_decl(var_decl){}
     std::shared_ptr<var_decl_t> var_decl;
 };
 
@@ -208,6 +211,11 @@ struct const_decl_t: public construct {
 };
 
 struct const_def_t: public construct {
+    const_def_t(    
+        const std::shared_ptr<ident_t> ident,
+        const ptr_list_of<const_exp_t> array_dims,
+        const std::shared_ptr<const_init_val_t> const_init_val
+    ):ident(ident), array_dims(array_dims), const_init_val(const_init_val){}
     std::shared_ptr<ident_t> ident;
     ptr_list_of<const_exp_t> array_dims;
     std::shared_ptr<const_init_val_t> const_init_val;    
@@ -215,63 +223,85 @@ struct const_def_t: public construct {
 
 struct const_init_val_t: public construct {};
 struct const_init_val_scalar_t: public const_init_val_t {
+    const_init_val_scalar_t(const std::shared_ptr<const_exp_t>& const_exp): const_exp(const_exp){}
     std::shared_ptr<const_exp_t> const_exp;
 };
 struct const_init_val_array_t: public const_init_val_t {
+    const_init_val_array_t(const ptr_list_of<const_init_val_t>& array_elements):array_elements(array_elements){}
     ptr_list_of<const_init_val_t> array_elements;
 };
 
 struct var_decl_t: public construct {
+    var_decl_t(
+        const std::shared_ptr<b_type_t>& b_type,
+        const ptr_list_of<var_def_t>& var_defs
+    ):b_type(b_type), var_defs(var_defs){}
     std::shared_ptr<b_type_t> b_type;
     ptr_list_of<var_def_t> var_defs;
 };
 
 struct var_def_t: public construct {};
 struct var_def_only_t: public var_def_t {
-    std::shared_ptr<ident_t> ident_t;
-    ptr_list_of<const_exp_t> array_indices;
+    var_def_only_t( 
+        const std::shared_ptr<ident_t>& ident,
+        const ptr_list_of<const_exp_t>& array_dims
+    ):ident(ident), array_dims(array_dims){}
+    std::shared_ptr<ident_t> ident;
+    ptr_list_of<const_exp_t> array_dims;
 };
 struct var_def_init_t: public var_def_t {
+    var_def_init_t( 
+        const std::shared_ptr<ident_t>& ident,
+        const ptr_list_of<const_exp_t>& array_dims,
+        const std::shared_ptr<init_val_t>& init_val
+    ):ident(ident), array_dims(array_dims), init_val(init_val){}
     std::shared_ptr<ident_t> ident;
-    ptr_list_of<const_exp_t> array_indices;
+    ptr_list_of<const_exp_t> array_dims;
     std::shared_ptr<init_val_t> init_val;
 };
 
 struct init_val_t: public construct {};
 struct init_val_scalar_t: public init_val_t {
+    init_val_scalar_t(const std::shared_ptr<exp_t>& exp):exp(exp){}
     std::shared_ptr<exp_t> exp;
 };
 struct init_val_array_t: public init_val_t {
+    init_val_array_t(const ptr_list_of<init_val_t>& array_elements):array_elements(array_elements){}
     ptr_list_of<init_val_t> array_elements; 
 }; 
 
 
 
 struct func_def_t: public construct {
-    std::shared_ptr<func_type_t> func_type;
+    std::shared_ptr<b_type_t> func_type;
     std::shared_ptr<ident_t> ident;
     std::shared_ptr<func_f_params_t> params;
     std::shared_ptr<block_t> block; 
 };
 
 struct func_f_params_t: public construct {
+    func_f_params_t(){}
+    func_f_params_t(const ptr_list_of<func_f_param_t>& params):params(params){}
     ptr_list_of<func_f_param_t> params;
 };
 struct func_f_param_t: public construct {
     std::shared_ptr<b_type_t> b_type;
     std::shared_ptr<ident_t> ident;
-    // 做高维的留空，填 -1
+    // 做高维的留空，填 nullptr
     ptr_list_of<exp_t> array_dims;
 };
 
 struct block_t: public construct {
+    block_t(const ptr_list_of<block_item_t>& children): children(children){}
     ptr_list_of<block_item_t> children;
 };
 struct block_item_t: public construct {};
 struct block_item_decl_t: public block_item_t {
+    block_item_decl_t(const std::shared_ptr<decl_t>& decl): decl(decl){}
     std::shared_ptr<decl_t> decl;
 };
 struct block_item_stmt_t: public block_item_t {
+    block_item_stmt_t(const std::shared_ptr<stmt_t>& stmt): stmt(stmt){}
     std::shared_ptr<stmt_t> stmt;
 };
 
@@ -311,7 +341,7 @@ struct cond_l_or_t: public cond_t {
     std::shared_ptr<l_or_exp_t> l_or_exp;
 };
 
-struct lval_t: public construct {
+struct l_val_t: public construct {
     std::shared_ptr<ident_t> ident;
     ptr_list_of<exp_t> exps;
 };
