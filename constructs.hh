@@ -146,6 +146,7 @@ struct ident_t: public terminal_wrapper {
 };
 
 struct int_const_t: public terminal_wrapper {
+    int_const_t(const long long& value): value(value) {}
     long long value;
 };
 
@@ -172,7 +173,7 @@ struct operator_t: public terminal_wrapper {
         LOGICAL_AND,
         LOGICAL_OR,
     };
-
+    operator_t(const Type& type): type(type) {}
     Type type;
 };
 
@@ -206,6 +207,9 @@ struct decl_var_decl_t: public decl_t {
 };
 
 struct const_decl_t: public construct {
+    const_decl_t() {}
+    const_decl_t(const std::shared_ptr<b_type_t>& b_type, ptr_list_of<const_def_t> const_defs):
+        b_type(b_type), const_defs(const_defs) {}
     std::shared_ptr<b_type_t> b_type;
     ptr_list_of<const_def_t> const_defs;
 };
@@ -307,127 +311,193 @@ struct block_item_stmt_t: public block_item_t {
 
 struct stmt_t: public construct {};
 struct stmt_assign_t: public stmt_t {
+    stmt_assign_t(
+        const std::shared_ptr<l_val_t>& l_val,
+        const std::shared_ptr<exp_t>& exp
+    ): l_val(l_val), exp(exp) {}
     std::shared_ptr<l_val_t> l_val;
     std::shared_ptr<exp_t> exp;
 };
 struct stmt_exp_t: public stmt_t {
+    stmt_exp_t(const std::shared_ptr<exp_t>& exp): exp(exp) {}
     std::shared_ptr<exp_t> exp;
 };
 struct stmt_block_t: public stmt_t {
+    stmt_block_t(const std::shared_ptr<block_t>& block): block(block) {}
     std::shared_ptr<block_t> block;
 };
 struct stmt_if_t: public stmt_t {
+    stmt_if_t(
+        const std::shared_ptr<cond_t>& cond,
+        const std::shared_ptr<stmt_t>& stmt_if_true,
+        const std::shared_ptr<stmt_t>& stmt_if_false
+    ): cond(cond), stmt_if_true(stmt_if_true), stmt_if_false(stmt_if_false) {}
     std::shared_ptr<cond_t> cond;
     std::shared_ptr<stmt_t> stmt_if_true;
     std::shared_ptr<stmt_t> stmt_if_false;
 };
 struct stmt_while_t: public stmt_t {
+    stmt_while_t(
+        const std::shared_ptr<cond_t>& cond,
+        const std::shared_ptr<stmt_t>& stmt
+    ): cond(cond), stmt(stmt) {}
     std::shared_ptr<cond_t> cond;
     std::shared_ptr<stmt_t> stmt;
 };
 struct stmt_break_t: public stmt_t {};
 struct stmt_continue_t: public stmt_t {};
 struct stmt_return_t: public stmt_t {
+    stmt_return_t(const std::shared_ptr<exp_t>& exp): exp(exp) {}
     std::shared_ptr<exp_t> exp;
 };
 
 struct exp_t: public construct {};
 struct exp_add_t: public exp_t {
+    exp_add_t(const std::shared_ptr<add_exp_t>& add_exp): add_exp(add_exp) {}
     std::shared_ptr<add_exp_t> add_exp;
 };
 
 struct cond_t: public construct {};
 struct cond_l_or_t: public cond_t {
+    cond_l_or_t(const std::shared_ptr<l_or_exp_t>& l_or_exp): l_or_exp(l_or_exp) {}
     std::shared_ptr<l_or_exp_t> l_or_exp;
 };
 
 struct l_val_t: public construct {
+    l_val_t(
+        const std::shared_ptr<ident_t>& ident,
+        const ptr_list_of<exp_t>& exps
+    ): ident(ident), exps(exps) {}
     std::shared_ptr<ident_t> ident;
     ptr_list_of<exp_t> exps;
 };
 
 struct primary_exp_t: public construct {};
 struct primary_exp_exp_t: public primary_exp_t {
+    primary_exp_exp_t(const std::shared_ptr<exp_t>& exp): exp(exp) {}
     std::shared_ptr<exp_t> exp;
 };
 struct primary_exp_l_val_t: public primary_exp_t {
+    primary_exp_l_val_t(const std::shared_ptr<l_val_t>& l_val): l_val(l_val) {}
     std::shared_ptr<l_val_t> l_val;
 };
 struct primary_exp_number_t: public primary_exp_t {
+    primary_exp_number_t(const std::shared_ptr<number_t>& number): number(number) {}
     std::shared_ptr<number_t> number;
 };
 
 struct number_t: public construct {
+    number_t(const std::shared_ptr<int_const_t>& int_const): int_const(int_const) {}
+    number_t(){}
     std::shared_ptr<int_const_t> int_const;
 };
 
 struct unary_exp_t: public construct{};
 struct unary_exp_primary_exp_t: public unary_exp_t {
+    unary_exp_primary_exp_t(const std::shared_ptr<primary_exp_t>& primary_exp): primary_exp(primary_exp) {}
     std::shared_ptr<primary_exp_t> primary_exp;
 };
 struct unary_exp_func_call_t: public unary_exp_t {
+    unary_exp_func_call_t(
+        const std::shared_ptr<ident_t>& ident,
+        const std::shared_ptr<func_r_params_t>& params
+    ): ident(ident), params(params){}
     std::shared_ptr<ident_t> ident;
     std::shared_ptr<func_r_params_t> params;
 };
 struct unary_exp_applied_t: public unary_exp_t {  // UnaryOp UnaryExp
-    std::shared_ptr<operator_t> unary_op;
+    unary_exp_applied_t(
+        const std::shared_ptr<operator_t>& op,
+        const std::shared_ptr<unary_exp_t>& unary_exp
+    ) : op(op){}
+    std::shared_ptr<operator_t> op;
     std::shared_ptr<unary_exp_t> unary_exp;
 };
 
 struct func_r_params_t: public construct {
+    func_r_params_t(){}
+    func_r_params_t(const ptr_list_of<exp_t>& exps): exps(exps) {}
     ptr_list_of<exp_t> exps;
 };
 
 struct mul_exp_t: public construct {};
 struct mul_exp_unary_t: public mul_exp_t {
+    mul_exp_unary_t(const std::shared_ptr<unary_exp_t>& unary_exp): unary_exp(unary_exp) {}
     std::shared_ptr<unary_exp_t> unary_exp;
 };
 struct mul_exp_applied_t: public mul_exp_t {
+    mul_exp_applied_t(
+        const std::shared_ptr<mul_exp_t>& mul_exp,
+        const std::shared_ptr<operator_t>& op,
+        const std::shared_ptr<unary_exp_t>& unary_exp
+    ) :mul_exp(mul_exp), op(op), unary_exp(unary_exp){}
     std::shared_ptr<mul_exp_t> mul_exp;
+    std::shared_ptr<operator_t> op;
     std::shared_ptr<unary_exp_t> unary_exp;
 }; 
 
 struct add_exp_t: public construct {};
 struct add_exp_mul_t: public add_exp_t {
+    add_exp_mul_t(const std::shared_ptr<mul_exp_t>& mul_exp): mul_exp(mul_exp) {}
     std::shared_ptr<mul_exp_t> mul_exp;
 };
 struct add_exp_applied_t: public add_exp_t {
+    add_exp_applied_t(    
+        const std::shared_ptr<add_exp_t>& add_exp,
+        const std::shared_ptr<operator_t>& op,
+        const std::shared_ptr<mul_exp_t>& mul_exp
+    ): add_exp(add_exp), op(op), mul_exp(mul_exp) {}
     std::shared_ptr<add_exp_t> add_exp;
+    std::shared_ptr<operator_t> op;
     std::shared_ptr<mul_exp_t> mul_exp;
 }; 
 
 struct rel_exp_t: public construct {};
 struct rel_exp_add_t: public rel_exp_t {
+    rel_exp_add_t(const std::shared_ptr<add_exp_t>& add_exp): add_exp(add_exp) {}
     std::shared_ptr<add_exp_t> add_exp;
 };
 struct rel_exp_applied_t: public rel_exp_t {
+    rel_exp_applied_t(const std::shared_ptr<rel_exp_t>& rel_exp, const std::shared_ptr<operator_t>& op, std::shared_ptr<add_exp_t>& add_exp):
+        rel_exp(rel_exp), op(op), add_exp(add_exp) {}
     std::shared_ptr<rel_exp_t> rel_exp;
+    std::shared_ptr<operator_t> op;
     std::shared_ptr<add_exp_t> add_exp;
 }; 
 
 struct eq_exp_t: public construct {};
 struct eq_exp_rel_t: public eq_exp_t {
+    eq_exp_rel_t(const std::shared_ptr<rel_exp_t>& rel_exp): rel_exp(rel_exp) {}
     std::shared_ptr<rel_exp_t> rel_exp;
 };
 struct eq_exp_applied_t: public eq_exp_t {
+    eq_exp_applied_t(const std::shared_ptr<eq_exp_t>& eq_exp, const std::shared_ptr<operator_t>& op, const std::shared_ptr<rel_exp_t>& rel_exp):
+        eq_exp(eq_exp), op(op), rel_exp(rel_exp) {}
     std::shared_ptr<eq_exp_t> eq_exp;
+    std::shared_ptr<operator_t> op;
     std::shared_ptr<rel_exp_t> rel_exp;
 }; 
 
 struct l_and_exp_t: public construct {};
 struct l_and_exp_eq_t: public l_and_exp_t {
+    l_and_exp_eq_t(const std::shared_ptr<eq_exp_t>& eq_exp): eq_exp(eq_exp) {}
     std::shared_ptr<eq_exp_t> eq_exp;
 };
 struct l_and_exp_applied_t: public l_and_exp_t {
+    l_and_exp_applied_t(const std::shared_ptr<l_and_exp_t>& l_and_exp, const std::shared_ptr<eq_exp_t>& eq_exp):
+        l_and_exp(l_and_exp), eq_exp(eq_exp) {}
     std::shared_ptr<l_and_exp_t> l_and_exp;
     std::shared_ptr<eq_exp_t> eq_exp;
 }; 
 
 struct l_or_exp_t: public construct {};
 struct l_or_exp_and_t: public l_or_exp_t {
+    l_or_exp_and_t(const std::shared_ptr<l_and_exp_t>& l_and_exp): l_and_exp(l_and_exp) {}
     std::shared_ptr<l_and_exp_t> l_and_exp;
 };
 struct l_or_exp_applied_t: public l_or_exp_t {
+    l_or_exp_applied_t(const std::shared_ptr<l_or_exp_t>& l_or_exp, const std::shared_ptr<l_and_exp_t>& l_and_exp) :
+        l_or_exp(l_or_exp), l_and_exp(l_and_exp){}
     std::shared_ptr<l_or_exp_t> l_or_exp;
     std::shared_ptr<l_and_exp_t> l_and_exp;
 }; 
@@ -438,6 +508,7 @@ struct l_or_exp_applied_t: public l_or_exp_t {
 // 把这个检查留到语义分析部分，可能也可以更容易得提供准确的报错信息。
 struct const_exp_t: public construct {};
 struct const_exp_add_t: public const_exp_t {
+    const_exp_add_t(const std::shared_ptr<add_exp_t>& add_exp): add_exp(add_exp) {}
     std::shared_ptr<add_exp_t> add_exp;
 };
 

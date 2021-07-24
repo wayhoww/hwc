@@ -214,7 +214,7 @@ stmt:
   | block                               { $$ = std::make_shared<stmt_block_t>($1);      }
   | "if" "(" cond ")" stmt              { $$ = std::make_shared<stmt_if_t>($3, $5, nullptr); }
                 /* TODO：没有做就近匹配 */
-  | "if" "(" cond ")" stmt "else" stmt  { $$ = std::make_shared<stmt_if_t>($3, $5, 7); }       
+  | "if" "(" cond ")" stmt "else" stmt  { $$ = std::make_shared<stmt_if_t>($3, $5, $7); }       
   | "while" "(" cond ")" stmt           { $$ = std::make_shared<stmt_while_t>($3, $5); }
   | "break" ";"                         { $$ = std::make_shared<stmt_break_t>();       }
   | "continue" ";"                      { $$ = std::make_shared<stmt_continue_t>();    }
@@ -249,7 +249,7 @@ primary_exp:
 ;
 
 %nterm <std::shared_ptr<number_t>> number;
-number: INT_CONST { $$ = std::make_shared<number_t>($1); } ;
+number: INT_CONST { $$ = std::make_shared<number_t>(std::make_shared<int_const_t>($1)); } ;
 
 %nterm <std::shared_ptr<unary_exp_t>> unary_exp;
 unary_exp:
@@ -307,13 +307,13 @@ eq_exp:
 %nterm <std::shared_ptr<l_and_exp_t>> l_and_exp;
 l_and_exp: 
     eq_exp  { $$ = std::make_shared<l_and_exp_eq_t>($1); }
-  | l_and_exp "&&"  eq_exp  { $$ = std::make_shared<l_and_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::LOGICAL_AND), $3); }
+  | l_and_exp "&&"  eq_exp  { $$ = std::make_shared<l_and_exp_applied_t>($1, $3); }
 ;
 
 %nterm <std::shared_ptr<l_or_exp_t>> l_or_exp;
 l_or_exp: 
     l_and_exp  { $$ = std::make_shared<l_or_exp_and_t>($1); }
-  | l_or_exp "||"  l_and_exp  { $$ = std::make_shared<l_or_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::LOGICAL_OR), $3); }
+  | l_or_exp "||"  l_and_exp  { $$ = std::make_shared<l_or_exp_applied_t>($1, $3); }
 ;
 
 %nterm <std::shared_ptr<const_exp_t>> const_exp;
