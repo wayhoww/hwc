@@ -1,0 +1,433 @@
+Starting parse
+Entering state 0
+Stack now 0
+Reading a token
+Next token is token "int" ()
+Shifting token "int" ()
+Entering state 2
+Stack now 0 2
+Reducing stack by rule 11 (line 99):
+   $1 = token "int" ()
+-> $$ = nterm b_type ()
+Entering state 10
+Stack now 0 10
+Reading a token
+Next token is token "identifier" ()
+Shifting token "identifier" ()
+Entering state 18
+Stack now 0 10 18
+Reducing stack by rule 42 (line 206):
+   $1 = token "identifier" ()
+-> $$ = nterm ident ()
+Entering state 21
+Stack now 0 10 21
+Reading a token
+Next token is token "=" ()
+Reducing stack by rule 14 (line 110):
+-> $$ = nterm array_dims ()
+Entering state 28
+Stack now 0 10 21 28
+Next token is token "=" ()
+Shifting token "=" ()
+Entering state 33
+Stack now 0 10 21 28 33
+Reading a token
+Next token is token "integer" ()
+Shifting token "integer" ()
+Entering state 38
+Stack now 0 10 21 28 33 38
+Reducing stack by rule 63 (line 251):
+   $1 = token "integer" ()
+-> $$ = nterm number ()
+Entering state 49
+Stack now 0 10 21 28 33 49
+Reducing stack by rule 62 (line 247):
+   $1 = nterm number ()
+-> $$ = nterm primary_exp ()
+Entering state 48
+Stack now 0 10 21 28 33 48
+Reducing stack by rule 64 (line 255):
+   $1 = nterm primary_exp ()
+-> $$ = nterm unary_exp ()
+Entering state 50
+Stack now 0 10 21 28 33 50
+Reducing stack by rule 73 (line 277):
+   $1 = nterm unary_exp ()
+-> $$ = nterm mul_exp ()
+Entering state 51
+Stack now 0 10 21 28 33 51
+Reading a token
+Next token is token ";" ()
+Reducing stack by rule 77 (line 285):
+   $1 = nterm mul_exp ()
+-> $$ = nterm add_exp ()
+Entering state 52
+Stack now 0 10 21 28 33 52
+Next token is token ";" ()
+Reducing stack by rule 54 (line 226):
+   $1 = nterm add_exp ()
+-> $$ = nterm exp ()
+Entering state 46
+Stack now 0 10 21 28 33 46
+Reducing stack by rule 25 (line 147):
+   $1 = nterm exp ()
+-> $$ = nterm init_val ()
+Entering state 44
+Stack now 0 10 21 28 33 44
+Reducing stack by rule 24 (line 142):
+   $1 = nterm ident ()
+   $2 = nterm array_dims ()
+   $3 = token "=" ()
+   $4 = nterm init_val ()
+-> $$ = nterm var_def ()
+Entering state 20
+Stack now 0 10 20
+Reducing stack by rule 21 (line 135):
+   $1 = nterm var_def ()
+-> $$ = nterm var_def_list ()
+Entering state 19
+Stack now 0 10 19
+Next token is token ";" ()
+Shifting token ";" ()
+Entering state 26
+Stack now 0 10 19 26
+Reducing stack by rule 20 (line 128):
+   $1 = nterm b_type ()
+   $2 = nterm var_def_list ()
+   $3 = token ";" ()
+-> $$ = nterm var_decl ()
+Entering state 11
+Stack now 0 11
+Reducing stack by rule 7 (line 85):
+   $1 = nterm var_decl ()
+-> $$ = nterm decl ()
+Entering state 7
+Stack now 0 7
+Reducing stack by rule 5 (line 79):
+   $1 = nterm decl ()
+-> $$ = nterm comp_unit_item ()
+Entering state 6
+Stack now 0 6
+Reducing stack by rule 2 (line 72):
+   $1 = nterm comp_unit_item ()
+-> $$ = nterm comp_unit ()
+Entering state 5
+Stack now 0 5
+Reading a token
+Next token is token "int" ()
+Shifting token "int" ()
+Entering state 2
+Stack now 0 5 2
+Reducing stack by rule 11 (line 99):
+   $1 = token "int" ()
+-> $$ = nterm b_type ()
+Entering state 10
+Stack now 0 5 10
+Reading a token
+Next token is token "identifier" ()
+Shifting token "identifier" ()
+Entering state 18
+Stack now 0 5 10 18
+Reducing stack by rule 42 (line 206):
+   $1 = token "identifier" ()
+-> $$ = nterm ident ()
+Entering state 21
+Stack now 0 5 10 21
+Reading a token
+Next token is token "=" ()
+Reducing stack by rule 14 (line 110):
+-> $$ = nterm array_dims ()
+Entering state 28
+Stack now 0 5 10 21 28
+Next token is token "=" ()
+Shifting token "=" ()
+Entering state 33
+Stack now 0 5 10 21 28 33
+Reading a token
+Next token is token "integer" ()
+Shifting token "integer" ()
+Entering state 38
+Stack now 0 5 10 21 28 33 38
+Reducing stack by rule 63 (line 251):
+   $1 = token "integer" ()
+-> $$ = nterm number ()
+Entering state 49
+Stack now 0 5 10 21 28 33 49
+Reducing stack by rule 62 (line 247):
+   $1 = nterm number ()
+-> $$ = nterm primary_exp ()
+Entering state 48
+Stack now 0 5 10 21 28 33 48
+Reducing stack by rule 64 (line 255):
+   $1 = nterm primary_exp ()
+-> $$ = nterm unary_exp ()
+Entering state 50
+Stack now 0 5 10 21 28 33 50
+Reducing stack by rule 73 (line 277):
+   $1 = nterm unary_exp ()
+-> $$ = nterm mul_exp ()
+Entering state 51
+Stack now 0 5 10 21 28 33 51
+Reading a token
+Next token is token ";" ()
+Reducing stack by rule 77 (line 285):
+   $1 = nterm mul_exp ()
+-> $$ = nterm add_exp ()
+Entering state 52
+Stack now 0 5 10 21 28 33 52
+Next token is token ";" ()
+Reducing stack by rule 54 (line 226):
+   $1 = nterm add_exp ()
+-> $$ = nterm exp ()
+Entering state 46
+Stack now 0 5 10 21 28 33 46
+Reducing stack by rule 25 (line 147):
+   $1 = nterm exp ()
+-> $$ = nterm init_val ()
+Entering state 44
+Stack now 0 5 10 21 28 33 44
+Reducing stack by rule 24 (line 142):
+   $1 = nterm ident ()
+   $2 = nterm array_dims ()
+   $3 = token "=" ()
+   $4 = nterm init_val ()
+-> $$ = nterm var_def ()
+Entering state 20
+Stack now 0 5 10 20
+Reducing stack by rule 21 (line 135):
+   $1 = nterm var_def ()
+-> $$ = nterm var_def_list ()
+Entering state 19
+Stack now 0 5 10 19
+Next token is token ";" ()
+Shifting token ";" ()
+Entering state 26
+Stack now 0 5 10 19 26
+Reducing stack by rule 20 (line 128):
+   $1 = nterm b_type ()
+   $2 = nterm var_def_list ()
+   $3 = token ";" ()
+-> $$ = nterm var_decl ()
+Entering state 11
+Stack now 0 5 11
+Reducing stack by rule 7 (line 85):
+   $1 = nterm var_decl ()
+-> $$ = nterm decl ()
+Entering state 7
+Stack now 0 5 7
+Reducing stack by rule 5 (line 79):
+   $1 = nterm decl ()
+-> $$ = nterm comp_unit_item ()
+Entering state 15
+Stack now 0 5 15
+Reducing stack by rule 3 (line 73):
+   $1 = nterm comp_unit ()
+   $2 = nterm comp_unit_item ()
+-> $$ = nterm comp_unit ()
+Entering state 5
+Stack now 0 5
+Reading a token
+Next token is token "int" ()
+Shifting token "int" ()
+Entering state 2
+Stack now 0 5 2
+Reducing stack by rule 11 (line 99):
+   $1 = token "int" ()
+-> $$ = nterm b_type ()
+Entering state 10
+Stack now 0 5 10
+Reading a token
+Next token is token "identifier" ()
+Shifting token "identifier" ()
+Entering state 18
+Stack now 0 5 10 18
+Reducing stack by rule 42 (line 206):
+   $1 = token "identifier" ()
+-> $$ = nterm ident ()
+Entering state 21
+Stack now 0 5 10 21
+Reading a token
+Next token is token "(" ()
+Shifting token "(" ()
+Entering state 27
+Stack now 0 5 10 21 27
+Reducing stack by rule 30 (line 167):
+-> $$ = nterm func_f_params ()
+Entering state 32
+Stack now 0 5 10 21 27 32
+Reading a token
+Next token is token ")" ()
+Shifting token ")" ()
+Entering state 37
+Stack now 0 5 10 21 27 32 37
+Reading a token
+Next token is token "{" ()
+Shifting token "{" ()
+Entering state 60
+Stack now 0 5 10 21 27 32 37 60
+Reducing stack by rule 38 (line 196):
+-> $$ = nterm block_elements ()
+Entering state 78
+Stack now 0 5 10 21 27 32 37 60 78
+Reading a token
+Next token is token "return" ()
+Shifting token "return" ()
+Entering state 101
+Stack now 0 5 10 21 27 32 37 60 78 101
+Reading a token
+Next token is token "identifier" ()
+Shifting token "identifier" ()
+Entering state 18
+Stack now 0 5 10 21 27 32 37 60 78 101 18
+Reducing stack by rule 42 (line 206):
+   $1 = token "identifier" ()
+-> $$ = nterm ident ()
+Entering state 45
+Stack now 0 5 10 21 27 32 37 60 78 101 45
+Reading a token
+Next token is token "+" ()
+Reducing stack by rule 57 (line 234):
+   $1 = nterm ident ()
+-> $$ = nterm l_val ()
+Entering state 47
+Stack now 0 5 10 21 27 32 37 60 78 101 47
+Reducing stack by rule 61 (line 246):
+   $1 = nterm l_val ()
+-> $$ = nterm primary_exp ()
+Entering state 48
+Stack now 0 5 10 21 27 32 37 60 78 101 48
+Reducing stack by rule 64 (line 255):
+   $1 = nterm primary_exp ()
+-> $$ = nterm unary_exp ()
+Entering state 50
+Stack now 0 5 10 21 27 32 37 60 78 101 50
+Reducing stack by rule 73 (line 277):
+   $1 = nterm unary_exp ()
+-> $$ = nterm mul_exp ()
+Entering state 51
+Stack now 0 5 10 21 27 32 37 60 78 101 51
+Next token is token "+" ()
+Reducing stack by rule 77 (line 285):
+   $1 = nterm mul_exp ()
+-> $$ = nterm add_exp ()
+Entering state 52
+Stack now 0 5 10 21 27 32 37 60 78 101 52
+Next token is token "+" ()
+Shifting token "+" ()
+Entering state 73
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73
+Reading a token
+Next token is token "identifier" ()
+Shifting token "identifier" ()
+Entering state 18
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73 18
+Reducing stack by rule 42 (line 206):
+   $1 = token "identifier" ()
+-> $$ = nterm ident ()
+Entering state 45
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73 45
+Reading a token
+Next token is token ";" ()
+Reducing stack by rule 57 (line 234):
+   $1 = nterm ident ()
+-> $$ = nterm l_val ()
+Entering state 47
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73 47
+Reducing stack by rule 61 (line 246):
+   $1 = nterm l_val ()
+-> $$ = nterm primary_exp ()
+Entering state 48
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73 48
+Reducing stack by rule 64 (line 255):
+   $1 = nterm primary_exp ()
+-> $$ = nterm unary_exp ()
+Entering state 50
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73 50
+Reducing stack by rule 73 (line 277):
+   $1 = nterm unary_exp ()
+-> $$ = nterm mul_exp ()
+Entering state 90
+Stack now 0 5 10 21 27 32 37 60 78 101 52 73 90
+Next token is token ";" ()
+Reducing stack by rule 78 (line 286):
+   $1 = nterm add_exp ()
+   $2 = token "+" ()
+   $3 = nterm mul_exp ()
+-> $$ = nterm add_exp ()
+Entering state 52
+Stack now 0 5 10 21 27 32 37 60 78 101 52
+Next token is token ";" ()
+Reducing stack by rule 54 (line 226):
+   $1 = nterm add_exp ()
+-> $$ = nterm exp ()
+Entering state 123
+Stack now 0 5 10 21 27 32 37 60 78 101 123
+Next token is token ";" ()
+Shifting token ";" ()
+Entering state 136
+Stack now 0 5 10 21 27 32 37 60 78 101 123 136
+Reducing stack by rule 53 (line 221):
+   $1 = token "return" ()
+   $2 = nterm exp ()
+   $3 = token ";" ()
+-> $$ = nterm stmt ()
+Entering state 108
+Stack now 0 5 10 21 27 32 37 60 78 108
+Reducing stack by rule 41 (line 203):
+   $1 = nterm stmt ()
+-> $$ = nterm block_item ()
+Entering state 107
+Stack now 0 5 10 21 27 32 37 60 78 107
+Reducing stack by rule 39 (line 197):
+   $1 = nterm block_elements ()
+   $2 = nterm block_item ()
+-> $$ = nterm block_elements ()
+Entering state 78
+Stack now 0 5 10 21 27 32 37 60 78
+Reading a token
+Next token is token "}" ()
+Shifting token "}" ()
+Entering state 103
+Stack now 0 5 10 21 27 32 37 60 78 103
+Reducing stack by rule 37 (line 192):
+   $1 = token "{" ()
+   $2 = nterm block_elements ()
+   $3 = token "}" ()
+-> $$ = nterm block ()
+Entering state 61
+Stack now 0 5 10 21 27 32 37 61
+Reducing stack by rule 29 (line 157):
+   $1 = nterm b_type ()
+   $2 = nterm ident ()
+   $3 = token "(" ()
+   $4 = nterm func_f_params ()
+   $5 = token ")" ()
+   $6 = nterm block ()
+-> $$ = nterm func_def ()
+Entering state 12
+Stack now 0 5 12
+Reducing stack by rule 4 (line 78):
+   $1 = nterm func_def ()
+-> $$ = nterm comp_unit_item ()
+Entering state 15
+Stack now 0 5 15
+Reducing stack by rule 3 (line 73):
+   $1 = nterm comp_unit ()
+   $2 = nterm comp_unit_item ()
+-> $$ = nterm comp_unit ()
+Entering state 5
+Stack now 0 5
+Reading a token
+Next token is token "end of file" ()
+Reducing stack by rule 1 (line 65):
+   $1 = nterm comp_unit ()
+-> $$ = nterm start_symbol ()
+Entering state 4
+Stack now 0 4
+Next token is token "end of file" ()
+Shifting token "end of file" ()
+Entering state 14
+Stack now 0 4 14
+Stack now 0 4 14
+Cleanup: popping token "end of file" ()
+Cleanup: popping nterm start_symbol ()

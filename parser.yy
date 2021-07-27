@@ -63,8 +63,7 @@
 
 %nterm <std::shared_ptr<comp_unit_t>> start_symbol;
 start_symbol: comp_unit {
-    $$ = $1;
-    printf("done\n");
+    drv.compile($1);
 };
 
 /* >=1 个 comp_unit_item */

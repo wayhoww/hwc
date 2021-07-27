@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-struct construct{};
+struct construct{ virtual ~construct() = default; };
 
 /**
  * 该部分数据结构是用于构造语法“树”的。
@@ -147,7 +147,7 @@ struct ident_t: public terminal_wrapper {
 
 struct int_const_t: public terminal_wrapper {
     int_const_t(const long long& value): value(value) {}
-    long long value;
+    int64_t value;
 };
 
 // ; , { } ( ) 等和语义无关的符号未列出

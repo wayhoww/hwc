@@ -1,0 +1,23 @@
+/* 这个文件是目前可生成中间代码的源代码例子 */
+
+const int a = 1;
+const int b = 1;
+const int c[1][4] = 1;
+
+int d = 2;
+int e[2][4];
+
+int main(){
+    const int a = 1;
+    const int b = 1;
+    const int c[1][4] = 1;
+
+    int d = 2;
+    int e[2][4];
+}
+
+int g;
+
+int fib(,int a){
+
+}
