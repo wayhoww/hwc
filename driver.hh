@@ -56,9 +56,13 @@ struct ImCode {
     // 其中的 DASET 是指针赋值，DAGET 是指针读取
     // DA: Displacement Addressing
     enum Operator {
-        PLUS, MINUS, MULTIPLY, DIVIDE, MODULE,              /* 算术运算 */  
-        JUMP, JLT, JLE, JGT, JGE, JEQ, JNE, CALL, RET,      /* 跳转    */  
-        ALLOC, DASET, DAGET, MARK                           /* 其他    */
+        PLUS, MINUS, MULTIPLY, DIVIDE, MODULE,               
+        JUMP, JLT, JLE, JGT, JGE, JEQ, JNE, CALL, RET,      
+        ALLOC,  // 分配内存，dest 是指针位置， src1 是以字节计算的大小
+        DASET,  // displacement addressing set， src1 目的地指针， src2 偏移地址（以byte），dest：实际上的src数字
+        DAGET,  // displacement addressing get， 同上
+        MARK,   // mark
+        ASSIGN  // 赋值         
     };
 
     struct Oprand {
@@ -94,10 +98,16 @@ struct ImProgram {
 
 struct symbol_info {
     int scoop_depth;
-    std::string identifier;
+    std::string identifier = "";
     uint64_t size;
     std::vector<uint64_t> dims;
-    bool isConst;
+    bool is_const;
+    bool is_temp = false;
+};
+
+struct nonterm_info {
+    // TC, FC, CHAIN
+    int var_id;
 };
 
 class driver {
@@ -105,6 +115,7 @@ class driver {
     std::string format(ImCode::Operator op) {
         switch (op) {
         case ImCode::Operator::ALLOC :      return "alloc";
+        case ImCode::Operator::ASSIGN :     return "=";
         case ImCode::Operator::CALL :       return "call";
         case ImCode::Operator::DAGET :      return "*get";
         case ImCode::Operator::DASET :      return "*set";
@@ -245,7 +256,7 @@ public:
         symbol_info sym;
         sym.identifier = ident;
         sym.scoop_depth = current_depth;
-        sym.isConst = is_const_var;
+        sym.is_const = is_const_var;
         sym.dims = dims;
         sym.size = 8;
         for(auto dim: dims) sym.size *= dim;
@@ -320,6 +331,16 @@ public:
         
         auto varID = entry(ident, dims, is_const);
         return varID;
+    }
+
+    uint64_t add_temp() {
+        symbol_info sym;
+        sym.size = 8;
+        sym.is_const = false;
+        sym.scoop_depth = current_depth;
+        sym.is_temp = true;
+        symbols.push_back(sym);
+        return symbols.size() - 1;
     }
 
     int compile(const shared_ptr<comp_unit_t>& comp_unit){
@@ -397,7 +418,7 @@ public:
 
     void compile(const shared_ptr<func_f_param_t>& param, int param_index) {
         assert(param->b_type->type == b_type_t::INT);
-    
+        
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
         std::vector<uint64_t> dims;
@@ -414,6 +435,230 @@ public:
 
     void compile(const shared_ptr<construct>& funcdef) {
         assert(false);
+    }
+
+    void compile(const shared_ptr<stmt_t>& stmt) {
+        auto s_if        = dynamic_pointer_cast<stmt_if_t>(stmt);
+        auto s_return    = dynamic_pointer_cast<stmt_return_t>(stmt);
+        auto s_while     = dynamic_pointer_cast<stmt_while_t>(stmt);
+        auto s_assign    = dynamic_pointer_cast<stmt_assign_t>(stmt);
+        auto s_block     = dynamic_pointer_cast<stmt_block_t>(stmt);
+        auto s_continue  = dynamic_pointer_cast<stmt_continue_t>(stmt);
+        auto s_exp       = dynamic_pointer_cast<stmt_exp_t>(stmt);
+        auto s_break     = dynamic_pointer_cast<stmt_break_t>(stmt);
+        if(s_if      )  {  compile(s_if        ); return; }  
+        if(s_return  )  {  compile(s_return    ); return; }  
+        if(s_while   )  {  compile(s_while     ); return; }  
+        if(s_assign  )  {  compile(s_assign    ); return; }  
+        if(s_block   )  {  compile(s_block     ); return; }  
+        if(s_continue)  {  compile(s_continue  ); return; }  
+        if(s_exp     )  {  compile(s_exp       ); return; }  
+        if(s_break   )  {  compile(s_break     ); return; }  
+        assert(false);
+    }
+
+    void compile(const shared_ptr<stmt_if_t>& stmt) {
+
+    }
+    void compile(const shared_ptr<stmt_return_t>& stmt) {
+
+    }
+    void compile(const shared_ptr<stmt_while_t>& stmt) {
+
+    }
+    void compile(const shared_ptr<stmt_assign_t>& stmt) {
+        auto ident = stmt->l_val->ident->name;
+        auto varid = query(ident);
+
+        auto dims = symbols[varid].dims;
+        assert(stmt->l_val->exps.size() == dims.size());
+        
+        auto rval = compile(stmt->exp);
+
+        if(dims.size() == 0) {
+            ImCode code;
+            code.op = ImCode::ASSIGN;
+            code.src1 = get_oprand_var(rval.var_id);
+            code.dest = get_oprand_var(varid);
+            imCodes().push_back(code);
+            return;
+        }
+
+        // 暂时不做边界检查
+        auto offset = add_temp();
+        int index = 1;
+        for(auto exp: stmt->l_val->exps) {
+            auto dim = compile(exp).var_id;
+            gen_arithmetic_rr(ImCode::PLUS, offset, dim, offset);
+            if(index < dims.size()) {
+                gen_arithmetic_ri(ImCode::MULTIPLY, offset, dims[index], offset);
+            }
+        }
+        gen_arithmetic_ri(ImCode::MULTIPLY, offset, 8, offset);
+        gen_arithmetic_rr(ImCode::DASET, varid, offset, rval.var_id);
+    }
+
+    nonterm_info compile(const shared_ptr<exp_t>& exp) {
+        nonterm_info info;
+        auto a = dynamic_pointer_cast<exp_add_t>(exp);
+        if(a) { return compile(a->add_exp); }
+        assert(false);
+        return info;
+    }
+
+    nonterm_info compile(const shared_ptr<add_exp_t>& exp) {
+        // TODO 即便是 a + 1, 1 也会被作为一个变量存储。 这需要改进。
+        nonterm_info info;
+        auto s1 = dynamic_pointer_cast<add_exp_applied_t>(exp);
+        auto s2 = dynamic_pointer_cast<add_exp_mul_t>(exp);
+        if(s1) { 
+            auto var1 = compile(s1->add_exp).var_id;
+            auto var2 = compile(s1->mul_exp).var_id;
+            auto dest = add_temp();
+            info.var_id = dest;
+            gen_arithmetic_rr(get_operator(s1->op->type), var1, var2, dest);
+            return info;
+        } else if (s2) {
+            return compile(s2->mul_exp);
+        }
+        assert(false);
+        return info;
+    }    
+
+    void gen_arithmetic_rr(ImCode::Operator op, int var1, int var2, int dest) {
+        ImCode code;
+        code.op = op;
+        code.src1 = get_oprand_var(var1);
+        code.src2 = get_oprand_var(var2);
+        code.dest = get_oprand_var(dest);
+        imCodes().push_back(code);
+    } 
+
+    void gen_arithmetic_ri(ImCode::Operator op, int var1, int64_t var2, int dest) {
+        ImCode code;
+        code.op = op;
+        code.src1 = get_oprand_var(var1);
+        code.src2.type = ImCode::Oprand::IMMEDIATE;
+        code.src2.value = var2;
+        code.dest = get_oprand_var(dest);
+        imCodes().push_back(code);
+    } 
+    
+    void gen_arithmetic_ir(ImCode::Operator op, int64_t var1, int var2, int dest) {
+        ImCode code;
+        code.op = op;
+        code.src1.type = ImCode::Oprand::IMMEDIATE;
+        code.src1.value = var1;
+        code.src2 = get_oprand_var(var2);
+        code.dest = get_oprand_var(dest);
+        imCodes().push_back(code);
+    } 
+
+    ImCode::Oprand get_oprand_var(int varID) {
+        assert(varID < symbols.size());
+        auto sym = symbols[varID];
+        ImCode::Oprand op;
+        op.type = ImCode::Oprand::VAR;
+        op.var.isTemp = sym.is_temp;
+        op.var.varID = varID;
+        return op;
+    }
+    
+    nonterm_info compile(const shared_ptr<mul_exp_t>& exp) {
+        nonterm_info info;
+        auto s1 = dynamic_pointer_cast<mul_exp_applied_t>(exp);
+        auto s2 = dynamic_pointer_cast<mul_exp_unary_t>(exp);
+        if(s1) { 
+            auto var1 = compile(s1->mul_exp).var_id;
+            auto var2 = compile(s1->unary_exp).var_id;
+            auto dest = add_temp();
+            gen_arithmetic_rr(get_operator(s1->op->type), var1, var2, dest);
+            return info;
+        } else if (s2) {
+            return compile(s2->unary_exp);
+        }
+        assert(false);
+        return info;
+    }
+
+    ImCode::Operator get_operator(operator_t::Type op){
+        switch(op) {
+            case operator_t::PLUS: return ImCode::PLUS;
+            case operator_t::MINUS: return ImCode::MINUS;
+            case operator_t::MULTIPLY: return ImCode::MULTIPLY;
+            case operator_t::DIVIDE: return ImCode::DIVIDE;
+            case operator_t::MODULE: return ImCode::MODULE;
+            default: 
+            assert(false);
+            return ImCode::PLUS;
+        }
+    }
+
+    nonterm_info compile(const shared_ptr<unary_exp_t>& exp) {
+        nonterm_info info;
+        auto s1 = dynamic_pointer_cast<unary_exp_applied_t>(exp);
+        auto s2 = dynamic_pointer_cast<unary_exp_primary_exp_t>(exp);
+        auto s3 = dynamic_pointer_cast<unary_exp_func_call_t>(exp);
+        
+        if(s1) {
+            auto subvar = compile(s1->unary_exp);
+            if(s1->op->type == operator_t::NEGATIVE) {
+                // temp = 0 - var
+                info.var_id = add_temp(); 
+                gen_arithmetic_ir(ImCode::MINUS, 0, subvar.var_id, info.var_id);
+                return info;
+            } else {
+                return subvar;
+            }
+        } else if(s2) {
+            return compile(s2->primary_exp);
+        } else {
+            // TODO;
+            assert(false);
+            return info;
+        }
+    }
+
+    nonterm_info compile(const shared_ptr<primary_exp_t>& exp) {
+        nonterm_info info;
+        auto s1 = dynamic_pointer_cast<primary_exp_number_t>(exp);
+        auto s2 = dynamic_pointer_cast<primary_exp_exp_t>(exp);
+        auto s3 = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
+        if(s1) {
+            auto value = s1->number->int_const->value;
+            info.var_id = add_temp();
+            ImCode code;
+            code.op = ImCode::ASSIGN;
+            code.src1.type = ImCode::Oprand::IMMEDIATE;
+            code.src1.value = value;
+            code.dest = get_oprand_var(info.var_id);
+            imCodes().push_back(code);
+            return info;
+        } else if(s2) {
+            // TODO
+            assert(false);
+            return info;
+        } else if(s3) {
+            // TODO
+            assert(false);
+            return info;
+        } else {
+            assert(false);
+            return info;
+        }
+    }
+
+    void compile(const shared_ptr<stmt_block_t>& stmt) {
+
+    }
+    void compile(const shared_ptr<stmt_continue_t>& stmt) {
+
+    }
+    nonterm_info compile(const shared_ptr<stmt_exp_t>& stmt) {
+        return compile(stmt->exp);
+    }
+    void compile(const shared_ptr<stmt_break_t>& stmt) {
+
     }
 
     void compile(const shared_ptr<decl_t>& decl) {
@@ -454,15 +699,31 @@ public:
 
     void compile(const shared_ptr<var_def_only_t>& def_only) {
         auto [size, dims] = static_array_dims(def_only->array_dims);
-        add_var(def_only->ident->name, dims, false, ByteArray());
+        auto id = add_var(def_only->ident->name, dims, false, ByteArray());
+        if(dims.empty() && current_depth > 0) {
+            gen_alloc(id, size * 8);
+        }
     }    
     
     void compile(const shared_ptr<var_def_init_t>& def_init) {
         auto [size, dims] = static_array_dims(def_init->array_dims);
         // 取init的时候要用到dims和size
         // TODO init
-        add_var(def_init->ident->name, dims, false, ByteArray());
-    
+        auto id = add_var(def_init->ident->name, dims, false, ByteArray());
+        if(dims.empty() && current_depth > 0) {
+            gen_alloc(id, size * 8);
+        }
+    }
+
+    void gen_alloc(int id, uint64_t size) {
+        ImCode code;
+        code.op = ImCode::ALLOC;
+        code.src1.type  = ImCode::Oprand::IMMEDIATE;
+        code.src1.value = size;
+        code.dest.type = ImCode::Oprand::VAR;
+        code.dest.var.isTemp = false;
+        code.dest.var.varID = id;
+        imCodes().push_back(code); 
     }
 
     void compile(const shared_ptr<const_decl_t>& decl) {
