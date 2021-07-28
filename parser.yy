@@ -165,7 +165,13 @@ func_def: b_type ident "(" func_f_params ")" block {
 %nterm <std::shared_ptr<func_f_params_t>> func_f_params;
 func_f_params:
     %empty { $$ = std::make_shared<func_f_params_t>(); }
-  | func_f_params "," func_f_param { $$ = $1; $$->params.push_back($3); }
+  | real_func_f_params { $$ = $1; }
+;
+
+%nterm <std::shared_ptr<func_f_params_t>> real_func_f_params;
+real_func_f_params:
+    real_func_f_params "," func_f_param { $$ = $1; $$->params.push_back($3); }
+  | func_f_param { $$ = std::make_shared<func_f_params_t>(); $$->params.push_back($1); }
 ;
 
 %nterm <std::shared_ptr<func_f_param_t>> func_f_param;

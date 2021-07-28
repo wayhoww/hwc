@@ -63,14 +63,15 @@ struct ImCode {
 
     struct Oprand {
         // 可能是三种情况：
+        // 0. 该字段留空
         // 1. 变量 （包括临时变量）
         // 2. 立即数
         // 3. 中间代码编号
         // 4. 函数编号 (call)
         // 5. 参数编号 （从前往后数，从0开始）
-        enum Type { VAR, IMMEDIATE, IMCODEID, FUNCID, PARAMID };
+        enum Type { INVALID, VAR, IMMEDIATE, IMCODEID, FUNCID, PARAMID };
 
-        Type type;
+        Type type = INVALID;
         union {
             Var var;            // for Var
             uint64_t value;     // for immediate & imCodeID
@@ -150,6 +151,9 @@ class driver {
                 sprintf(buffer, "$%d", oprand.var.varID);
             }
             break;
+        case ImCode::Oprand::INVALID:
+            sprintf(buffer, "");
+            break;
         default:
             sprintf(buffer, "");
             assert(false);
@@ -207,7 +211,7 @@ public:
         fprintf(file, "\n\n");
 
         fprintf(file, "Immediate Code\n\n");
-        fprintf(file, "%-20s%-20s%-20s\n", "ImCode ID", "Operator", "Src1", "Src2", "Dest", "Arguments");
+        fprintf(file, "%-20s%-20s%-20s%-20s%-20s\n", "ImCode ID", "Operator", "Src1", "Src2", "Dest", "Arguments");
         fprintf(file, "----------------------------------------------------------------------------------------------------\n");
         for(int i = 0; i < imCodes().size(); i++) {
             auto code = imCodes()[i];
