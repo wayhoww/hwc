@@ -381,13 +381,13 @@ public:
     std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_t>& comp_unit){
         printf("IMCODE GEN\n\n");
         for(auto child: comp_unit->children) {
-            compile(child);
+        //    compile(child);
         }
         dumpTo(stdout);
         codegen(imProgram);
         return nonterm_void::newsp();
     }
-
+/*
     std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_item_t>& ptr){
         auto decl = dynamic_pointer_cast<comp_unit_item_decl_t>(ptr);  
         auto func_def = dynamic_pointer_cast<comp_unit_item_func_def_t>(ptr);  
@@ -875,12 +875,13 @@ public:
         }
         return std::make_pair(size, dims);      
     }
+    */
 
     /* static evaluation (for integer) */
     /* { true, val } 有静态数值          */
     /* { false, _} 反之                 */
     /*  考虑先用记忆化解决问题             */
-
+/*
     std::pair<bool, int64_t> static_eval(const shared_ptr<const_exp_t>& constexp) {
         auto exp = dynamic_pointer_cast<const_exp_add_t>(constexp);
         assert(exp && exp->add_exp);
@@ -1000,7 +1001,7 @@ public:
     std::pair<bool, int64_t> static_eval(const shared_ptr<number_t>& number) {
         return { true, number->int_const->value };
     }
-
+*/
 };
 
 #endif

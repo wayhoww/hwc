@@ -182,13 +182,13 @@ func_f_param: b_type ident array_dims_func_param {
     $$->array_dims = $3;
 };
 
-%nterm <ptr_list_of<exp_t>> array_dims_func_param;
+%nterm <ptr_list_of<arithmetic_exp_t>> array_dims_func_param;
 array_dims_func_param:
     %empty {}
   | array_dims_func_param_real { $$ = $1; }
 ;
 
-%nterm <ptr_list_of<exp_t>> array_dims_func_param_real;
+%nterm <ptr_list_of<arithmetic_exp_t>> array_dims_func_param_real;
 array_dims_func_param_real:
     "[" "]" { $$.push_back(nullptr); }
   | array_dims_func_param_real "[" exp "]" { $$ = $1; $$.push_back($3); }
@@ -208,8 +208,8 @@ block_item:
     decl { $$ = std::make_shared<block_item_decl_t>($1); }
   | stmt { $$ = std::make_shared<block_item_stmt_t>($1); }
 
-%nterm <std::shared_ptr<ident_t>> ident;
-ident: IDENT { $$ = std::make_shared<ident_t>($1); };
+%nterm <std::string> ident;
+ident: IDENT { $$ = $1; };
 
 %nterm <std::shared_ptr<stmt_t>> stmt;
 stmt: 
@@ -228,8 +228,8 @@ stmt:
 ;
 
 
-%nterm <std::shared_ptr<exp_t>> exp;
-exp: add_exp { $$ = std::make_shared<exp_add_t>($1); }; 
+%nterm <std::shared_ptr<arithmetic_exp_t>> exp;
+exp: add_exp { $$ = $1; }; 
 
 %nterm <std::shared_ptr<cond_t>> cond;
 cond: l_or_exp { $$ = std::make_shared<cond_l_or_t>($1); };
@@ -237,32 +237,32 @@ cond: l_or_exp { $$ = std::make_shared<cond_l_or_t>($1); };
 %nterm <std::shared_ptr<l_val_t>> l_val;
 l_val: 
     ident array_indices { $$ = std::make_shared<l_val_t>($1, $2); }
-  | ident { $$=std::make_shared<l_val_t>($1, ptr_list_of<exp_t>()); }
+  | ident { $$=std::make_shared<l_val_t>($1, ptr_list_of<arithmetic_exp_t>()); }
 ;
     
-%nterm <ptr_list_of<exp_t>> array_indices;
+%nterm <ptr_list_of<arithmetic_exp_t>> array_indices;
 array_indices:
     "[" exp "]"  {{ $$.push_back($2); }}
   | array_indices "[" exp "]"  { $$ = $1; $$.push_back($3); }
 ;
 
-%nterm <std::shared_ptr<primary_exp_t>> primary_exp;
+%nterm <std::shared_ptr<arithmetic_exp_t>> primary_exp;
 primary_exp:
-    "(" exp ")"     { $$ = std::make_shared<primary_exp_exp_t>($2);     }
-  | l_val           { $$ = std::make_shared<primary_exp_l_val_t>($1);   }
-  | number          { $$ = std::make_shared<primary_exp_number_t>($1);  }
+    "(" exp ")"     { $$ = $2;     }
+  | l_val           { $$ = $1;   }
+  | number          { $$ = $1;  }
 ;
 
-%nterm <std::shared_ptr<number_t>> number;
-number: INT_CONST { $$ = std::make_shared<number_t>(std::make_shared<int_const_t>($1)); } ;
+%nterm <std::shared_ptr<number_literal_t>> number;
+number: INT_CONST { $$ = std::make_shared<number_literal_t>($1); } ;
 
-%nterm <std::shared_ptr<unary_exp_t>> unary_exp;
+%nterm <std::shared_ptr<arithmetic_exp_t>> unary_exp;
 unary_exp:
-    primary_exp   { $$ = std::make_shared<unary_exp_primary_exp_t>($1); }
-  | ident "(" func_r_params ")" { $$ = std::make_shared<unary_exp_func_call_t>($1, $3); }
-  | "+" unary_exp   { $$ = std::make_shared<unary_exp_applied_t>(std::make_shared<operator_t>(operator_t::POSITIVE), $2) ;}
-  | "-" unary_exp   { $$ = std::make_shared<unary_exp_applied_t>(std::make_shared<operator_t>(operator_t::NEGATIVE), $2) ;}
-  | "!" unary_exp   { $$ = std::make_shared<unary_exp_applied_t>(std::make_shared<operator_t>(operator_t::LOGICAL_NOT), $2) ;}
+    primary_exp   { $$ = $1; }
+  | ident "(" func_r_params ")" { $$ = std::make_shared<func_call_t>($1, $3); }
+  | "+" unary_exp   { $$ = $2; }
+  | "-" unary_exp   { $$ = $2; $$->toggle_sign(); }
+/* TODO  | "!" unary_exp   { $$ = std::make_shared<unary_exp_applied_t>(std::make_shared<operator_t>(operator_t::LOGICAL_NOT), $2) ;} */
 ;
 
 /* 不同于文档中的定义，这里的 func_r_params 可以为空 */
@@ -272,25 +272,25 @@ func_r_params:
   | func_r_params_elements { $$ = std::make_shared<func_r_params_t>($1); }
 ;
 
-%nterm <ptr_list_of<exp_t>> func_r_params_elements;
+%nterm <ptr_list_of<arithmetic_exp_t>> func_r_params_elements;
 func_r_params_elements:
     exp                              { $$.push_back($1);            }
   | func_r_params_elements "," exp   { $$ = $1; $$.push_back($3);   }
 ;
 
-%nterm <std::shared_ptr<mul_exp_t>> mul_exp;
+%nterm <std::shared_ptr<arithmetic_exp_t>> mul_exp;
 mul_exp: 
-    unary_exp  { $$ = std::make_shared<mul_exp_unary_t>($1); }
-  | mul_exp "*" unary_exp  { $$ = std::make_shared<mul_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::MULTIPLY), $3); }
-  | mul_exp "/" unary_exp  { $$ = std::make_shared<mul_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::DIVIDE), $3); }
-  | mul_exp "%" unary_exp  { $$ = std::make_shared<mul_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::MODULE), $3); }
+    unary_exp  { $$ = $1; }
+  | mul_exp "*" unary_exp  { $$ = std::make_shared<binary_arithmetic_exp_t>(operator_t::MULTIPLY, $1, $3); }
+  | mul_exp "/" unary_exp  { $$ = std::make_shared<binary_arithmetic_exp_t>(operator_t::DIVIDE  , $1, $3); }
+  | mul_exp "%" unary_exp  { $$ = std::make_shared<binary_arithmetic_exp_t>(operator_t::MODULE  , $1, $3); }
 ;
 
-%nterm <std::shared_ptr<add_exp_t>> add_exp;
+%nterm <std::shared_ptr<arithmetic_exp_t>> add_exp;
 add_exp: 
-    mul_exp  { $$ = std::make_shared<add_exp_mul_t>($1); }
-  | add_exp "+" mul_exp  { $$ = std::make_shared<add_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::PLUS), $3); }
-  | add_exp "-" mul_exp  { $$ = std::make_shared<add_exp_applied_t>($1, std::make_shared<operator_t>(operator_t::MINUS), $3); }
+    mul_exp  { $$ = $1; }
+  | add_exp "+" mul_exp  { $$ = std::make_shared<binary_arithmetic_exp_t>(operator_t::PLUS,  $1, $3); }
+  | add_exp "-" mul_exp  { $$ = std::make_shared<binary_arithmetic_exp_t>(operator_t::MINUS, $1, $3); }
 ;
 
 %nterm <std::shared_ptr<rel_exp_t>> rel_exp;
