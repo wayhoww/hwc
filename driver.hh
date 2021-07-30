@@ -31,19 +31,19 @@ YY_DECL;
 
 
 
-using ByteArray = std::vector<unsigned char>;
 using std::dynamic_pointer_cast;
 using std::shared_ptr;
 
 struct GlobalVarDef {
     uint64_t size;                               /* in bytes */
-    ByteArray initValue;                         /* 可能没有初始化 */
+    std::vector<uint64_t> initValue;                         /* 可能没有初始化 */
     std::string identifier;
 };
 // i.e. 定义的时候用，不会被引用
 struct FunctionDef {
     uint64_t entrance;  /* 入口四元式编号  */
     std::string identifier;
+    bool returnVoid;
 };
 
 struct Var {
@@ -103,11 +103,15 @@ struct symbol_info {
     std::vector<uint64_t> dims;
     bool is_const;
     bool is_temp = false;
+    std::vector<uint64_t> init_value; // 冗余
 };
 
 struct nonterm_info {
     // TC, FC, CHAIN
     int var_id;
+    int trueChain;
+    int falseChain;
+    int 
 };
 
 class driver {
@@ -304,7 +308,7 @@ public:
     }
 
 
-    uint64_t add_var(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const, const ByteArray& init_value) {
+    uint64_t add_var(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const, const std::vector<uint64_t>& init_value) {
         if(current_depth == 0) {
             for(int i = 0; i < functions().size(); i++) {
                 if(functions()[i].identifier == ident){
@@ -457,6 +461,23 @@ public:
         assert(false);
     }
 
+    nonterm_info compile(const shared_ptr<cond_t>& cond) {
+        auto lor = dynamic_pointer_cast<cond_l_or_t>(cond);
+        assert(lor);
+        auto lorexp = lor->l_or_exp;
+        auto s1 = dynamic_pointer_cast<l_or_exp_applied_t>(lorexp);
+        auto s2 = dynamic_pointer_cast<l_or_exp_and_t>(lorexp);
+        nonterm_info info;
+        if(s1) {
+
+        }else if(s2) {
+            
+        }else {
+            assert(false);
+        }
+        return info;
+    }
+
     void compile(const shared_ptr<stmt_if_t>& stmt) {
 
     }
@@ -483,19 +504,27 @@ public:
             imCodes().push_back(code);
             return;
         }
+        auto offset = compile_for_index(stmt->l_val->exps, dims).var_id;
 
+        gen_arithmetic_ri(ImCode::MULTIPLY, offset, 8, offset);
+        gen_arithmetic_rr(ImCode::DASET, varid, offset, rval.var_id);
+    }
+
+    nonterm_info compile_for_index(const ptr_list_of<exp_t>& exps, const std::vector<uint64_t> dims) {
         // 暂时不做边界检查
         auto offset = add_temp();
+
         int index = 1;
-        for(auto exp: stmt->l_val->exps) {
+        for(auto exp: exps) {
             auto dim = compile(exp).var_id;
             gen_arithmetic_rr(ImCode::PLUS, offset, dim, offset);
             if(index < dims.size()) {
-                gen_arithmetic_ri(ImCode::MULTIPLY, offset, dims[index], offset);
+                gen_arithmetic_ri(ImCode::MULTIPLY, offset, dims[index++], offset);
             }
         }
-        gen_arithmetic_ri(ImCode::MULTIPLY, offset, 8, offset);
-        gen_arithmetic_rr(ImCode::DASET, varid, offset, rval.var_id);
+        nonterm_info info;
+        info.var_id = offset;
+        return info;
     }
 
     nonterm_info compile(const shared_ptr<exp_t>& exp) {
@@ -572,6 +601,7 @@ public:
             auto var1 = compile(s1->mul_exp).var_id;
             auto var2 = compile(s1->unary_exp).var_id;
             auto dest = add_temp();
+            info.var_id = dest;
             gen_arithmetic_rr(get_operator(s1->op->type), var1, var2, dest);
             return info;
         } else if (s2) {
@@ -612,8 +642,27 @@ public:
             }
         } else if(s2) {
             return compile(s2->primary_exp);
+        } else if(s3) {
+            auto temp = add_temp();
+            ImCode code;
+            code.op = ImCode::CALL;
+            code.src1.type = ImCode::Oprand::FUNCID;
+            code.src1.value = query_function(s3->ident->name);
+            info.var_id = -1;
+            if(!functions()[code.src1.value].returnVoid) {
+                code.dest.type = ImCode::Oprand::VAR;
+                code.dest.value = add_temp();
+                info.var_id = code.dest.value;
+            }
+            auto exps = s3->params->exps;
+            
+            for(auto exp: exps){
+                auto varid = compile(exp).var_id;
+                code.arguments.push_back(varid);
+            }
+
+            return info;
         } else {
-            // TODO;
             assert(false);
             return info;
         }
@@ -635,12 +684,19 @@ public:
             imCodes().push_back(code);
             return info;
         } else if(s2) {
-            // TODO
-            assert(false);
-            return info;
+            return compile(s2->exp);
         } else if(s3) {
-            // TODO
-            assert(false);
+            auto lval = s3->l_val;
+            auto varid = query(lval->ident->name);
+            auto dims = lval->exps;
+            if(dims.empty()) {
+                info.var_id = varid;
+            } else {
+                info.var_id = add_temp();
+                auto offset = compile_for_index(dims, symbols[varid].dims).var_id;
+                gen_arithmetic_ri(ImCode::MULTIPLY, offset, 8, offset);
+                gen_arithmetic_ri(ImCode::DAGET, varid, offset, info.var_id);
+            }
             return info;
         } else {
             assert(false);
@@ -699,7 +755,7 @@ public:
 
     void compile(const shared_ptr<var_def_only_t>& def_only) {
         auto [size, dims] = static_array_dims(def_only->array_dims);
-        auto id = add_var(def_only->ident->name, dims, false, ByteArray());
+        auto id = add_var(def_only->ident->name, dims, false, std::vector<uint64_t>());
         if(dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
@@ -709,7 +765,7 @@ public:
         auto [size, dims] = static_array_dims(def_init->array_dims);
         // 取init的时候要用到dims和size
         // TODO init
-        auto id = add_var(def_init->ident->name, dims, false, ByteArray());
+        auto id = add_var(def_init->ident->name, dims, false, std::vector<uint64_t>());
         if(dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
@@ -749,7 +805,8 @@ public:
 
         // TODO 暂时不做 initialization
         // constdef->const_init_val
-        add_var(constdef->ident->name, dims, true, ByteArray());
+        auto varid = add_var(constdef->ident->name, dims, true, std::vector<uint64_t>());
+        symbols[varid].init_value = std::vector<uint64_t>(size, 0);
     }
 
     int64_t static_eval(const shared_ptr<const_exp_t>& constexp) {
@@ -812,10 +869,33 @@ public:
     }
 
     int64_t static_eval(const shared_ptr<primary_exp_t>& exp) {
-        // TODO: 暂时不考虑 funcall 和 复杂表达式情况
+        // TODO: 暂时不考虑 funcall
         auto number = dynamic_pointer_cast<primary_exp_number_t>(exp);
         if(number) return static_eval(number->number);
+        auto lval = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
+
+        if(lval) {
+            auto varid = query(lval->l_val->ident->name);
+            if(!symbols[varid].is_const) assert(false);
+            auto exps = lval->l_val->exps;
+            
+            int offset = 0;
+            int index = 1;
+            for(auto exp: exps) {
+                offset += static_eval(exp);
+                if(index != exps.size() - 1) {
+                    offset *= symbols[varid].dims[index++];
+                }
+            }
+            return symbols[varid].init_value[index];
+        }
         assert(false);
+    }
+
+    int64_t static_eval(const shared_ptr<exp_t>& exp) {
+        auto s = dynamic_pointer_cast<exp_add_t>(exp);
+        assert(s);
+        return static_eval(s->add_exp);
     }
 
     int64_t static_eval(const shared_ptr<number_t>& number) {
