@@ -31,7 +31,7 @@ uint64_t driver::query_var(const std::string& ident) {
     return 0;
 }
 
-uint64_t driver::add_function(const std::string& ident, uint64_t entrance) {
+uint64_t driver::add_function(const std::string& ident, uint64_t entrance, bool returnVoid) {
     for(int i = 0; i < functions().size(); i++) {
         if(functions()[i].identifier == ident){
             assert(false);
@@ -45,6 +45,7 @@ uint64_t driver::add_function(const std::string& ident, uint64_t entrance) {
     FunctionDef func;
     func.entrance = entrance;
     func.identifier = ident;
+    func.returnVoid = returnVoid;
     functions().push_back(func);
     return functions().size() - 1;
 }

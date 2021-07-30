@@ -202,7 +202,7 @@ public:
 
     uint64_t entry(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const_var, const std::vector<int64_t>& init_value);
     
-    uint64_t add_function(const std::string& ident, uint64_t entrance) ;
+    uint64_t add_function(const std::string& ident, uint64_t entrance, bool returnVoid) ;
 
     uint64_t query_function(const std::string& ident) ;
 
@@ -220,7 +220,7 @@ public:
     std::shared_ptr<nonterm_info> compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place = nullptr);
 
     std::shared_ptr<nonterm_controlflow> to_nonterm_controlflow(const shared_ptr<nonterm_info>& info);
-    std::shared_ptr<nonterm_integer> to_nonterm_integer(const std::shared_ptr<nonterm_info>& info);
+    std::shared_ptr<nonterm_integer> to_nonterm_integer(const std::shared_ptr<nonterm_info>& info, std::shared_ptr<nonterm_integer> store_place = nullptr);
 
     void backpatch(const std::vector<int>& ids, int value) {
         for(auto i: ids) imcodes()[i].dest.value = value;
@@ -263,7 +263,7 @@ public:
         // 一个函数知会被生成一次代码
 
         auto entrance = imcodes().size();
-        auto funcid = add_function(funcname, entrance);
+        auto funcid = add_function(funcname, entrance, funcdef->func_type->type == b_type_t::VOID);
         if(funcname == "main") {
             this->imProgram.startFunction = funcid;
         }
@@ -353,6 +353,19 @@ public:
     }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_if_t>& stmt) {
+        
+        // TODO check 一下做法对不对
+        auto c = to_nonterm_controlflow(compile(stmt->cond));
+        backpatch(c->true_exits, nxq());
+        compile(stmt->stmt_if_true);    
+        if(stmt->stmt_if_false) gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
+        auto need_update = nxq() - 1;
+        backpatch(c->false_exits, nxq());
+
+        if(stmt->stmt_if_false) {
+            compile(stmt->stmt_if_false);
+            imcodes()[need_update].dest.value = nxq();
+        } 
 
         return nonterm_void::newsp();
     }
@@ -371,20 +384,20 @@ public:
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_assign_t>& stmt) {
         auto ident = stmt->l_val->ident;
-        auto varid = query_var(ident);
+        auto dest = nonterm_integer::newsp(query_var(ident));
 
-        auto dims = symbols[varid].dims;
+        auto dims = symbols[dest->var_id].dims;
         assert(stmt->l_val->exps.size() == dims.size());
         
-        auto rval = compile(stmt->exp);
-
+       
         if(dims.size() == 0) {
-            gen_imcode(ImCode::ASSIGN, rval, nonterm_void::newsp(), nonterm_integer::newsp(varid));
+            to_nonterm_integer(compile(stmt->exp, dest), dest);
             return nonterm_void::newsp();
         } else {
+            auto rval = compile(stmt->exp);
             auto offset = compile_offset(stmt->l_val->exps, dims);
             gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(8), offset);
-            gen_imcode(ImCode::DASET, nonterm_integer::newsp(varid), offset, rval);
+            gen_imcode(ImCode::DASET, nonterm_integer::newsp(dest->var_id), offset, rval);
             return nonterm_void::newsp();
         }
     }

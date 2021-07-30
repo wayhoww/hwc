@@ -26,21 +26,23 @@ std::shared_ptr<nonterm_controlflow> driver::to_nonterm_controlflow(const shared
     }
 }
 
-std::shared_ptr<nonterm_integer> driver::to_nonterm_integer(const std::shared_ptr<nonterm_info>& info) {
+std::shared_ptr<nonterm_integer> driver::to_nonterm_integer(
+        const std::shared_ptr<nonterm_info>& info, 
+        std::shared_ptr<nonterm_integer> store_place) {
     if(auto s1 = dynamic_pointer_cast<nonterm_integer>(info)) {
         return s1;
     } else if(auto s2 = dynamic_pointer_cast<nonterm_constant>(info)) {
-        auto rtn = nonterm_integer::newsp(add_temp());
-        gen_imcode(ImCode::ASSIGN, info, nonterm_void::newsp(), rtn);
-        return rtn;
+        if(store_place == nullptr) store_place = nonterm_integer::newsp(add_temp());
+        gen_imcode(ImCode::ASSIGN, info, nonterm_void::newsp(), store_place);
+        return store_place;
     } else if(auto s = dynamic_pointer_cast<nonterm_controlflow>(info)) {
-        auto temp = nonterm_integer::newsp(add_temp());
+        if(store_place == nullptr) store_place = nonterm_integer::newsp(add_temp());
         backpatch(s->true_exits, nxq());
-        gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), temp);
+        gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), store_place);
         gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), nxq() + 1);
         backpatch(s->false_exits, nxq());
-        gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), temp);
-        return temp;
+        gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), store_place);
+        return store_place;
     } else {
         assert(false);
     }
@@ -52,10 +54,6 @@ std::vector<int> operator+ (std::vector<int>& s1, const std::vector<int>& s2) {
 }
 
 std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place) {
-    if(store_place == nullptr) {
-        store_place = nonterm_integer::newsp(add_temp());
-    }
-
     if(auto [static_ok, static_value] = static_eval(root); static_ok) {
         return nonterm_constant::newsp(static_value);
     }
@@ -67,6 +65,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         std::swap(info->true_exits, info->false_exits);
         return info;
     }else if(auto r = dynamic_pointer_cast<negative_expr>(root)) {
+        if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
         // 构建表达式树的时候已经去除了 - - - - - 1 这种
         auto info = to_nonterm_integer(compile(r->src));
         gen_imcode(ImCode::MINUS, nonterm_constant::newsp(0), info, store_place);
@@ -104,6 +103,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         }
         if(type == 0) {
             // TODO a = b + c 优化
+            if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
             gen_imcode(op, compile(r->src1), compile(r->src2), store_place);
             return store_place;
         }else if(type == 1) {    
@@ -131,6 +131,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         if(sym.dims.empty()) {
             return nonterm_integer::newsp(var_id);
         } else {
+            if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
             auto offset = compile_offset(r->exps, sym.dims);
             gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(8), offset);
             gen_imcode(ImCode::DAGET, nonterm_integer::newsp(var_id), offset, store_place);
@@ -150,6 +151,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         if(functions()[code.src1.value].returnVoid) {
             rst = nonterm_void::newsp();
         }else{
+            if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
             rst = store_place;
         }
         code.dest = get_oprand(rst);
@@ -159,6 +161,8 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             auto var = to_nonterm_integer(compile(exp));
             code.arguments.push_back(var->var_id);
         }
+
+        imcodes().push_back(code);
 
         return rst;
     }else{

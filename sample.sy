@@ -1,5 +1,21 @@
+int fib(int x) {
+    if(x < 2) { return x; }
+    return fib(x - 2) + fib(x - 1);
+}
+
+int main(){
+    int x;
+    x = 10;
+    int rst;
+    rst = fib(x);
+    return rst;
+}
+
+
+
 /* 这个文件是目前可生成中间代码的源代码例子 */
 
+/*
 const int a = 3;
 const int b = 4;
 const int c[a][b] = 1;
@@ -26,7 +42,12 @@ int main(){
     e[1][2] = c[3][4];
 
     int x;
-    x = fib(e[2][c[2][1]], b);
+    x = fib(e[2][c[2][1]], b); 
+
+    if(x > 0) {
+        x = 2;
+    }
 }
 
 int g;
+*/

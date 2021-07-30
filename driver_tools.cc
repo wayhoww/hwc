@@ -92,10 +92,10 @@ void driver::dump_to(FILE* file) {
     fprintf(file, "\n\n");
 
     fprintf(file, "Immediate Code\n\n");
-    fprintf(file, "%-20s%-20s%-20s%-20s%-20s\n", "ImCode ID", "Operator", "Src1", "Src2", "Dest", "Arguments");
+    fprintf(file, "%-20s%-20s%-20s%-20s%-20s%-20s\n", "ImCode ID", "Operator", "Src1", "Src2", "Dest", "Arguments");
     fprintf(file, "----------------------------------------------------------------------------------------------------\n");
     for(int i = 0; i < imcodes().size(); i++) {
         auto code = imcodes()[i];
-        fprintf(file, "%-20d%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format(code.arguments).c_str());
+        fprintf(file, "%-20d%-20s%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format(code.arguments).c_str());
     }
 }
