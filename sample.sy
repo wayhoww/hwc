@@ -8,6 +8,7 @@ int d = 2;
 int e[2][4];
 
 int fib(int x, int a){
+    int y = 2;
     return fib(x-a, x+a);
 }
 

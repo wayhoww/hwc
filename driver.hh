@@ -738,8 +738,7 @@ public:
         auto s3 = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
         if(s1) {
             auto value = s1->number->int_const->value;
-            auto info = nonterm_integer::newsp(add_temp());
-            gen_arithmetic(ImCode::ASSIGN, nonterm_literal::newsp(value), nonterm_void::newsp(), info);
+            auto info = nonterm_literal::newsp(value);
             return info;
         } else if(s2) {
             return compile(s2->exp);
@@ -815,7 +814,7 @@ public:
     std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_only_t>& def_only) {
         auto [size, dims] = static_array_dims(def_only->array_dims);
         auto id = add_var(def_only->ident->name, dims, false, std::vector<uint64_t>());
-        if(dims.empty() && current_depth > 0) {
+        if(!dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
 
@@ -828,7 +827,7 @@ public:
         // 取init的时候要用到dims和size
         // TODO init
         auto id = add_var(def_init->ident->name, dims, false, std::vector<uint64_t>());
-        if(dims.empty() && current_depth > 0) {
+        if(!dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
 
