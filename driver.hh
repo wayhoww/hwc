@@ -98,22 +98,51 @@ struct ImProgram {
 
 void codegen(const ImProgram& program);
 
+// 因为有各种正交，所以就不再分出来了
 struct symbol_info {
-    int scoop_depth;
-    std::string identifier = "";
-    uint64_t size;
-    std::vector<uint64_t> dims;
-    bool is_const;
-    bool is_temp = false;
-    std::vector<uint64_t> init_value; // 冗余
+    int scoop_depth;                        /* 字面意思 */
+    std::string identifier = "";            /* 标志符号 */
+
+    uint64_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
+    std::vector<uint64_t> dims;             /* 维度。如果是常数，dims.empty()       */          
+    std::vector<uint64_t> init_value;       /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
+
+    bool is_const = false;                          
+    bool is_temp = false;         
+    bool is_function = false;               /* 不知道有没有必要 */            
 };
 
+// 因为是完全不交叉的，所以分成子类
 struct nonterm_info {
-    // TC, FC, CHAIN
-    int var_id;
-    int trueChain;
-    int falseChain;
-    int back;
+    virtual ~nonterm_info() = default;
+};
+
+// literal: 目前仅仅支持 integer
+struct nonterm_literal: nonterm_info {
+    int64_t value;
+    nonterm_literal(int64_t value): value(value) {}
+    static std::shared_ptr<nonterm_literal> newsp(int64_t val) {
+        return std::make_shared<nonterm_literal>(val);
+    }
+};
+
+struct nonterm_controlflow: nonterm_info {
+    std::vector<uint64_t> true_exits;
+    std::vector<uint64_t> false_exits;
+};
+
+struct nonterm_integer: nonterm_info {
+    uint64_t var_id;
+    nonterm_integer(uint64_t var_id): var_id(var_id) {}
+    static std::shared_ptr<nonterm_integer> newsp(int64_t val) {
+        return std::make_shared<nonterm_integer>(val);
+    }
+};
+
+struct nonterm_void: nonterm_info {
+    static std::shared_ptr<nonterm_void> newsp() {
+        return std::make_shared<nonterm_void>();
+    }
 };
 
 class driver {
@@ -349,26 +378,28 @@ public:
         return symbols.size() - 1;
     }
 
-    int compile(const shared_ptr<comp_unit_t>& comp_unit){
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_t>& comp_unit){
         printf("IMCODE GEN\n\n");
         for(auto child: comp_unit->children) {
             compile(child);
         }
         dumpTo(stdout);
         codegen(imProgram);
-        return 0;
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<comp_unit_item_t>& ptr){
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_item_t>& ptr){
         auto decl = dynamic_pointer_cast<comp_unit_item_decl_t>(ptr);  
         auto func_def = dynamic_pointer_cast<comp_unit_item_func_def_t>(ptr);  
-        if(decl) { compile(decl->decl); return; }
-        if(func_def) { compile(func_def->func_def); return; }
-        assert(false);
-        return;
+        if(decl) {  return compile(decl->decl); }
+        else if(func_def) { return compile(func_def->func_def); }
+        else { assert(false); }
+
+
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<func_def_t>& funcdef) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<func_def_t>& funcdef) {
         auto type = funcdef->func_type->type;
         auto funcname = funcdef->ident->name;
 
@@ -396,9 +427,10 @@ public:
 
         exit_scoop();
 
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<block_t>& block, bool enter_new_scoop = true) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<block_t>& block, bool enter_new_scoop = true) {
         if(enter_new_scoop) enter_scoop();
 
         for(auto child: block->children) {
@@ -406,26 +438,29 @@ public:
         }
 
         if(enter_new_scoop) exit_scoop();
+
+
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<block_item_t>& item) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<block_item_t>& item) {
         auto decl = dynamic_pointer_cast<block_item_decl_t>(item);
         auto stmt = dynamic_pointer_cast<block_item_stmt_t>(item);
         if(decl){
-            compile(decl->decl);
-            return;
+            return compile(decl->decl);
+        } else if(stmt){
+            return compile(stmt->stmt);
+        } else {
+            assert(false);
         }
-        if(stmt){
-            compile(stmt->stmt);
-            return;
-        }
-        assert(false);
+        // todo
+        return nonterm_void::newsp();
     }
 
 
 
 
-    void compile(const shared_ptr<func_f_param_t>& param, int param_index) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<func_f_param_t>& param, int param_index) {
         assert(param->b_type->type == b_type_t::INT);
         
     // 不需要 const ？ 去看一下语义
@@ -440,13 +475,16 @@ public:
         code.dest.var.isTemp = false;
         code.dest.var.varID = id;
         imCodes().push_back(code);
+
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<construct>& funcdef) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<construct>& funcdef) {
         assert(false);
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<stmt_t>& stmt) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_t>& stmt) {
         auto s_if        = dynamic_pointer_cast<stmt_if_t>(stmt);
         auto s_return    = dynamic_pointer_cast<stmt_return_t>(stmt);
         auto s_while     = dynamic_pointer_cast<stmt_while_t>(stmt);
@@ -455,24 +493,24 @@ public:
         auto s_continue  = dynamic_pointer_cast<stmt_continue_t>(stmt);
         auto s_exp       = dynamic_pointer_cast<stmt_exp_t>(stmt);
         auto s_break     = dynamic_pointer_cast<stmt_break_t>(stmt);
-        if(s_if      )  {  compile(s_if        ); return; }  
-        if(s_return  )  {  compile(s_return    ); return; }  
-        if(s_while   )  {  compile(s_while     ); return; }  
-        if(s_assign  )  {  compile(s_assign    ); return; }  
-        if(s_block   )  {  compile(s_block     ); return; }  
-        if(s_continue)  {  compile(s_continue  ); return; }  
-        if(s_exp     )  {  compile(s_exp       ); return; }  
-        if(s_break   )  {  compile(s_break     ); return; }  
+        if(s_if      )  {  return compile(s_if        );  }  
+        if(s_return  )  {  return compile(s_return    );  }  
+        if(s_while   )  {  return compile(s_while     );  }  
+        if(s_assign  )  {  return compile(s_assign    );  }  
+        if(s_block   )  {  return compile(s_block     );  }  
+        if(s_continue)  {  return compile(s_continue  );  }  
+        if(s_exp     )  {  return compile(s_exp       );  }  
+        if(s_break   )  {  return compile(s_break     );  }  
         assert(false);
     }
 
-    nonterm_info compile(const shared_ptr<cond_t>& cond) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<cond_t>& cond) {
         auto lor = dynamic_pointer_cast<cond_l_or_t>(cond);
         assert(lor);
         auto lorexp = lor->l_or_exp;
         auto s1 = dynamic_pointer_cast<l_or_exp_applied_t>(lorexp);
         auto s2 = dynamic_pointer_cast<l_or_exp_and_t>(lorexp);
-        nonterm_info info;
+        // nonterm_integer info;
         if(s1) {
 
         }else if(s2) {
@@ -480,24 +518,27 @@ public:
         }else {
             assert(false);
         }
-        return info;
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<stmt_if_t>& stmt) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_if_t>& stmt) {
 
+        return nonterm_void::newsp();
     }
-    void compile(const shared_ptr<stmt_return_t>& stmt) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_return_t>& stmt) {
         ImCode code;
         code.op = ImCode::RET;
         if(stmt->exp) {
-            code.src1 = get_oprand_var(compile(stmt->exp).var_id);
+            code.src1 = get_oprand(compile(stmt->exp));
         }
         imCodes().push_back(code);
-    }
-    void compile(const shared_ptr<stmt_while_t>& stmt) {
 
+        return nonterm_void::newsp();
     }
-    void compile(const shared_ptr<stmt_assign_t>& stmt) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_while_t>& stmt) {
+        return nonterm_void::newsp();
+    }
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_assign_t>& stmt) {
         auto ident = stmt->l_val->ident->name;
         auto varid = query(ident);
 
@@ -507,118 +548,112 @@ public:
         auto rval = compile(stmt->exp);
 
         if(dims.size() == 0) {
-            ImCode code;
-            code.op = ImCode::ASSIGN;
-            code.src1 = get_oprand_var(rval.var_id);
-            code.dest = get_oprand_var(varid);
-            imCodes().push_back(code);
-            return;
+            gen_arithmetic(ImCode::ASSIGN, rval, nonterm_void::newsp(), nonterm_integer::newsp(varid));
+            return nonterm_void::newsp();
+        } else {
+            auto offset = compile_for_index(stmt->l_val->exps, dims);
+            gen_arithmetic(ImCode::MULTIPLY, offset, nonterm_literal::newsp(8), offset);
+            gen_arithmetic(ImCode::DASET, nonterm_integer::newsp(varid), offset, rval);
+            return nonterm_void::newsp();
         }
-        auto offset = compile_for_index(stmt->l_val->exps, dims).var_id;
-
-        gen_arithmetic_ri(ImCode::MULTIPLY, offset, 8, offset);
-        gen_arithmetic_rr(ImCode::DASET, varid, offset, rval.var_id);
     }
 
-    nonterm_info compile_for_index(const ptr_list_of<exp_t>& exps, const std::vector<uint64_t> dims) {
+    std::shared_ptr<nonterm_info> compile_for_index(const ptr_list_of<exp_t>& exps, const std::vector<uint64_t> dims) {
         // 暂时不做边界检查
-        auto offset = add_temp();
+        auto offset = nonterm_integer::newsp(add_temp());
 
         int index = 1;
         for(auto exp: exps) {
-            auto dim = compile(exp).var_id;
-            gen_arithmetic_rr(ImCode::PLUS, offset, dim, offset);
+            auto dim = compile(exp);
+            gen_arithmetic(ImCode::PLUS, offset, dim, offset);
             if(index < dims.size()) {
-                gen_arithmetic_ri(ImCode::MULTIPLY, offset, dims[index++], offset);
+                gen_arithmetic(ImCode::MULTIPLY, offset, nonterm_literal::newsp(dims[index++]), offset);
             }
         }
-        nonterm_info info;
-        info.var_id = offset;
-        return info;
+        return offset;
     }
 
-    nonterm_info compile(const shared_ptr<exp_t>& exp) {
-        nonterm_info info;
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<exp_t>& exp) {
         auto a = dynamic_pointer_cast<exp_add_t>(exp);
         if(a) { return compile(a->add_exp); }
-        assert(false);
-        return info;
+        else { assert(false); }
+        return nonterm_void::newsp();
     }
 
-    nonterm_info compile(const shared_ptr<add_exp_t>& exp) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<add_exp_t>& exp) {
         // TODO 即便是 a + 1, 1 也会被作为一个变量存储。 这需要改进。
-        nonterm_info info;
         auto s1 = dynamic_pointer_cast<add_exp_applied_t>(exp);
         auto s2 = dynamic_pointer_cast<add_exp_mul_t>(exp);
         if(s1) { 
-            auto var1 = compile(s1->add_exp).var_id;
-            auto var2 = compile(s1->mul_exp).var_id;
-            auto dest = add_temp();
-            info.var_id = dest;
-            gen_arithmetic_rr(get_operator(s1->op->type), var1, var2, dest);
-            return info;
+            auto var1 = compile(s1->add_exp);
+            auto var2 = compile(s1->mul_exp);
+            auto dest = nonterm_integer::newsp(add_temp());
+            gen_arithmetic(get_operator(s1->op->type), var1, var2, dest);
+            return dest;
         } else if (s2) {
             return compile(s2->mul_exp);
+        } else {
+            assert(false);
         }
-        assert(false);
-        return info;
     }    
 
-    void gen_arithmetic_rr(ImCode::Operator op, int var1, int var2, int dest) {
+    void gen_arithmetic(ImCode::Operator op, 
+                            const std::shared_ptr<nonterm_info>&    src1, 
+                            const std::shared_ptr<nonterm_info>&    src2, 
+                            const std::shared_ptr<nonterm_info>&    dest) {
         ImCode code;
         code.op = op;
-        code.src1 = get_oprand_var(var1);
-        code.src2 = get_oprand_var(var2);
-        code.dest = get_oprand_var(dest);
+        code.src1 = get_oprand(src1);
+        code.src2 = get_oprand(src2);
+        code.dest = get_oprand(dest);
+        // 除非是 DASET，不然 dest 必须是 integer
+
+        assert( dynamic_pointer_cast<nonterm_integer>(dest) ||
+                (code.op == ImCode::DASET && dynamic_pointer_cast<nonterm_literal>(dest)));
         imCodes().push_back(code);
     } 
 
-    void gen_arithmetic_ri(ImCode::Operator op, int var1, int64_t var2, int dest) {
-        ImCode code;
-        code.op = op;
-        code.src1 = get_oprand_var(var1);
-        code.src2.type = ImCode::Oprand::IMMEDIATE;
-        code.src2.value = var2;
-        code.dest = get_oprand_var(dest);
-        imCodes().push_back(code);
-    } 
-    
-    void gen_arithmetic_ir(ImCode::Operator op, int64_t var1, int var2, int dest) {
-        ImCode code;
-        code.op = op;
-        code.src1.type = ImCode::Oprand::IMMEDIATE;
-        code.src1.value = var1;
-        code.src2 = get_oprand_var(var2);
-        code.dest = get_oprand_var(dest);
-        imCodes().push_back(code);
-    } 
-
-    ImCode::Oprand get_oprand_var(int varID) {
-        assert(varID < symbols.size());
-        auto sym = symbols[varID];
+    ImCode::Oprand get_oprand(const std::shared_ptr<nonterm_info>& info) {
         ImCode::Oprand op;
-        op.type = ImCode::Oprand::VAR;
-        op.var.isTemp = sym.is_temp;
-        op.var.varID = varID;
-        return op;
+        
+        auto variable = dynamic_pointer_cast<nonterm_integer>(info);
+        if(variable){
+            auto sym = symbols[variable->var_id];
+            op.type = ImCode::Oprand::VAR;
+            op.var.isTemp = sym.is_temp;
+            op.var.varID = variable->var_id;
+            return op;
+        }
+         
+        auto constant = dynamic_pointer_cast<nonterm_literal>(info);
+        if(constant){
+            op.type = ImCode::Oprand::IMMEDIATE;
+            op.value = constant->value;
+            return op;
+        }
+        
+        if(dynamic_pointer_cast<nonterm_void>(info)){
+            op.type = ImCode::Oprand::INVALID;
+            return op;
+        }
+        
+        assert(false);
     }
     
-    nonterm_info compile(const shared_ptr<mul_exp_t>& exp) {
-        nonterm_info info;
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<mul_exp_t>& exp) {
         auto s1 = dynamic_pointer_cast<mul_exp_applied_t>(exp);
         auto s2 = dynamic_pointer_cast<mul_exp_unary_t>(exp);
         if(s1) { 
-            auto var1 = compile(s1->mul_exp).var_id;
-            auto var2 = compile(s1->unary_exp).var_id;
-            auto dest = add_temp();
-            info.var_id = dest;
-            gen_arithmetic_rr(get_operator(s1->op->type), var1, var2, dest);
-            return info;
+            auto var1 = compile(s1->mul_exp);
+            auto var2 = compile(s1->unary_exp);
+            auto dest = nonterm_integer::newsp(add_temp());
+            gen_arithmetic(get_operator(s1->op->type), var1, var2, dest);
+            return dest;
         } else if (s2) {
             return compile(s2->unary_exp);
+        } else {
+            assert(false);
         }
-        assert(false);
-        return info;
     }
 
     ImCode::Operator get_operator(operator_t::Type op){
@@ -634,8 +669,7 @@ public:
         }
     }
 
-    nonterm_info compile(const shared_ptr<unary_exp_t>& exp) {
-        nonterm_info info;
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<unary_exp_t>& exp) {
         auto s1 = dynamic_pointer_cast<unary_exp_applied_t>(exp);
         auto s2 = dynamic_pointer_cast<unary_exp_primary_exp_t>(exp);
         auto s3 = dynamic_pointer_cast<unary_exp_func_call_t>(exp);
@@ -644,8 +678,8 @@ public:
             auto subvar = compile(s1->unary_exp);
             if(s1->op->type == operator_t::NEGATIVE) {
                 // temp = 0 - var
-                info.var_id = add_temp(); 
-                gen_arithmetic_ir(ImCode::MINUS, 0, subvar.var_id, info.var_id);
+                auto info = nonterm_integer::newsp(add_temp()); 
+                gen_arithmetic(ImCode::MINUS, nonterm_literal::newsp(0), subvar, info);
                 return info;
             } else {
                 return subvar;
@@ -653,45 +687,59 @@ public:
         } else if(s2) {
             return compile(s2->primary_exp);
         } else if(s3) {
-            auto temp = add_temp();
             ImCode code;
             code.op = ImCode::CALL;
             code.src1.type = ImCode::Oprand::FUNCID;
             code.src1.value = query_function(s3->ident->name);
-            info.var_id = -1;
+            auto rst1 = nonterm_void::newsp();
+            auto rst2_varid = 0;
             if(!functions()[code.src1.value].returnVoid) {
-                code.dest.type = ImCode::Oprand::VAR;
-                code.dest.value = add_temp();
-                info.var_id = code.dest.value;
+                rst2_varid = add_temp();
+            }
+            auto rst2 = nonterm_integer::newsp(rst2_varid);
+            if(functions()[code.src1.value].returnVoid) {
+                code.dest = get_oprand(rst1);
+            }else{
+                code.dest = get_oprand(rst2);
             }
             auto exps = s3->params->exps;
             
             for(auto exp: exps){
-                auto varid = compile(exp).var_id;
-                code.arguments.push_back(varid);
+                auto var = to_nonterm_integer(compile(exp));
+                code.arguments.push_back(var->var_id);
             }
 
-            return info;
+            if(functions()[code.src1.value].returnVoid) {
+                return rst1;
+            }else{
+                return rst2;
+            }
         } else {
             assert(false);
-            return info;
         }
     }
 
-    nonterm_info compile(const shared_ptr<primary_exp_t>& exp) {
-        nonterm_info info;
+    std::shared_ptr<nonterm_integer> to_nonterm_integer(const std::shared_ptr<nonterm_info>& info) {
+        auto s1 = dynamic_pointer_cast<nonterm_integer>(info);
+        if(s1) return s1;
+    
+        auto s2 = dynamic_pointer_cast<nonterm_literal>(info);
+        if(s2){
+            auto rtn = nonterm_integer::newsp(add_temp());
+            gen_arithmetic(ImCode::ASSIGN, info, nonterm_void::newsp(), rtn);
+            return rtn;
+        }
+        assert(false);
+    }
+
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<primary_exp_t>& exp) {
         auto s1 = dynamic_pointer_cast<primary_exp_number_t>(exp);
         auto s2 = dynamic_pointer_cast<primary_exp_exp_t>(exp);
         auto s3 = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
         if(s1) {
             auto value = s1->number->int_const->value;
-            info.var_id = add_temp();
-            ImCode code;
-            code.op = ImCode::ASSIGN;
-            code.src1.type = ImCode::Oprand::IMMEDIATE;
-            code.src1.value = value;
-            code.dest = get_oprand_var(info.var_id);
-            imCodes().push_back(code);
+            auto info = nonterm_integer::newsp(add_temp());
+            gen_arithmetic(ImCode::ASSIGN, nonterm_literal::newsp(value), nonterm_void::newsp(), info);
             return info;
         } else if(s2) {
             return compile(s2->exp);
@@ -700,79 +748,82 @@ public:
             auto varid = query(lval->ident->name);
             auto dims = lval->exps;
             if(dims.empty()) {
-                info.var_id = varid;
+                return nonterm_integer::newsp(varid);
             } else {
-                info.var_id = add_temp();
-                auto offset = compile_for_index(dims, symbols[varid].dims).var_id;
-                gen_arithmetic_ri(ImCode::MULTIPLY, offset, 8, offset);
-                gen_arithmetic_ri(ImCode::DAGET, varid, offset, info.var_id);
+                auto info = nonterm_integer::newsp(add_temp());
+                auto offset = compile_for_index(dims, symbols[varid].dims);
+                gen_arithmetic(ImCode::MULTIPLY, offset, nonterm_literal::newsp(8), offset);
+                gen_arithmetic(ImCode::DAGET, nonterm_integer::newsp(varid), offset, info);
+                return info;
             }
-            return info;
         } else {
             assert(false);
-            return info;
         }
     }
 
-    void compile(const shared_ptr<stmt_block_t>& stmt) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_block_t>& stmt) {
         auto block = stmt->block;
-        compile(block, true);
+        return compile(block, true);
     }
-    void compile(const shared_ptr<stmt_continue_t>& stmt) {
-
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_continue_t>& stmt) {
+        // todo
+        return nonterm_void::newsp();
     }
-    nonterm_info compile(const shared_ptr<stmt_exp_t>& stmt) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_exp_t>& stmt) {
         return compile(stmt->exp);
     }
-    void compile(const shared_ptr<stmt_break_t>& stmt) {
-
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_break_t>& stmt) {
+        // todo
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<decl_t>& decl) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<decl_t>& decl) {
         auto const_decl = dynamic_pointer_cast<decl_const_decl_t>(decl);
         auto var_decl = dynamic_pointer_cast<decl_var_decl_t>(decl);
         if(var_decl) {
-            compile(var_decl->var_decl);
-            return;
+            return compile(var_decl->var_decl);
+        }else if(const_decl) {
+            return compile(const_decl->const_decl);
+        }else{
+            assert(false);
         }
-        if(const_decl) {
-            compile(const_decl->const_decl);
-            return;
-        }
-        assert(false);
-        return;
+
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<var_decl_t>& decl) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<var_decl_t>& decl) {
         assert(decl->b_type->type == b_type_t::INT);
         for(auto def: decl->var_defs) {
             compile(def);
         }
+
+        return nonterm_void::newsp();
     }
 
-    void compile(const shared_ptr<var_def_t>& def) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_t>& def) {
         auto defonly = dynamic_pointer_cast<var_def_only_t>(def);
         auto definit = dynamic_pointer_cast<var_def_init_t>(def);
         if(defonly) {
-            compile(defonly);
-            return;
+            return compile(defonly);
+        } else if(definit) {
+            return compile(definit);
+        } else {
+            assert(false);
         }
-        if(definit) {
-            compile(definit);
-            return;
-        }
-        assert(false);
     }
 
-    void compile(const shared_ptr<var_def_only_t>& def_only) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_only_t>& def_only) {
         auto [size, dims] = static_array_dims(def_only->array_dims);
         auto id = add_var(def_only->ident->name, dims, false, std::vector<uint64_t>());
         if(dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
+
+        return nonterm_void::newsp();
     }    
     
-    void compile(const shared_ptr<var_def_init_t>& def_init) {
+    
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_init_t>& def_init) {
         auto [size, dims] = static_array_dims(def_init->array_dims);
         // 取init的时候要用到dims和size
         // TODO init
@@ -780,6 +831,8 @@ public:
         if(dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
+
+        return nonterm_void::newsp();
     }
 
     void gen_alloc(int id, uint64_t size) {
@@ -793,124 +846,160 @@ public:
         imCodes().push_back(code); 
     }
 
-    void compile(const shared_ptr<const_decl_t>& decl) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<const_decl_t>& decl) {
         assert(decl->b_type->type == b_type_t::INT);
         for(auto def: decl->const_defs) {
             compile(def);
         }
+        return nonterm_void::newsp();
     }
 
-    std::pair<uint64_t, std::vector<uint64_t>> static_array_dims(const ptr_list_of<const_exp_t>& dimsdef) {
-        uint64_t size = 1;
-        std::vector<uint64_t> dims;
-        for(auto dim: dimsdef) {
-            auto val = static_eval(dim);
-            size *= val;
-            dims.push_back(val);
-        }
-        return std::make_pair(size, dims);      
-    }
-
-    void compile(const shared_ptr<const_def_t>& constdef) {
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<const_def_t>& constdef) {
         auto [size, dims] = static_array_dims(constdef->array_dims);
 
         // TODO 暂时不做 initialization
         // constdef->const_init_val
         auto varid = add_var(constdef->ident->name, dims, true, std::vector<uint64_t>());
         symbols[varid].init_value = std::vector<uint64_t>(size, 0);
+
+        return nonterm_void::newsp();
     }
 
-    int64_t static_eval(const shared_ptr<const_exp_t>& constexp) {
+    std::pair<uint64_t, std::vector<uint64_t>> static_array_dims(const ptr_list_of<const_exp_t>& dimsdef) {
+        uint64_t size = 1;
+        std::vector<uint64_t> dims;
+        for(auto dim: dimsdef) {
+            auto [ok, val] = static_eval(dim);
+            assert(ok);
+            size *= val;
+            dims.push_back(val);
+        }
+        return std::make_pair(size, dims);      
+    }
+
+    /* static evaluation (for integer) */
+    /* { true, val } 有静态数值          */
+    /* { false, _} 反之                 */
+    /*  考虑先用记忆化解决问题             */
+
+    std::pair<bool, int64_t> static_eval(const shared_ptr<const_exp_t>& constexp) {
         auto exp = dynamic_pointer_cast<const_exp_add_t>(constexp);
-        assert(exp);
-        return static_eval(exp);
-    }
-
-    int64_t static_eval(const shared_ptr<const_exp_add_t>& exp) {
+        assert(exp && exp->add_exp);
         return static_eval(exp->add_exp);
     }
 
-    int64_t static_eval(const shared_ptr<add_exp_t>& add_exp) {
+    std::pair<bool, int64_t> static_eval(const shared_ptr<add_exp_t>& add_exp) {
         auto mul_exp = dynamic_pointer_cast<add_exp_mul_t>(add_exp);
         auto applied_exp = dynamic_pointer_cast<add_exp_applied_t>(add_exp);
-        if(mul_exp) return static_eval(mul_exp->mul_exp);
-        if(applied_exp) {
+        if(mul_exp) {
+             return static_eval(mul_exp->mul_exp);
+        }else if(applied_exp) {
             int op = applied_exp->op->type == operator_t::PLUS ? 1 : -1;
-            return static_eval(applied_exp->add_exp) + op * static_eval(applied_exp->mul_exp);
+            auto [ok1, val1] = static_eval(applied_exp->add_exp);
+            if(!ok1) return { false, 0 };
+            auto [ok2, val2] = static_eval(applied_exp->add_exp);
+            if(!ok2) return { false, 0 };
+            return { true, val1 + op * val2 };
+        }else{
+            assert(false);
         }
-        assert(false);
     }
 
-    int64_t static_eval(const shared_ptr<mul_exp_t>& mul_exp) {
+    std::pair<bool, int64_t> static_eval(const shared_ptr<mul_exp_t>& mul_exp) {
         auto unary_exp = dynamic_pointer_cast<mul_exp_unary_t>(mul_exp);
         auto applied_exp = dynamic_pointer_cast<mul_exp_applied_t>(mul_exp);
         if(unary_exp) return static_eval(unary_exp->unary_exp);
-        if(applied_exp && applied_exp->op->type == operator_t::MULTIPLY)
-            return static_eval(applied_exp->mul_exp) * static_eval(applied_exp->unary_exp);
-        if(applied_exp && applied_exp->op->type == operator_t::DIVIDE)
-            return static_eval(applied_exp->mul_exp) / static_eval(applied_exp->unary_exp); 
-        if(applied_exp && applied_exp->op->type == operator_t::MODULE)
-            return static_eval(applied_exp->mul_exp) % static_eval(applied_exp->unary_exp); 
-        assert(false);
+        else if(applied_exp){
+            auto [ok1, val1] = static_eval(applied_exp->mul_exp);
+            if(!ok1) return {false, 0};
+            auto [ok2, val2] = static_eval(applied_exp->unary_exp);
+            if(!ok2) return {false, 0};
+            if(applied_exp->op->type == operator_t::MULTIPLY) {
+                return { true, val1 * val2 };
+            } else if (applied_exp->op->type == operator_t::DIVIDE) {
+                return { true, val1 / val2 }; 
+            } else if (applied_exp->op->type == operator_t::MODULE) {
+                return { true, val1 % val2 }; 
+            } else {
+                assert(false);
+            }
+        } else {
+            assert(false);
+        }
     }
 
-    int64_t static_eval(const shared_ptr<unary_exp_t>& exp) {
+    std::pair<bool, int64_t> static_eval(const shared_ptr<unary_exp_t>& exp) {
         auto applied_exp = dynamic_pointer_cast<unary_exp_applied_t>(exp);
         auto primary_exp = dynamic_pointer_cast<unary_exp_primary_exp_t>(exp);
+        auto func_call_exp = dynamic_pointer_cast<unary_exp_func_call_t>(exp);
         if(applied_exp){
-            auto oprand = static_eval(applied_exp->unary_exp);
+            auto [ok, val] = static_eval(applied_exp->unary_exp);
+            if(!ok) return {false, 0};
             switch (applied_exp->op->type) {
             case operator_t::POSITIVE:
-                return oprand;
-                break;
+                return {true, val};
             case operator_t::NEGATIVE:
-                return -oprand;
-                break;
-            // case operator_t::LOGICAL_NOT:
-            //     return !oprand;
-            //     break;
+                return {true, -val};
+            case operator_t::LOGICAL_NOT:
             default:
+                // logical not
+                assert(false);
                 break;
             }
-        }
-        if(primary_exp) {
+        }else if(primary_exp) {
             return static_eval(primary_exp->primary_exp);
+        }else if(func_call_exp){
+            // TODO: 暂时不考虑 funcall
+            return {false, 0};
+        }else{
+            assert(false);
         }
-        assert(false);
+        return {false, 0};
     }
 
-    int64_t static_eval(const shared_ptr<primary_exp_t>& exp) {
-        // TODO: 暂时不考虑 funcall
+    std::pair<bool, int64_t> static_eval(const shared_ptr<primary_exp_t>& exp) {
         auto number = dynamic_pointer_cast<primary_exp_number_t>(exp);
-        if(number) return static_eval(number->number);
         auto lval = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
+        auto exp_exp = dynamic_pointer_cast<primary_exp_exp_t>(exp);
 
-        if(lval) {
+        if(number) return static_eval(number->number);
+        else if(lval) {
             auto varid = query(lval->l_val->ident->name);
-            if(!symbols[varid].is_const) assert(false);
-            auto exps = lval->l_val->exps;
-            
-            int offset = 0;
-            int index = 1;
-            for(auto exp: exps) {
-                offset += static_eval(exp);
-                if(index != exps.size() - 1) {
-                    offset *= symbols[varid].dims[index++];
+            if(!symbols[varid].is_const) {
+                return { false, 0 };
+            }else{
+                // 这个是统一的逻辑
+                auto exps = lval->l_val->exps;
+                int offset = 0;
+                int index = 1;
+                for(auto exp: exps) {
+                    auto [ok, val] = static_eval(exp);
+                    if(!ok) return {false, 0};
+                    offset += val;
+                    if(index != exps.size() - 1) {
+                        offset *= symbols[varid].dims[index++];
+                    }
                 }
+                return {true, symbols[varid].init_value[offset]};
             }
-            return symbols[varid].init_value[index];
+        } else if(exp_exp){
+            return static_eval(exp_exp->exp);
+        } else {
+            assert(false);
         }
-        assert(false);
     }
 
-    int64_t static_eval(const shared_ptr<exp_t>& exp) {
+    std::pair<bool, int64_t> static_eval(const shared_ptr<exp_t>& exp) {
         auto s = dynamic_pointer_cast<exp_add_t>(exp);
-        assert(s);
-        return static_eval(s->add_exp);
+        if(s) {
+            return static_eval(s->add_exp);
+        } else {
+            assert(false);
+        }
     }
 
-    int64_t static_eval(const shared_ptr<number_t>& number) {
-        return number->int_const->value;
+    std::pair<bool, int64_t> static_eval(const shared_ptr<number_t>& number) {
+        return { true, number->int_const->value };
     }
 
 };
