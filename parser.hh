@@ -373,115 +373,101 @@ namespace yy {
       // "integer"
       char dummy1[sizeof (long long)];
 
+      // block_elements
+      char dummy2[sizeof (ptr_list_of<block_item_t>)];
+
+      // const_array_elements
+      char dummy3[sizeof (ptr_list_of<const_init_val_t>)];
+
+      // array_dims
       // array_dims_func_param
       // array_dims_func_param_real
       // array_indices
       // func_r_params_elements
-      char dummy2[sizeof (ptr_list_of<arithmetic_exp_t>)];
-
-      // block_elements
-      char dummy3[sizeof (ptr_list_of<block_item_t>)];
-
-      // array_dims
-      char dummy4[sizeof (ptr_list_of<const_exp_t>)];
-
-      // const_array_elements
-      char dummy5[sizeof (ptr_list_of<const_init_val_t>)];
+      char dummy4[sizeof (ptr_list_of<expr>)];
 
       // init_array_elements
-      char dummy6[sizeof (ptr_list_of<init_val_t>)];
+      char dummy5[sizeof (ptr_list_of<init_val_t>)];
 
       // var_def_list
-      char dummy7[sizeof (ptr_list_of<var_def_t>)];
+      char dummy6[sizeof (ptr_list_of<var_def_t>)];
+
+      // b_type
+      char dummy7[sizeof (std::shared_ptr<b_type_t>)];
+
+      // block_item
+      char dummy8[sizeof (std::shared_ptr<block_item_t>)];
+
+      // block
+      char dummy9[sizeof (std::shared_ptr<block_t>)];
+
+      // comp_unit_item
+      char dummy10[sizeof (std::shared_ptr<comp_unit_item_t>)];
+
+      // start_symbol
+      // comp_unit
+      char dummy11[sizeof (std::shared_ptr<comp_unit_t>)];
+
+      // const_decl
+      // const_decl_stmt
+      char dummy12[sizeof (std::shared_ptr<const_decl_t>)];
+
+      // const_def
+      char dummy13[sizeof (std::shared_ptr<const_def_t>)];
+
+      // const_init_val
+      char dummy14[sizeof (std::shared_ptr<const_init_val_t>)];
+
+      // decl
+      char dummy15[sizeof (std::shared_ptr<decl_t>)];
 
       // exp
+      // cond
       // primary_exp
       // unary_exp
       // mul_exp
       // add_exp
-      char dummy8[sizeof (std::shared_ptr<arithmetic_exp_t>)];
-
-      // b_type
-      char dummy9[sizeof (std::shared_ptr<b_type_t>)];
-
-      // block_item
-      char dummy10[sizeof (std::shared_ptr<block_item_t>)];
-
-      // block
-      char dummy11[sizeof (std::shared_ptr<block_t>)];
-
-      // comp_unit_item
-      char dummy12[sizeof (std::shared_ptr<comp_unit_item_t>)];
-
-      // start_symbol
-      // comp_unit
-      char dummy13[sizeof (std::shared_ptr<comp_unit_t>)];
-
-      // cond
-      char dummy14[sizeof (std::shared_ptr<cond_t>)];
-
-      // const_decl
-      // const_decl_stmt
-      char dummy15[sizeof (std::shared_ptr<const_decl_t>)];
-
-      // const_def
-      char dummy16[sizeof (std::shared_ptr<const_def_t>)];
-
-      // const_exp
-      char dummy17[sizeof (std::shared_ptr<const_exp_t>)];
-
-      // const_init_val
-      char dummy18[sizeof (std::shared_ptr<const_init_val_t>)];
-
-      // decl
-      char dummy19[sizeof (std::shared_ptr<decl_t>)];
-
+      // rel_exp
       // eq_exp
-      char dummy20[sizeof (std::shared_ptr<eq_exp_t>)];
+      // l_and_exp
+      // l_or_exp
+      // const_exp
+      char dummy16[sizeof (std::shared_ptr<expr>)];
 
       // func_def
-      char dummy21[sizeof (std::shared_ptr<func_def_t>)];
+      char dummy17[sizeof (std::shared_ptr<func_def_t>)];
 
       // func_f_param
-      char dummy22[sizeof (std::shared_ptr<func_f_param_t>)];
+      char dummy18[sizeof (std::shared_ptr<func_f_param_t>)];
 
       // func_f_params
       // real_func_f_params
-      char dummy23[sizeof (std::shared_ptr<func_f_params_t>)];
+      char dummy19[sizeof (std::shared_ptr<func_f_params_t>)];
 
       // func_r_params
-      char dummy24[sizeof (std::shared_ptr<func_r_params_t>)];
+      char dummy20[sizeof (std::shared_ptr<func_r_params_t>)];
 
       // init_val
-      char dummy25[sizeof (std::shared_ptr<init_val_t>)];
-
-      // l_and_exp
-      char dummy26[sizeof (std::shared_ptr<l_and_exp_t>)];
-
-      // l_or_exp
-      char dummy27[sizeof (std::shared_ptr<l_or_exp_t>)];
+      char dummy21[sizeof (std::shared_ptr<init_val_t>)];
 
       // l_val
-      char dummy28[sizeof (std::shared_ptr<l_val_t>)];
+      char dummy22[sizeof (std::shared_ptr<l_val_t>)];
 
       // number
-      char dummy29[sizeof (std::shared_ptr<number_literal_t>)];
-
-      // rel_exp
-      char dummy30[sizeof (std::shared_ptr<rel_exp_t>)];
+      char dummy23[sizeof (std::shared_ptr<number_literal_t>)];
 
       // stmt
-      char dummy31[sizeof (std::shared_ptr<stmt_t>)];
+      char dummy24[sizeof (std::shared_ptr<stmt_t>)];
 
       // var_decl
-      char dummy32[sizeof (std::shared_ptr<var_decl_t>)];
+      char dummy25[sizeof (std::shared_ptr<var_decl_t>)];
 
       // var_def
-      char dummy33[sizeof (std::shared_ptr<var_def_t>)];
+      char dummy26[sizeof (std::shared_ptr<var_def_t>)];
 
       // "identifier"
       // ident
-      char dummy34[sizeof (std::string)];
+      char dummy27[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -694,23 +680,20 @@ namespace yy {
         value.move< long long > (std::move (that.value));
         break;
 
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
-        value.move< ptr_list_of<arithmetic_exp_t> > (std::move (that.value));
-        break;
-
       case symbol_kind::S_block_elements: // block_elements
         value.move< ptr_list_of<block_item_t> > (std::move (that.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-        value.move< ptr_list_of<const_exp_t> > (std::move (that.value));
-        break;
-
       case symbol_kind::S_const_array_elements: // const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_array_dims: // array_dims
+      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
+      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
+      case symbol_kind::S_array_indices: // array_indices
+      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+        value.move< ptr_list_of<expr> > (std::move (that.value));
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
@@ -719,14 +702,6 @@ namespace yy {
 
       case symbol_kind::S_var_def_list: // var_def_list
         value.move< ptr_list_of<var_def_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-        value.move< std::shared_ptr<arithmetic_exp_t> > (std::move (that.value));
         break;
 
       case symbol_kind::S_b_type: // b_type
@@ -750,10 +725,6 @@ namespace yy {
         value.move< std::shared_ptr<comp_unit_t> > (std::move (that.value));
         break;
 
-      case symbol_kind::S_cond: // cond
-        value.move< std::shared_ptr<cond_t> > (std::move (that.value));
-        break;
-
       case symbol_kind::S_const_decl: // const_decl
       case symbol_kind::S_const_decl_stmt: // const_decl_stmt
         value.move< std::shared_ptr<const_decl_t> > (std::move (that.value));
@@ -761,10 +732,6 @@ namespace yy {
 
       case symbol_kind::S_const_def: // const_def
         value.move< std::shared_ptr<const_def_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_const_exp: // const_exp
-        value.move< std::shared_ptr<const_exp_t> > (std::move (that.value));
         break;
 
       case symbol_kind::S_const_init_val: // const_init_val
@@ -775,8 +742,18 @@ namespace yy {
         value.move< std::shared_ptr<decl_t> > (std::move (that.value));
         break;
 
+      case symbol_kind::S_exp: // exp
+      case symbol_kind::S_cond: // cond
+      case symbol_kind::S_primary_exp: // primary_exp
+      case symbol_kind::S_unary_exp: // unary_exp
+      case symbol_kind::S_mul_exp: // mul_exp
+      case symbol_kind::S_add_exp: // add_exp
+      case symbol_kind::S_rel_exp: // rel_exp
       case symbol_kind::S_eq_exp: // eq_exp
-        value.move< std::shared_ptr<eq_exp_t> > (std::move (that.value));
+      case symbol_kind::S_l_and_exp: // l_and_exp
+      case symbol_kind::S_l_or_exp: // l_or_exp
+      case symbol_kind::S_const_exp: // const_exp
+        value.move< std::shared_ptr<expr> > (std::move (that.value));
         break;
 
       case symbol_kind::S_func_def: // func_def
@@ -800,24 +777,12 @@ namespace yy {
         value.move< std::shared_ptr<init_val_t> > (std::move (that.value));
         break;
 
-      case symbol_kind::S_l_and_exp: // l_and_exp
-        value.move< std::shared_ptr<l_and_exp_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_l_or_exp: // l_or_exp
-        value.move< std::shared_ptr<l_or_exp_t> > (std::move (that.value));
-        break;
-
       case symbol_kind::S_l_val: // l_val
         value.move< std::shared_ptr<l_val_t> > (std::move (that.value));
         break;
 
       case symbol_kind::S_number: // number
         value.move< std::shared_ptr<number_literal_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_rel_exp: // rel_exp
-        value.move< std::shared_ptr<rel_exp_t> > (std::move (that.value));
         break;
 
       case symbol_kind::S_stmt: // stmt
@@ -871,18 +836,6 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, ptr_list_of<arithmetic_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const ptr_list_of<arithmetic_exp_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<block_item_t>&& v)
         : Base (t)
         , value (std::move (v))
@@ -895,24 +848,24 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, ptr_list_of<const_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const ptr_list_of<const_exp_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<const_init_val_t>&& v)
         : Base (t)
         , value (std::move (v))
       {}
 #else
       basic_symbol (typename Base::kind_type t, const ptr_list_of<const_init_val_t>& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, ptr_list_of<expr>&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const ptr_list_of<expr>& v)
         : Base (t)
         , value (v)
       {}
@@ -937,18 +890,6 @@ namespace yy {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const ptr_list_of<var_def_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<arithmetic_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<arithmetic_exp_t>& v)
         : Base (t)
         , value (v)
       {}
@@ -1015,18 +956,6 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<cond_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<cond_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<const_decl_t>&& v)
         : Base (t)
         , value (std::move (v))
@@ -1045,18 +974,6 @@ namespace yy {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const std::shared_ptr<const_def_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<const_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<const_exp_t>& v)
         : Base (t)
         , value (v)
       {}
@@ -1087,12 +1004,12 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<eq_exp_t>&& v)
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<expr>&& v)
         : Base (t)
         , value (std::move (v))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<eq_exp_t>& v)
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<expr>& v)
         : Base (t)
         , value (v)
       {}
@@ -1159,30 +1076,6 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<l_and_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<l_and_exp_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<l_or_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<l_or_exp_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<l_val_t>&& v)
         : Base (t)
         , value (std::move (v))
@@ -1201,18 +1094,6 @@ namespace yy {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const std::shared_ptr<number_literal_t>& v)
-        : Base (t)
-        , value (v)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::shared_ptr<rel_exp_t>&& v)
-        : Base (t)
-        , value (std::move (v))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::shared_ptr<rel_exp_t>& v)
         : Base (t)
         , value (v)
       {}
@@ -1292,23 +1173,20 @@ switch (yykind)
         value.template destroy< long long > ();
         break;
 
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
-        value.template destroy< ptr_list_of<arithmetic_exp_t> > ();
-        break;
-
       case symbol_kind::S_block_elements: // block_elements
         value.template destroy< ptr_list_of<block_item_t> > ();
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-        value.template destroy< ptr_list_of<const_exp_t> > ();
-        break;
-
       case symbol_kind::S_const_array_elements: // const_array_elements
         value.template destroy< ptr_list_of<const_init_val_t> > ();
+        break;
+
+      case symbol_kind::S_array_dims: // array_dims
+      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
+      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
+      case symbol_kind::S_array_indices: // array_indices
+      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+        value.template destroy< ptr_list_of<expr> > ();
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
@@ -1317,14 +1195,6 @@ switch (yykind)
 
       case symbol_kind::S_var_def_list: // var_def_list
         value.template destroy< ptr_list_of<var_def_t> > ();
-        break;
-
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-        value.template destroy< std::shared_ptr<arithmetic_exp_t> > ();
         break;
 
       case symbol_kind::S_b_type: // b_type
@@ -1348,10 +1218,6 @@ switch (yykind)
         value.template destroy< std::shared_ptr<comp_unit_t> > ();
         break;
 
-      case symbol_kind::S_cond: // cond
-        value.template destroy< std::shared_ptr<cond_t> > ();
-        break;
-
       case symbol_kind::S_const_decl: // const_decl
       case symbol_kind::S_const_decl_stmt: // const_decl_stmt
         value.template destroy< std::shared_ptr<const_decl_t> > ();
@@ -1359,10 +1225,6 @@ switch (yykind)
 
       case symbol_kind::S_const_def: // const_def
         value.template destroy< std::shared_ptr<const_def_t> > ();
-        break;
-
-      case symbol_kind::S_const_exp: // const_exp
-        value.template destroy< std::shared_ptr<const_exp_t> > ();
         break;
 
       case symbol_kind::S_const_init_val: // const_init_val
@@ -1373,8 +1235,18 @@ switch (yykind)
         value.template destroy< std::shared_ptr<decl_t> > ();
         break;
 
+      case symbol_kind::S_exp: // exp
+      case symbol_kind::S_cond: // cond
+      case symbol_kind::S_primary_exp: // primary_exp
+      case symbol_kind::S_unary_exp: // unary_exp
+      case symbol_kind::S_mul_exp: // mul_exp
+      case symbol_kind::S_add_exp: // add_exp
+      case symbol_kind::S_rel_exp: // rel_exp
       case symbol_kind::S_eq_exp: // eq_exp
-        value.template destroy< std::shared_ptr<eq_exp_t> > ();
+      case symbol_kind::S_l_and_exp: // l_and_exp
+      case symbol_kind::S_l_or_exp: // l_or_exp
+      case symbol_kind::S_const_exp: // const_exp
+        value.template destroy< std::shared_ptr<expr> > ();
         break;
 
       case symbol_kind::S_func_def: // func_def
@@ -1398,24 +1270,12 @@ switch (yykind)
         value.template destroy< std::shared_ptr<init_val_t> > ();
         break;
 
-      case symbol_kind::S_l_and_exp: // l_and_exp
-        value.template destroy< std::shared_ptr<l_and_exp_t> > ();
-        break;
-
-      case symbol_kind::S_l_or_exp: // l_or_exp
-        value.template destroy< std::shared_ptr<l_or_exp_t> > ();
-        break;
-
       case symbol_kind::S_l_val: // l_val
         value.template destroy< std::shared_ptr<l_val_t> > ();
         break;
 
       case symbol_kind::S_number: // number
         value.template destroy< std::shared_ptr<number_literal_t> > ();
-        break;
-
-      case symbol_kind::S_rel_exp: // rel_exp
-        value.template destroy< std::shared_ptr<rel_exp_t> > ();
         break;
 
       case symbol_kind::S_stmt: // stmt
@@ -2197,7 +2057,7 @@ switch (yykind)
     // number is the opposite.  If YYTABLE_NINF, syntax error.
     static const unsigned char yytable_[];
 
-    static const unsigned char yycheck_[];
+    static const short yycheck_[];
 
     // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
     // symbol of state STATE-NUM.
@@ -2439,7 +2299,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 177,     ///< Last index in yytable_.
+      yylast_ = 196,     ///< Last index in yytable_.
       yynnts_ = 44,  ///< Number of nonterminal symbols.
       yyfinal_ = 14 ///< Termination state number.
     };
@@ -2514,23 +2374,20 @@ switch (yykind)
         value.copy< long long > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
-        value.copy< ptr_list_of<arithmetic_exp_t> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_block_elements: // block_elements
         value.copy< ptr_list_of<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-        value.copy< ptr_list_of<const_exp_t> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_const_array_elements: // const_array_elements
         value.copy< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_array_dims: // array_dims
+      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
+      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
+      case symbol_kind::S_array_indices: // array_indices
+      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+        value.copy< ptr_list_of<expr> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
@@ -2539,14 +2396,6 @@ switch (yykind)
 
       case symbol_kind::S_var_def_list: // var_def_list
         value.copy< ptr_list_of<var_def_t> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-        value.copy< std::shared_ptr<arithmetic_exp_t> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_b_type: // b_type
@@ -2570,10 +2419,6 @@ switch (yykind)
         value.copy< std::shared_ptr<comp_unit_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_cond: // cond
-        value.copy< std::shared_ptr<cond_t> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_const_decl: // const_decl
       case symbol_kind::S_const_decl_stmt: // const_decl_stmt
         value.copy< std::shared_ptr<const_decl_t> > (YY_MOVE (that.value));
@@ -2581,10 +2426,6 @@ switch (yykind)
 
       case symbol_kind::S_const_def: // const_def
         value.copy< std::shared_ptr<const_def_t> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_const_exp: // const_exp
-        value.copy< std::shared_ptr<const_exp_t> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_const_init_val: // const_init_val
@@ -2595,8 +2436,18 @@ switch (yykind)
         value.copy< std::shared_ptr<decl_t> > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_exp: // exp
+      case symbol_kind::S_cond: // cond
+      case symbol_kind::S_primary_exp: // primary_exp
+      case symbol_kind::S_unary_exp: // unary_exp
+      case symbol_kind::S_mul_exp: // mul_exp
+      case symbol_kind::S_add_exp: // add_exp
+      case symbol_kind::S_rel_exp: // rel_exp
       case symbol_kind::S_eq_exp: // eq_exp
-        value.copy< std::shared_ptr<eq_exp_t> > (YY_MOVE (that.value));
+      case symbol_kind::S_l_and_exp: // l_and_exp
+      case symbol_kind::S_l_or_exp: // l_or_exp
+      case symbol_kind::S_const_exp: // const_exp
+        value.copy< std::shared_ptr<expr> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_func_def: // func_def
@@ -2620,24 +2471,12 @@ switch (yykind)
         value.copy< std::shared_ptr<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_l_and_exp: // l_and_exp
-        value.copy< std::shared_ptr<l_and_exp_t> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_l_or_exp: // l_or_exp
-        value.copy< std::shared_ptr<l_or_exp_t> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_l_val: // l_val
         value.copy< std::shared_ptr<l_val_t> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_number: // number
         value.copy< std::shared_ptr<number_literal_t> > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_rel_exp: // rel_exp
-        value.copy< std::shared_ptr<rel_exp_t> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_stmt: // stmt
@@ -2690,23 +2529,20 @@ switch (yykind)
         value.move< long long > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
-        value.move< ptr_list_of<arithmetic_exp_t> > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_block_elements: // block_elements
         value.move< ptr_list_of<block_item_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-        value.move< ptr_list_of<const_exp_t> > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_const_array_elements: // const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_array_dims: // array_dims
+      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
+      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
+      case symbol_kind::S_array_indices: // array_indices
+      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+        value.move< ptr_list_of<expr> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
@@ -2715,14 +2551,6 @@ switch (yykind)
 
       case symbol_kind::S_var_def_list: // var_def_list
         value.move< ptr_list_of<var_def_t> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-        value.move< std::shared_ptr<arithmetic_exp_t> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_b_type: // b_type
@@ -2746,10 +2574,6 @@ switch (yykind)
         value.move< std::shared_ptr<comp_unit_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_cond: // cond
-        value.move< std::shared_ptr<cond_t> > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_const_decl: // const_decl
       case symbol_kind::S_const_decl_stmt: // const_decl_stmt
         value.move< std::shared_ptr<const_decl_t> > (YY_MOVE (s.value));
@@ -2757,10 +2581,6 @@ switch (yykind)
 
       case symbol_kind::S_const_def: // const_def
         value.move< std::shared_ptr<const_def_t> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_const_exp: // const_exp
-        value.move< std::shared_ptr<const_exp_t> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_const_init_val: // const_init_val
@@ -2771,8 +2591,18 @@ switch (yykind)
         value.move< std::shared_ptr<decl_t> > (YY_MOVE (s.value));
         break;
 
+      case symbol_kind::S_exp: // exp
+      case symbol_kind::S_cond: // cond
+      case symbol_kind::S_primary_exp: // primary_exp
+      case symbol_kind::S_unary_exp: // unary_exp
+      case symbol_kind::S_mul_exp: // mul_exp
+      case symbol_kind::S_add_exp: // add_exp
+      case symbol_kind::S_rel_exp: // rel_exp
       case symbol_kind::S_eq_exp: // eq_exp
-        value.move< std::shared_ptr<eq_exp_t> > (YY_MOVE (s.value));
+      case symbol_kind::S_l_and_exp: // l_and_exp
+      case symbol_kind::S_l_or_exp: // l_or_exp
+      case symbol_kind::S_const_exp: // const_exp
+        value.move< std::shared_ptr<expr> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_func_def: // func_def
@@ -2796,24 +2626,12 @@ switch (yykind)
         value.move< std::shared_ptr<init_val_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_l_and_exp: // l_and_exp
-        value.move< std::shared_ptr<l_and_exp_t> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_l_or_exp: // l_or_exp
-        value.move< std::shared_ptr<l_or_exp_t> > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_l_val: // l_val
         value.move< std::shared_ptr<l_val_t> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_number: // number
         value.move< std::shared_ptr<number_literal_t> > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_rel_exp: // rel_exp
-        value.move< std::shared_ptr<rel_exp_t> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_stmt: // stmt
@@ -2894,7 +2712,7 @@ switch (yykind)
   }
 
 } // yy
-#line 2898 "parser.hh"
+#line 2716 "parser.hh"
 
 
 

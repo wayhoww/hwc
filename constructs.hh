@@ -78,58 +78,13 @@ struct stmt_break_t;
 struct stmt_continue_t;
 struct stmt_return_t;
 
-struct arithmetic_exp_t;
-struct exp_add_t;
-
-struct cond_t;
-struct cond_l_or_t;
-
+struct expr;
 struct l_val_t;
-
-struct primary_exp_t;
-struct primary_exp_exp_t;
-struct primary_exp_l_val_t;
-struct primary_exp_number_t;
-
 struct number_t;
-
-struct unary_exp_t;
-struct unary_exp_primary_exp_t;
-struct unary_exp_func_call_t;
-struct unary_exp_applied_t; // UnaryOp UnaryExp
-
+struct func_call_t;
 struct func_r_params_t;
 
-struct mul_exp_t;
-struct mul_exp_unary_t;
-struct mul_exp_applied_t; 
-
-struct arithmetic_exp_t;
-struct add_exp_mul_t;
-struct add_exp_applied_t; 
-
-struct rel_exp_t;
-struct rel_exp_add_t;
-struct rel_exp_applied_t; 
-
-struct eq_exp_t;
-struct eq_exp_rel_t;
-struct eq_exp_applied_t; 
-
-struct l_and_exp_t;
-struct l_and_exp_eq_t;
-struct l_and_exp_applied_t; 
-
-struct l_or_exp_t;
-struct l_or_exp_and_t;
-struct l_or_exp_applied_t; 
-
-// 这里遵照了语言规范中的定义
-// const 与否要在语义分析中分析，语法分析不能保证其 const 性
-// 当然也可以给 const 类型定义特殊的一套非终结符号
-// 把这个检查留到语义分析（TODO）部分，可能也可以更容易得提供准确的报错信息。
-struct const_exp_t;
-struct const_exp_add_t;
+struct expr;
 
 struct terminal_wrapper: public construct{};
 
@@ -213,18 +168,18 @@ struct const_decl_t: public construct {
 struct const_def_t: public construct {
     const_def_t(    
         const std::string ident,
-        const ptr_list_of<const_exp_t> array_dims,
+        const ptr_list_of<expr> array_dims,
         const std::shared_ptr<const_init_val_t> const_init_val
     ):ident(ident), array_dims(array_dims), const_init_val(const_init_val){}
     std::string ident;
-    ptr_list_of<const_exp_t> array_dims;
+    ptr_list_of<expr> array_dims;
     std::shared_ptr<const_init_val_t> const_init_val;    
 };
 
 struct const_init_val_t: public construct {};
 struct const_init_val_scalar_t: public const_init_val_t {
-    const_init_val_scalar_t(const std::shared_ptr<const_exp_t>& const_exp): const_exp(const_exp){}
-    std::shared_ptr<const_exp_t> const_exp;
+    const_init_val_scalar_t(const std::shared_ptr<expr>& const_exp): const_exp(const_exp){}
+    std::shared_ptr<expr> const_exp;
 };
 struct const_init_val_array_t: public const_init_val_t {
     const_init_val_array_t(const ptr_list_of<const_init_val_t>& array_elements):array_elements(array_elements){}
@@ -244,26 +199,26 @@ struct var_def_t: public construct {};
 struct var_def_only_t: public var_def_t {
     var_def_only_t( 
         const std::string& ident,
-        const ptr_list_of<const_exp_t>& array_dims
+        const ptr_list_of<expr>& array_dims
     ):ident(ident), array_dims(array_dims){}
     std::string ident;
-    ptr_list_of<const_exp_t> array_dims;
+    ptr_list_of<expr> array_dims;
 };
 struct var_def_init_t: public var_def_t {
     var_def_init_t( 
         const std::string& ident,
-        const ptr_list_of<const_exp_t>& array_dims,
+        const ptr_list_of<expr>& array_dims,
         const std::shared_ptr<init_val_t>& init_val
     ):ident(ident), array_dims(array_dims), init_val(init_val){}
     std::string ident;
-    ptr_list_of<const_exp_t> array_dims;
+    ptr_list_of<expr> array_dims;
     std::shared_ptr<init_val_t> init_val;
 };
 
 struct init_val_t: public construct {};
 struct init_val_scalar_t: public init_val_t {
-    init_val_scalar_t(const std::shared_ptr<arithmetic_exp_t>& exp):exp(exp){}
-    std::shared_ptr<arithmetic_exp_t> exp;
+    init_val_scalar_t(const std::shared_ptr<expr>& exp):exp(exp){}
+    std::shared_ptr<expr> exp;
 };
 struct init_val_array_t: public init_val_t {
     init_val_array_t(const ptr_list_of<init_val_t>& array_elements):array_elements(array_elements){}
@@ -288,7 +243,7 @@ struct func_f_param_t: public construct {
     std::shared_ptr<b_type_t> b_type;
     std::string ident;
     // 做高维的留空，填 nullptr
-    ptr_list_of<arithmetic_exp_t> array_dims;
+    ptr_list_of<expr> array_dims;
 };
 
 struct block_t: public construct {
@@ -306,92 +261,107 @@ struct block_item_stmt_t: public block_item_t {
 };
 
 struct stmt_t: public construct {};
+
 struct stmt_assign_t: public stmt_t {
     stmt_assign_t(
         const std::shared_ptr<l_val_t>& l_val,
-        const std::shared_ptr<arithmetic_exp_t>& exp
+        const std::shared_ptr<expr>& exp
     ): l_val(l_val), exp(exp) {}
     std::shared_ptr<l_val_t> l_val;
-    std::shared_ptr<arithmetic_exp_t> exp;
+    std::shared_ptr<expr> exp;
 };
+
 struct stmt_exp_t: public stmt_t {
-    stmt_exp_t(const std::shared_ptr<arithmetic_exp_t>& exp): exp(exp) {}
-    std::shared_ptr<arithmetic_exp_t> exp;
+    stmt_exp_t(const std::shared_ptr<expr>& exp): exp(exp) {}
+    std::shared_ptr<expr> exp;
 };
+
 struct stmt_block_t: public stmt_t {
     stmt_block_t(const std::shared_ptr<block_t>& block): block(block) {}
     std::shared_ptr<block_t> block;
 };
+
 struct stmt_if_t: public stmt_t {
     stmt_if_t(
-        const std::shared_ptr<cond_t>& cond,
+        const std::shared_ptr<expr>& cond,
         const std::shared_ptr<stmt_t>& stmt_if_true,
         const std::shared_ptr<stmt_t>& stmt_if_false
     ): cond(cond), stmt_if_true(stmt_if_true), stmt_if_false(stmt_if_false) {}
-    std::shared_ptr<cond_t> cond;
+    std::shared_ptr<expr> cond;
     std::shared_ptr<stmt_t> stmt_if_true;
     std::shared_ptr<stmt_t> stmt_if_false;
 };
+
 struct stmt_while_t: public stmt_t {
     stmt_while_t(
-        const std::shared_ptr<cond_t>& cond,
+        const std::shared_ptr<expr>& cond,
         const std::shared_ptr<stmt_t>& stmt
     ): cond(cond), stmt(stmt) {}
-    std::shared_ptr<cond_t> cond;
+    std::shared_ptr<expr> cond;
     std::shared_ptr<stmt_t> stmt;
 };
+
 struct stmt_break_t: public stmt_t {};
+
 struct stmt_continue_t: public stmt_t {};
+
 struct stmt_return_t: public stmt_t {
-    stmt_return_t(const std::shared_ptr<arithmetic_exp_t>& exp): exp(exp) {}
-    std::shared_ptr<arithmetic_exp_t> exp;
+    stmt_return_t(const std::shared_ptr<expr>& exp): exp(exp) {}
+    std::shared_ptr<expr> exp;
 };
 
-struct cond_t: public construct {};
-struct cond_l_or_t: public cond_t {
-    cond_l_or_t(const std::shared_ptr<l_or_exp_t>& l_or_exp): l_or_exp(l_or_exp) {}
-    std::shared_ptr<l_or_exp_t> l_or_exp;
+
+/**
+ * Expression
+ * 
+ * 关系、算术与逻辑表达式数据结构
+ * 因为在语法定义里面，没有明确区分整数类型和浮点类型，所以这么做
+ * 非 cond context 看到关系与逻辑表达式直接报错就好 ?
+ * 分析关系逻辑表达式的时候，当作正常短路逻辑来做，需要的时候求值
+ **/
+
+struct expr: public construct {
+//    std::optional<int64_t> static_value; /* static value 考虑了 negative 了*/
 };
 
-struct arithmetic_exp_t: public construct {
-    std::optional<int64_t> static_value; /* static value 考虑了 negative 了*/
-    bool negative = false;
-
-    void toggle_sign() {
-        negative = !negative;
-    }
+struct logical_not_expr: public expr {
+    std::shared_ptr<expr> src;
+    logical_not_expr(std::shared_ptr<expr> src): src(src) {}
 };
 
-struct binary_arithmetic_exp_t: public arithmetic_exp_t {
+struct negative_expr: public expr {
+    std::shared_ptr<expr> src;
+    negative_expr(std::shared_ptr<expr> src): src(src) {}
+};
+
+struct binary_expr: public expr {
     operator_t op;
-    std::shared_ptr<arithmetic_exp_t> src1;
-    std::shared_ptr<arithmetic_exp_t> src2;
-    binary_arithmetic_exp_t(
+    std::shared_ptr<expr> src1;
+    std::shared_ptr<expr> src2;
+    binary_expr(
         operator_t op,
-        std::shared_ptr<arithmetic_exp_t> src1,
-        std::shared_ptr<arithmetic_exp_t> src2,
-        bool negative = false
+        std::shared_ptr<expr> src1,
+        std::shared_ptr<expr> src2
     ) : op(op), src1(src1), src2(src2) {
-        this->negative = negative;
     }
 };
 
-struct l_val_t: public arithmetic_exp_t {
+struct l_val_t: public expr {
     l_val_t(
         std::string ident,
-        const ptr_list_of<arithmetic_exp_t>& exps
+        const ptr_list_of<expr>& exps
     ): ident(ident), exps(exps) {}
     std::string ident;
-    ptr_list_of<arithmetic_exp_t> exps;
+    ptr_list_of<expr> exps;
 };
 
-struct number_literal_t: public arithmetic_exp_t {
+struct number_literal_t: public expr {
     number_literal_t(int64_t value): value(value) {}
     number_literal_t(){}
     int64_t value;
 };
 
-struct func_call_t: public arithmetic_exp_t {
+struct func_call_t: public expr {
     func_call_t(
         const std::string& ident,
         const std::shared_ptr<func_r_params_t>& params
@@ -400,71 +370,13 @@ struct func_call_t: public arithmetic_exp_t {
     std::shared_ptr<func_r_params_t> params;
 };
 
+
 struct func_r_params_t: public construct {
     func_r_params_t(){}
-    func_r_params_t(const ptr_list_of<arithmetic_exp_t>& exps): exps(exps) {}
-    ptr_list_of<arithmetic_exp_t> exps;
+    func_r_params_t(const ptr_list_of<expr>& exps): exps(exps) {}
+    ptr_list_of<expr> exps;
 };
 
-struct rel_exp_t: public construct {};
-struct rel_exp_add_t: public rel_exp_t {
-    rel_exp_add_t(const std::shared_ptr<arithmetic_exp_t>& add_exp): add_exp(add_exp) {}
-    std::shared_ptr<arithmetic_exp_t> add_exp;
-};
-struct rel_exp_applied_t: public rel_exp_t {
-    rel_exp_applied_t(const std::shared_ptr<rel_exp_t>& rel_exp, const std::shared_ptr<operator_t>& op, std::shared_ptr<arithmetic_exp_t>& add_exp):
-        rel_exp(rel_exp), op(op), add_exp(add_exp) {}
-    std::shared_ptr<rel_exp_t> rel_exp;
-    std::shared_ptr<operator_t> op;
-    std::shared_ptr<arithmetic_exp_t> add_exp;
-}; 
-
-struct eq_exp_t: public construct {};
-struct eq_exp_rel_t: public eq_exp_t {
-    eq_exp_rel_t(const std::shared_ptr<rel_exp_t>& rel_exp): rel_exp(rel_exp) {}
-    std::shared_ptr<rel_exp_t> rel_exp;
-};
-struct eq_exp_applied_t: public eq_exp_t {
-    eq_exp_applied_t(const std::shared_ptr<eq_exp_t>& eq_exp, const std::shared_ptr<operator_t>& op, const std::shared_ptr<rel_exp_t>& rel_exp):
-        eq_exp(eq_exp), op(op), rel_exp(rel_exp) {}
-    std::shared_ptr<eq_exp_t> eq_exp;
-    std::shared_ptr<operator_t> op;
-    std::shared_ptr<rel_exp_t> rel_exp;
-}; 
-
-struct l_and_exp_t: public construct {};
-struct l_and_exp_eq_t: public l_and_exp_t {
-    l_and_exp_eq_t(const std::shared_ptr<eq_exp_t>& eq_exp): eq_exp(eq_exp) {}
-    std::shared_ptr<eq_exp_t> eq_exp;
-};
-struct l_and_exp_applied_t: public l_and_exp_t {
-    l_and_exp_applied_t(const std::shared_ptr<l_and_exp_t>& l_and_exp, const std::shared_ptr<eq_exp_t>& eq_exp):
-        l_and_exp(l_and_exp), eq_exp(eq_exp) {}
-    std::shared_ptr<l_and_exp_t> l_and_exp;
-    std::shared_ptr<eq_exp_t> eq_exp;
-}; 
-
-struct l_or_exp_t: public construct {};
-struct l_or_exp_and_t: public l_or_exp_t {
-    l_or_exp_and_t(const std::shared_ptr<l_and_exp_t>& l_and_exp): l_and_exp(l_and_exp) {}
-    std::shared_ptr<l_and_exp_t> l_and_exp;
-};
-struct l_or_exp_applied_t: public l_or_exp_t {
-    l_or_exp_applied_t(const std::shared_ptr<l_or_exp_t>& l_or_exp, const std::shared_ptr<l_and_exp_t>& l_and_exp) :
-        l_or_exp(l_or_exp), l_and_exp(l_and_exp){}
-    std::shared_ptr<l_or_exp_t> l_or_exp;
-    std::shared_ptr<l_and_exp_t> l_and_exp;
-}; 
-
-// 这里遵照了语言规范中的定义
-// const 与否要在语义分析中分析，语法分析不能保证其 const 性
-// 当然也可以给 const 类型定义特殊的一套非终结符号
-// 把这个检查留到语义分析部分，可能也可以更容易得提供准确的报错信息。
-struct const_exp_t: public construct {};
-struct const_exp_add_t: public const_exp_t {
-    const_exp_add_t(const std::shared_ptr<arithmetic_exp_t>& add_exp): add_exp(add_exp) {}
-    std::shared_ptr<arithmetic_exp_t> add_exp;
-};
 
 
 

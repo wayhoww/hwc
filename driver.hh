@@ -8,6 +8,7 @@
 #include <cassert>
 #include <set>
 #include <vector>
+#include <map>
 
 #define YY_DECL \
     yy::parser::symbol_type yylex (driver& drv)
@@ -15,24 +16,11 @@ YY_DECL;
 
 #define yyterminate() return yy::parser::make_YYEOF();
 
-/**
- * driver 中的符号表要支持两项功能：
- * 1. 作用域管理
- * 2. 根据名称查找当前作用域中的变量示例
- * 
- * 使用 enter_scoop 进入新的作用域
- * 使用 exit_scoop 退出作用域
- * 
- * 类变量 current_depth 记录当前作用域深度。根作用域的深度是 0
- * 
- * 暂时使用一个 list 来存储符号表。使用 map + list 可以
- * 做到 O(logN) 的时间复杂度
- **/
-
-
 
 using std::dynamic_pointer_cast;
 using std::shared_ptr;
+
+/* 中间代码数据结构 BEGIN */
 
 struct GlobalVarDef {
     uint64_t size;                               /* in bytes */
@@ -90,13 +78,27 @@ struct ImCode {
 };
 
 struct ImProgram {
-    std::vector<ImCode>     imCodes;
+    std::vector<ImCode>     imcodes;
     std::vector<GlobalVarDef>  globalVars;
     std::vector<FunctionDef>   functions;
     int startFunction; // 入口函数的函数编号
 };
 
 void codegen(const ImProgram& program);
+
+/* 中间代码数据结构 END */
+
+
+/* 工具函数 BEGIN */
+
+std::string format(ImCode::Operator op);
+std::string format(const ImCode::Oprand& oprand);
+std::string format(const std::vector<uint64_t>& vec);
+
+/* 工具函数 END */
+
+
+/* DRIVER BEGIN */
 
 // 因为有各种正交，所以就不再分出来了
 struct symbol_info {
@@ -105,11 +107,10 @@ struct symbol_info {
 
     uint64_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
     std::vector<uint64_t> dims;             /* 维度。如果是常数，dims.empty()       */          
-    std::vector<uint64_t> init_value;       /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
+    std::vector<int64_t> init_value;        /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
 
     bool is_const = false;                          
-    bool is_temp = false;         
-    bool is_function = false;               /* 不知道有没有必要 */            
+    bool is_temp = false;                   
 };
 
 // 因为是完全不交叉的，所以分成子类
@@ -118,17 +119,25 @@ struct nonterm_info {
 };
 
 // literal: 目前仅仅支持 integer
-struct nonterm_literal: nonterm_info {
+struct nonterm_constant: nonterm_info {
     int64_t value;
-    nonterm_literal(int64_t value): value(value) {}
-    static std::shared_ptr<nonterm_literal> newsp(int64_t val) {
-        return std::make_shared<nonterm_literal>(val);
+    nonterm_constant(int64_t value): value(value) {}
+    static std::shared_ptr<nonterm_constant> newsp(int64_t val) {
+        return std::make_shared<nonterm_constant>(val);
     }
 };
 
 struct nonterm_controlflow: nonterm_info {
-    std::vector<uint64_t> true_exits;
-    std::vector<uint64_t> false_exits;
+    std::vector<int> true_exits;
+    std::vector<int> false_exits;
+    nonterm_controlflow(const std::vector<int>& true_exits,
+                        const std::vector<int>& false_exits)
+                    :true_exits(true_exits), false_exits(false_exits) {}
+    static std::shared_ptr<nonterm_controlflow> newsp(
+                        const std::vector<int>& true_exits,
+                        const std::vector<int>& false_exits) {
+        return std::make_shared<nonterm_controlflow>(true_exits, false_exits);
+    }
 };
 
 struct nonterm_integer: nonterm_info {
@@ -147,123 +156,32 @@ struct nonterm_void: nonterm_info {
 
 class driver {
     // 为了避免 multiple def 暂时放这儿
-    std::string format(ImCode::Operator op) {
-        switch (op) {
-        case ImCode::Operator::ALLOC :      return "alloc";
-        case ImCode::Operator::ASSIGN :     return "=";
-        case ImCode::Operator::CALL :       return "call";
-        case ImCode::Operator::DAGET :      return "*get";
-        case ImCode::Operator::DASET :      return "*set";
-        case ImCode::Operator::DIVIDE :     return "/";
-        case ImCode::Operator::JEQ :        return "j==";
-        case ImCode::Operator::JGE :        return "j>=";
-        case ImCode::Operator::JGT :        return "j>";
-        case ImCode::Operator::JLE :        return "j<=";
-        case ImCode::Operator::JLT :        return "j<";
-        case ImCode::Operator::JNE :        return "j!=";
-        case ImCode::Operator::JUMP :       return "jmp";
-        case ImCode::Operator::MARK :       return "mark";
-        case ImCode::Operator::MINUS :      return "-";
-        case ImCode::Operator::MODULE :     return "%";
-        case ImCode::Operator::MULTIPLY :   return "*";
-        case ImCode::Operator::PLUS :       return "+";
-        case ImCode::Operator::RET :        return "ret";
-        default:
-            assert(false);
-            return "error";
-        }
-    }
-
-
-    std::string format(const ImCode::Oprand& oprand) {
-        char buffer[1025];
-        switch (oprand.type) {
-        case ImCode::Oprand::FUNCID:
-            sprintf(buffer, "func %d", oprand.value);
-            break;
-        case ImCode::Oprand::IMCODEID:
-            sprintf(buffer, "imcode %d", oprand.value);
-            break;
-        case ImCode::Oprand::IMMEDIATE:
-            sprintf(buffer, "#%d", oprand.value);
-            break;
-        case ImCode::Oprand::PARAMID:
-            sprintf(buffer, "param %d", oprand.value);
-            break;
-        case ImCode::Oprand::VAR:
-            if(oprand.var.isTemp) {
-                sprintf(buffer, "$%d (tmp)", oprand.var.varID);
-            }else{
-                sprintf(buffer, "$%d", oprand.var.varID);
-            }
-            break;
-        case ImCode::Oprand::INVALID:
-            sprintf(buffer, "");
-            break;
-        default:
-            sprintf(buffer, "");
-            assert(false);
-            break;
-        }
-        return std::string(buffer);
-    }
-
-    std::string format(const std::vector<uint64_t>& vec) {
-        std::string str = "[";
-        for(auto item: vec) {
-            str.append(std::to_string(item));
-            str.append(", ");
-        }
-        str.append("]");
-        return str;
-    }
-
 protected:
     int current_depth = 0;                  //   当前深度（见注释）
-    std::vector<symbol_info> symbols;       //   符号表 
-
-    ImProgram imProgram;
+    std::vector<symbol_info> symbols;       //   符号表,  symbols 的下标就是 var_id
+    std::map<shared_ptr<expr>, std::pair<bool, int64_t>> static_eval_cache; 
+    int nxq() {
+        return imcodes().size();
+    }
 
     std::vector<FunctionDef>& functions() {
         return imProgram.functions;
     }
 
-    std::vector<GlobalVarDef>& globalVars() {
+    std::vector<GlobalVarDef>& global_vars() {
         return imProgram.globalVars;
     }   
      
-    std::vector<ImCode>& imCodes() {
-        return imProgram.imCodes;
+    std::vector<ImCode>& imcodes() {
+        return imProgram.imcodes;
     }
 
 public:
-    void dumpTo(FILE* file) {
-        fprintf(file, "Global Variables\n\n");
-        fprintf(file, "%-20s%-20s%-20s\n", "VarID", "Identifier", "Size (in bytes)");
-        fprintf(file, "------------------------------------------------------------\n");
-        for(int i = 0; i < globalVars().size(); i++) {
-            auto var = globalVars()[i];
-            fprintf(file, "%-20d%-20s%-20d\n", i, var.identifier.c_str(), var.size);
-        }        
-        fprintf(file, "\n\n");
+    std::shared_ptr<comp_unit_t> syntax_tree = nullptr;
 
-        fprintf(file, "Functions\n\n");
-        fprintf(file, "%-20s%-20s%-20s%-20s\n", "Function ID", "Function Name", "Entrance", "Start Function");
-        fprintf(file, "--------------------------------------------------------------------------------\n");
-        for(int i = 0; i < functions().size(); i++) {
-            auto func = functions()[i];
-            fprintf(file, "%-20d%-20s%-20d%-20s\n", i, func.identifier.c_str(), func.entrance, imProgram.startFunction == i ? "YES" : "");
-        }
-        fprintf(file, "\n\n");
+    ImProgram imProgram;
 
-        fprintf(file, "Immediate Code\n\n");
-        fprintf(file, "%-20s%-20s%-20s%-20s%-20s\n", "ImCode ID", "Operator", "Src1", "Src2", "Dest", "Arguments");
-        fprintf(file, "----------------------------------------------------------------------------------------------------\n");
-        for(int i = 0; i < imCodes().size(); i++) {
-            auto code = imCodes()[i];
-            fprintf(file, "%-20d%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format(code.arguments).c_str());
-        }
-    }
+    void dump_to(FILE* file);
 
     int enter_scoop(){
         return ++current_depth;
@@ -279,115 +197,45 @@ public:
         return --current_depth;
     }
 
-    uint64_t entry(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const_var) {
-        for(int i = symbols.size() - 1; i >= 0; i--) {
-            if(symbols[i].scoop_depth < current_depth) {
-                break;
-            }
-            if(symbols[i].identifier == ident){
-                assert(false);
-            }
-        }
-        symbol_info sym;
-        sym.identifier = ident;
-        sym.scoop_depth = current_depth;
-        sym.is_const = is_const_var;
-        sym.dims = dims;
-        sym.size = 8;
-        for(auto dim: dims) sym.size *= dim;
-        symbols.push_back(sym);
-        return symbols.size() - 1;
+    // 不要调用 entry
+    // 添加函数调用 add_var, 自动判断是否是global的函数，并自动添加到全局变量表和符号表中
+
+    uint64_t entry(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const_var, const std::vector<int64_t>& init_value);
+    
+    uint64_t add_function(const std::string& ident, uint64_t entrance) ;
+
+    uint64_t query_function(const std::string& ident) ;
+
+    uint64_t add_var(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const, const std::vector<int64_t>& init_value) ;
+    
+    uint64_t query_var(const std::string& ident);
+
+    uint64_t add_temp();
+
+    void compile() {
+        compile(syntax_tree);
     }
 
-    uint64_t query(const std::string& ident) {
-        for(int i = symbols.size() - 1; i >= 0; i--) {
-            if(symbols[i].identifier == ident){
-                return i;
-            }
-        }
-        assert(false);
-        return 0;
-    }
+    std::shared_ptr<nonterm_info> compile_offset(const ptr_list_of<expr>& exps, const std::vector<uint64_t> dims);
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place = nullptr);
 
-    uint64_t add_function(const std::string& ident, uint64_t entrance) {
-        for(int i = 0; i < functions().size(); i++) {
-            if(functions()[i].identifier == ident){
-                assert(false);
-            }
-        }
-        for(int i = 0; i < globalVars().size(); i++) {
-            if(globalVars()[i].identifier == ident) {
-                assert(false);
-            }
-        }
-        FunctionDef func;
-        func.entrance = entrance;
-        func.identifier = ident;
-        functions().push_back(func);
-        return functions().size() - 1;
-    }
+    std::shared_ptr<nonterm_controlflow> to_nonterm_controlflow(const shared_ptr<nonterm_info>& info);
+    std::shared_ptr<nonterm_integer> to_nonterm_integer(const std::shared_ptr<nonterm_info>& info);
 
-    uint64_t query_function(const std::string& ident) {
-        for(int i = 0; i < functions().size(); i++) {
-            auto func = functions()[i];
-            if(func.identifier == ident) {
-                return i;
-            }
-        }
-        assert(false);
-        return 0;
-    }
-
-
-    uint64_t add_var(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const, const std::vector<uint64_t>& init_value) {
-        if(current_depth == 0) {
-            for(int i = 0; i < functions().size(); i++) {
-                if(functions()[i].identifier == ident){
-                    assert(false);
-                }
-            }
-            for(int i = 0; i < globalVars().size(); i++) {
-                if(globalVars()[i].identifier == ident) {
-                    assert(false);
-                }
-            }
-        }
-        uint64_t size = 8;
-        for(auto dim: dims)
-            size *= dim;
-        
-        if(current_depth == 0) {
-            GlobalVarDef var;
-            var.identifier = ident;
-            var.size = size;
-            // var.initValue = 
-            globalVars().push_back(var);
-        }
-        
-        auto varID = entry(ident, dims, is_const);
-        return varID;
-    }
-
-    uint64_t add_temp() {
-        symbol_info sym;
-        sym.size = 8;
-        sym.is_const = false;
-        sym.scoop_depth = current_depth;
-        sym.is_temp = true;
-        symbols.push_back(sym);
-        return symbols.size() - 1;
+    void backpatch(const std::vector<int>& ids, int value) {
+        for(auto i: ids) imcodes()[i].dest.value = value;
     }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_t>& comp_unit){
         printf("IMCODE GEN\n\n");
         for(auto child: comp_unit->children) {
-        //    compile(child);
+            compile(child);
         }
-        dumpTo(stdout);
+        dump_to(stdout);
         codegen(imProgram);
         return nonterm_void::newsp();
     }
-/*
+
     std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_item_t>& ptr){
         auto decl = dynamic_pointer_cast<comp_unit_item_decl_t>(ptr);  
         auto func_def = dynamic_pointer_cast<comp_unit_item_func_def_t>(ptr);  
@@ -399,9 +247,14 @@ public:
         return nonterm_void::newsp();
     }
 
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<construct>& funcdef) {
+        assert(false);
+        return nonterm_void::newsp();
+    }
+
     std::shared_ptr<nonterm_info> compile(const shared_ptr<func_def_t>& funcdef) {
         auto type = funcdef->func_type->type;
-        auto funcname = funcdef->ident->name;
+        auto funcname = funcdef->ident;
 
         // 逻辑要搞清楚
         // 多次调用、递归调用同一个函数，对每一个局部变量得到的 var id 必定是
@@ -409,7 +262,7 @@ public:
         // 在开始生成其代码之前 enter scoop，在生成结束之后 exit scoop，恰好没问题
         // 一个函数知会被生成一次代码
 
-        auto entrance = imCodes().size();
+        auto entrance = imcodes().size();
         auto funcid = add_function(funcname, entrance);
         if(funcname == "main") {
             this->imProgram.startFunction = funcid;
@@ -459,14 +312,14 @@ public:
 
 
 
-
     std::shared_ptr<nonterm_info> compile(const shared_ptr<func_f_param_t>& param, int param_index) {
         assert(param->b_type->type == b_type_t::INT);
         
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
         std::vector<uint64_t> dims;
-        auto id = entry(param->ident->name, dims, false);
+        // TODO init
+        auto id = entry(param->ident, dims, false, {});
         ImCode code;
         code.op = ImCode::MARK;
         code.src1.type = ImCode::Oprand::PARAMID;
@@ -474,13 +327,8 @@ public:
         code.dest.type = ImCode::Oprand::VAR;
         code.dest.var.isTemp = false;
         code.dest.var.varID = id;
-        imCodes().push_back(code);
+        imcodes().push_back(code);
 
-        return nonterm_void::newsp();
-    }
-
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<construct>& funcdef) {
-        assert(false);
         return nonterm_void::newsp();
     }
 
@@ -504,23 +352,6 @@ public:
         assert(false);
     }
 
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<cond_t>& cond) {
-        auto lor = dynamic_pointer_cast<cond_l_or_t>(cond);
-        assert(lor);
-        auto lorexp = lor->l_or_exp;
-        auto s1 = dynamic_pointer_cast<l_or_exp_applied_t>(lorexp);
-        auto s2 = dynamic_pointer_cast<l_or_exp_and_t>(lorexp);
-        // nonterm_integer info;
-        if(s1) {
-
-        }else if(s2) {
-            
-        }else {
-            assert(false);
-        }
-        return nonterm_void::newsp();
-    }
-
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_if_t>& stmt) {
 
         return nonterm_void::newsp();
@@ -531,7 +362,7 @@ public:
         if(stmt->exp) {
             code.src1 = get_oprand(compile(stmt->exp));
         }
-        imCodes().push_back(code);
+        imcodes().push_back(code);
 
         return nonterm_void::newsp();
     }
@@ -539,8 +370,8 @@ public:
         return nonterm_void::newsp();
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_assign_t>& stmt) {
-        auto ident = stmt->l_val->ident->name;
-        auto varid = query(ident);
+        auto ident = stmt->l_val->ident;
+        auto varid = query_var(ident);
 
         auto dims = symbols[varid].dims;
         assert(stmt->l_val->exps.size() == dims.size());
@@ -548,56 +379,31 @@ public:
         auto rval = compile(stmt->exp);
 
         if(dims.size() == 0) {
-            gen_arithmetic(ImCode::ASSIGN, rval, nonterm_void::newsp(), nonterm_integer::newsp(varid));
+            gen_imcode(ImCode::ASSIGN, rval, nonterm_void::newsp(), nonterm_integer::newsp(varid));
             return nonterm_void::newsp();
         } else {
-            auto offset = compile_for_index(stmt->l_val->exps, dims);
-            gen_arithmetic(ImCode::MULTIPLY, offset, nonterm_literal::newsp(8), offset);
-            gen_arithmetic(ImCode::DASET, nonterm_integer::newsp(varid), offset, rval);
+            auto offset = compile_offset(stmt->l_val->exps, dims);
+            gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(8), offset);
+            gen_imcode(ImCode::DASET, nonterm_integer::newsp(varid), offset, rval);
             return nonterm_void::newsp();
         }
     }
 
-    std::shared_ptr<nonterm_info> compile_for_index(const ptr_list_of<exp_t>& exps, const std::vector<uint64_t> dims) {
-        // 暂时不做边界检查
-        auto offset = nonterm_integer::newsp(add_temp());
 
-        int index = 1;
-        for(auto exp: exps) {
-            auto dim = compile(exp);
-            gen_arithmetic(ImCode::PLUS, offset, dim, offset);
-            if(index < dims.size()) {
-                gen_arithmetic(ImCode::MULTIPLY, offset, nonterm_literal::newsp(dims[index++]), offset);
-            }
-        }
-        return offset;
+    void gen_imcode(ImCode::Operator op, 
+                        const std::shared_ptr<nonterm_info>& src1,
+                        const std::shared_ptr<nonterm_info>& src2,
+                        int dest){
+        ImCode code;
+        code.op = op;
+        code.src1 = get_oprand(src1);
+        code.src2 = get_oprand(src2);
+        code.dest.type = ImCode::Oprand::IMCODEID;
+        code.dest.value = dest;
+        imcodes().push_back(code);
     }
 
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<exp_t>& exp) {
-        auto a = dynamic_pointer_cast<exp_add_t>(exp);
-        if(a) { return compile(a->add_exp); }
-        else { assert(false); }
-        return nonterm_void::newsp();
-    }
-
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<add_exp_t>& exp) {
-        // TODO 即便是 a + 1, 1 也会被作为一个变量存储。 这需要改进。
-        auto s1 = dynamic_pointer_cast<add_exp_applied_t>(exp);
-        auto s2 = dynamic_pointer_cast<add_exp_mul_t>(exp);
-        if(s1) { 
-            auto var1 = compile(s1->add_exp);
-            auto var2 = compile(s1->mul_exp);
-            auto dest = nonterm_integer::newsp(add_temp());
-            gen_arithmetic(get_operator(s1->op->type), var1, var2, dest);
-            return dest;
-        } else if (s2) {
-            return compile(s2->mul_exp);
-        } else {
-            assert(false);
-        }
-    }    
-
-    void gen_arithmetic(ImCode::Operator op, 
+    void gen_imcode(ImCode::Operator op, 
                             const std::shared_ptr<nonterm_info>&    src1, 
                             const std::shared_ptr<nonterm_info>&    src2, 
                             const std::shared_ptr<nonterm_info>&    dest) {
@@ -609,8 +415,8 @@ public:
         // 除非是 DASET，不然 dest 必须是 integer
 
         assert( dynamic_pointer_cast<nonterm_integer>(dest) ||
-                (code.op == ImCode::DASET && dynamic_pointer_cast<nonterm_literal>(dest)));
-        imCodes().push_back(code);
+                (code.op == ImCode::DASET && dynamic_pointer_cast<nonterm_constant>(dest)));
+        imcodes().push_back(code);
     } 
 
     ImCode::Oprand get_oprand(const std::shared_ptr<nonterm_info>& info) {
@@ -625,7 +431,7 @@ public:
             return op;
         }
          
-        auto constant = dynamic_pointer_cast<nonterm_literal>(info);
+        auto constant = dynamic_pointer_cast<nonterm_constant>(info);
         if(constant){
             op.type = ImCode::Oprand::IMMEDIATE;
             op.value = constant->value;
@@ -639,126 +445,7 @@ public:
         
         assert(false);
     }
-    
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<mul_exp_t>& exp) {
-        auto s1 = dynamic_pointer_cast<mul_exp_applied_t>(exp);
-        auto s2 = dynamic_pointer_cast<mul_exp_unary_t>(exp);
-        if(s1) { 
-            auto var1 = compile(s1->mul_exp);
-            auto var2 = compile(s1->unary_exp);
-            auto dest = nonterm_integer::newsp(add_temp());
-            gen_arithmetic(get_operator(s1->op->type), var1, var2, dest);
-            return dest;
-        } else if (s2) {
-            return compile(s2->unary_exp);
-        } else {
-            assert(false);
-        }
-    }
 
-    ImCode::Operator get_operator(operator_t::Type op){
-        switch(op) {
-            case operator_t::PLUS: return ImCode::PLUS;
-            case operator_t::MINUS: return ImCode::MINUS;
-            case operator_t::MULTIPLY: return ImCode::MULTIPLY;
-            case operator_t::DIVIDE: return ImCode::DIVIDE;
-            case operator_t::MODULE: return ImCode::MODULE;
-            default: 
-            assert(false);
-            return ImCode::PLUS;
-        }
-    }
-
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<unary_exp_t>& exp) {
-        auto s1 = dynamic_pointer_cast<unary_exp_applied_t>(exp);
-        auto s2 = dynamic_pointer_cast<unary_exp_primary_exp_t>(exp);
-        auto s3 = dynamic_pointer_cast<unary_exp_func_call_t>(exp);
-        
-        if(s1) {
-            auto subvar = compile(s1->unary_exp);
-            if(s1->op->type == operator_t::NEGATIVE) {
-                // temp = 0 - var
-                auto info = nonterm_integer::newsp(add_temp()); 
-                gen_arithmetic(ImCode::MINUS, nonterm_literal::newsp(0), subvar, info);
-                return info;
-            } else {
-                return subvar;
-            }
-        } else if(s2) {
-            return compile(s2->primary_exp);
-        } else if(s3) {
-            ImCode code;
-            code.op = ImCode::CALL;
-            code.src1.type = ImCode::Oprand::FUNCID;
-            code.src1.value = query_function(s3->ident->name);
-            auto rst1 = nonterm_void::newsp();
-            auto rst2_varid = 0;
-            if(!functions()[code.src1.value].returnVoid) {
-                rst2_varid = add_temp();
-            }
-            auto rst2 = nonterm_integer::newsp(rst2_varid);
-            if(functions()[code.src1.value].returnVoid) {
-                code.dest = get_oprand(rst1);
-            }else{
-                code.dest = get_oprand(rst2);
-            }
-            auto exps = s3->params->exps;
-            
-            for(auto exp: exps){
-                auto var = to_nonterm_integer(compile(exp));
-                code.arguments.push_back(var->var_id);
-            }
-
-            if(functions()[code.src1.value].returnVoid) {
-                return rst1;
-            }else{
-                return rst2;
-            }
-        } else {
-            assert(false);
-        }
-    }
-
-    std::shared_ptr<nonterm_integer> to_nonterm_integer(const std::shared_ptr<nonterm_info>& info) {
-        auto s1 = dynamic_pointer_cast<nonterm_integer>(info);
-        if(s1) return s1;
-    
-        auto s2 = dynamic_pointer_cast<nonterm_literal>(info);
-        if(s2){
-            auto rtn = nonterm_integer::newsp(add_temp());
-            gen_arithmetic(ImCode::ASSIGN, info, nonterm_void::newsp(), rtn);
-            return rtn;
-        }
-        assert(false);
-    }
-
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<primary_exp_t>& exp) {
-        auto s1 = dynamic_pointer_cast<primary_exp_number_t>(exp);
-        auto s2 = dynamic_pointer_cast<primary_exp_exp_t>(exp);
-        auto s3 = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
-        if(s1) {
-            auto value = s1->number->int_const->value;
-            auto info = nonterm_literal::newsp(value);
-            return info;
-        } else if(s2) {
-            return compile(s2->exp);
-        } else if(s3) {
-            auto lval = s3->l_val;
-            auto varid = query(lval->ident->name);
-            auto dims = lval->exps;
-            if(dims.empty()) {
-                return nonterm_integer::newsp(varid);
-            } else {
-                auto info = nonterm_integer::newsp(add_temp());
-                auto offset = compile_for_index(dims, symbols[varid].dims);
-                gen_arithmetic(ImCode::MULTIPLY, offset, nonterm_literal::newsp(8), offset);
-                gen_arithmetic(ImCode::DAGET, nonterm_integer::newsp(varid), offset, info);
-                return info;
-            }
-        } else {
-            assert(false);
-        }
-    }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_block_t>& stmt) {
         auto block = stmt->block;
@@ -813,7 +500,8 @@ public:
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_only_t>& def_only) {
         auto [size, dims] = static_array_dims(def_only->array_dims);
-        auto id = add_var(def_only->ident->name, dims, false, std::vector<uint64_t>());
+        // todo init
+        auto id = add_var(def_only->ident, dims, false, {});
         if(!dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
@@ -826,7 +514,7 @@ public:
         auto [size, dims] = static_array_dims(def_init->array_dims);
         // 取init的时候要用到dims和size
         // TODO init
-        auto id = add_var(def_init->ident->name, dims, false, std::vector<uint64_t>());
+        auto id = add_var(def_init->ident, dims, false, {});
         if(!dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
         }
@@ -842,7 +530,7 @@ public:
         code.dest.type = ImCode::Oprand::VAR;
         code.dest.var.isTemp = false;
         code.dest.var.varID = id;
-        imCodes().push_back(code); 
+        imcodes().push_back(code); 
     }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<const_decl_t>& decl) {
@@ -858,13 +546,12 @@ public:
 
         // TODO 暂时不做 initialization
         // constdef->const_init_val
-        auto varid = add_var(constdef->ident->name, dims, true, std::vector<uint64_t>());
-        symbols[varid].init_value = std::vector<uint64_t>(size, 0);
+        auto varid = add_var(constdef->ident, dims, true, std::vector<int64_t>(size, 0));
 
         return nonterm_void::newsp();
     }
 
-    std::pair<uint64_t, std::vector<uint64_t>> static_array_dims(const ptr_list_of<const_exp_t>& dimsdef) {
+    std::pair<uint64_t, std::vector<uint64_t>> static_array_dims(const ptr_list_of<expr>& dimsdef) {
         uint64_t size = 1;
         std::vector<uint64_t> dims;
         for(auto dim: dimsdef) {
@@ -875,133 +562,15 @@ public:
         }
         return std::make_pair(size, dims);      
     }
-    */
+    
 
     /* static evaluation (for integer) */
     /* { true, val } 有静态数值          */
     /* { false, _} 反之                 */
     /*  考虑先用记忆化解决问题             */
-/*
-    std::pair<bool, int64_t> static_eval(const shared_ptr<const_exp_t>& constexp) {
-        auto exp = dynamic_pointer_cast<const_exp_add_t>(constexp);
-        assert(exp && exp->add_exp);
-        return static_eval(exp->add_exp);
-    }
-
-    std::pair<bool, int64_t> static_eval(const shared_ptr<add_exp_t>& add_exp) {
-        auto mul_exp = dynamic_pointer_cast<add_exp_mul_t>(add_exp);
-        auto applied_exp = dynamic_pointer_cast<add_exp_applied_t>(add_exp);
-        if(mul_exp) {
-             return static_eval(mul_exp->mul_exp);
-        }else if(applied_exp) {
-            int op = applied_exp->op->type == operator_t::PLUS ? 1 : -1;
-            auto [ok1, val1] = static_eval(applied_exp->add_exp);
-            if(!ok1) return { false, 0 };
-            auto [ok2, val2] = static_eval(applied_exp->add_exp);
-            if(!ok2) return { false, 0 };
-            return { true, val1 + op * val2 };
-        }else{
-            assert(false);
-        }
-    }
-
-    std::pair<bool, int64_t> static_eval(const shared_ptr<mul_exp_t>& mul_exp) {
-        auto unary_exp = dynamic_pointer_cast<mul_exp_unary_t>(mul_exp);
-        auto applied_exp = dynamic_pointer_cast<mul_exp_applied_t>(mul_exp);
-        if(unary_exp) return static_eval(unary_exp->unary_exp);
-        else if(applied_exp){
-            auto [ok1, val1] = static_eval(applied_exp->mul_exp);
-            if(!ok1) return {false, 0};
-            auto [ok2, val2] = static_eval(applied_exp->unary_exp);
-            if(!ok2) return {false, 0};
-            if(applied_exp->op->type == operator_t::MULTIPLY) {
-                return { true, val1 * val2 };
-            } else if (applied_exp->op->type == operator_t::DIVIDE) {
-                return { true, val1 / val2 }; 
-            } else if (applied_exp->op->type == operator_t::MODULE) {
-                return { true, val1 % val2 }; 
-            } else {
-                assert(false);
-            }
-        } else {
-            assert(false);
-        }
-    }
-
-    std::pair<bool, int64_t> static_eval(const shared_ptr<unary_exp_t>& exp) {
-        auto applied_exp = dynamic_pointer_cast<unary_exp_applied_t>(exp);
-        auto primary_exp = dynamic_pointer_cast<unary_exp_primary_exp_t>(exp);
-        auto func_call_exp = dynamic_pointer_cast<unary_exp_func_call_t>(exp);
-        if(applied_exp){
-            auto [ok, val] = static_eval(applied_exp->unary_exp);
-            if(!ok) return {false, 0};
-            switch (applied_exp->op->type) {
-            case operator_t::POSITIVE:
-                return {true, val};
-            case operator_t::NEGATIVE:
-                return {true, -val};
-            case operator_t::LOGICAL_NOT:
-            default:
-                // logical not
-                assert(false);
-                break;
-            }
-        }else if(primary_exp) {
-            return static_eval(primary_exp->primary_exp);
-        }else if(func_call_exp){
-            // TODO: 暂时不考虑 funcall
-            return {false, 0};
-        }else{
-            assert(false);
-        }
-        return {false, 0};
-    }
-
-    std::pair<bool, int64_t> static_eval(const shared_ptr<primary_exp_t>& exp) {
-        auto number = dynamic_pointer_cast<primary_exp_number_t>(exp);
-        auto lval = dynamic_pointer_cast<primary_exp_l_val_t>(exp);
-        auto exp_exp = dynamic_pointer_cast<primary_exp_exp_t>(exp);
-
-        if(number) return static_eval(number->number);
-        else if(lval) {
-            auto varid = query(lval->l_val->ident->name);
-            if(!symbols[varid].is_const) {
-                return { false, 0 };
-            }else{
-                // 这个是统一的逻辑
-                auto exps = lval->l_val->exps;
-                int offset = 0;
-                int index = 1;
-                for(auto exp: exps) {
-                    auto [ok, val] = static_eval(exp);
-                    if(!ok) return {false, 0};
-                    offset += val;
-                    if(index != exps.size() - 1) {
-                        offset *= symbols[varid].dims[index++];
-                    }
-                }
-                return {true, symbols[varid].init_value[offset]};
-            }
-        } else if(exp_exp){
-            return static_eval(exp_exp->exp);
-        } else {
-            assert(false);
-        }
-    }
-
-    std::pair<bool, int64_t> static_eval(const shared_ptr<exp_t>& exp) {
-        auto s = dynamic_pointer_cast<exp_add_t>(exp);
-        if(s) {
-            return static_eval(s->add_exp);
-        } else {
-            assert(false);
-        }
-    }
-
-    std::pair<bool, int64_t> static_eval(const shared_ptr<number_t>& number) {
-        return { true, number->int_const->value };
-    }
-*/
+    std::pair<bool, int64_t> static_eval_offset(const ptr_list_of<expr> indices, 
+                                                const std::vector<uint64_t>& dims);
+    std::pair<bool, int64_t> static_eval(shared_ptr<expr> root);
 };
 
 #endif
