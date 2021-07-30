@@ -111,7 +111,7 @@ struct nonterm_info {
     int var_id;
     int trueChain;
     int falseChain;
-    int 
+    int back;
 };
 
 class driver {
@@ -375,8 +375,14 @@ public:
         // 在开始生成其代码之前 enter scoop，在生成结束之后 exit scoop，恰好没问题
         // 一个函数知会被生成一次代码
 
-        enter_scoop();
         auto entrance = imCodes().size();
+        auto funcid = add_function(funcname, entrance);
+        if(funcname == "main") {
+            this->imProgram.startFunction = funcid;
+        }
+        
+        enter_scoop();
+        
         // 参数
         int i = 0;
         for(auto param: funcdef->params->params) {
@@ -387,10 +393,6 @@ public:
 
         exit_scoop();
 
-        auto funcid = add_function(funcname, entrance);
-        if(funcname == "main") {
-            this->imProgram.startFunction = funcid;
-        }
     }
 
     void compile(const shared_ptr<block_t>& block, bool enter_new_scoop = true) {
@@ -482,7 +484,12 @@ public:
 
     }
     void compile(const shared_ptr<stmt_return_t>& stmt) {
-
+        ImCode code;
+        code.op = ImCode::RET;
+        if(stmt->exp) {
+            code.src1 = get_oprand_var(compile(stmt->exp).var_id);
+        }
+        imCodes().push_back(code);
     }
     void compile(const shared_ptr<stmt_while_t>& stmt) {
 
@@ -705,7 +712,8 @@ public:
     }
 
     void compile(const shared_ptr<stmt_block_t>& stmt) {
-
+        auto block = stmt->block;
+        compile(block, true);
     }
     void compile(const shared_ptr<stmt_continue_t>& stmt) {
 

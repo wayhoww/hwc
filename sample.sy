@@ -7,6 +7,11 @@ const int c[a][b] = 1;
 int d = 2;
 int e[2][4];
 
+int fib(int x, int a){
+    return fib(x-a, x+a);
+}
+
+
 int main(){
     const int a = 1;
     const int b = 1;
@@ -18,10 +23,9 @@ int main(){
 
     int e[2][4];
     e[1][2] = c[3][4];
+
+    int x;
+    x = fib(e[2][c[2][1]], b);
 }
 
 int g;
-
-int fib(int x, int a){
-
-}
