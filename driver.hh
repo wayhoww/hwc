@@ -96,6 +96,8 @@ struct ImProgram {
     int startFunction; // 入口函数的函数编号
 };
 
+void codegen(const ImProgram& program);
+
 struct symbol_info {
     int scoop_depth;
     std::string identifier = "";
@@ -353,6 +355,7 @@ public:
             compile(child);
         }
         dumpTo(stdout);
+        codegen(imProgram);
         return 0;
     }
 
