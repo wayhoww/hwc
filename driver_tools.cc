@@ -62,7 +62,8 @@ std::string format(const ImCode::Oprand& oprand) {
     return std::string(buffer);
 }
 
-std::string format(const std::vector<uint32_t>& vec) {
+template<typename int_t>
+std::string format(const std::vector<int_t>& vec) {
     std::string str = "[";
     for(auto item: vec) {
         str.append(std::to_string(item));
@@ -74,11 +75,11 @@ std::string format(const std::vector<uint32_t>& vec) {
 
 void driver::dump_to(FILE* file) {
     fprintf(file, "Global Variables\n\n");
-    fprintf(file, "%-20s%-20s%-20s\n", "VarID", "Identifier", "Size (in bytes)");
-    fprintf(file, "------------------------------------------------------------\n");
+    fprintf(file, "%-20s%-20s%-20s%-20s\n", "VarID", "Identifier", "Size (in bytes)", "Init Value (in int32)");
+    fprintf(file, "--------------------------------------------------------------------------------\n");
     for(int i = 0; i < global_vars().size(); i++) {
         auto var = global_vars()[i];
-        fprintf(file, "%-20d%-20s%-20d\n", i, var.identifier.c_str(), var.size);
+        fprintf(file, "%-20d%-20s%-20d%-20s\n", i, var.identifier.c_str(), var.size, format<int32_t>(var.initValue).c_str());
     }        
     fprintf(file, "\n\n");
 
@@ -93,9 +94,9 @@ void driver::dump_to(FILE* file) {
 
     fprintf(file, "Immediate Code\n\n");
     fprintf(file, "%-20s%-20s%-20s%-20s%-20s%-20s\n", "ImCode ID", "Operator", "Src1", "Src2", "Dest", "Arguments");
-    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
+    fprintf(file, "------------------------------------------------------------------------------------------------------------------------\n");
     for(int i = 0; i < imcodes().size(); i++) {
         auto code = imcodes()[i];
-        fprintf(file, "%-20d%-20s%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format(code.arguments).c_str());
+        fprintf(file, "%-20d%-20s%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format<uint32_t>(code.arguments).c_str());
     }
 }

@@ -84,7 +84,7 @@ uint32_t driver::add_var(const std::string& ident, const std::vector<uint32_t>& 
         var.identifier = ident;
         var.size = size;
         // TODO 这边还是转 byte 比较好
-       // var.initValue = init_value;
+        var.initValue = init_value;
         global_vars().push_back(var);
     }
     

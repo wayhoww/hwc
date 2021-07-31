@@ -24,7 +24,7 @@ using std::shared_ptr;
 
 struct GlobalVarDef {
     uint32_t size;                               /* in bytes */
-    std::vector<uint32_t> initValue;                         /* 可能没有初始化 */
+    std::vector<int32_t> initValue;                         /* 可能没有初始化 */
     std::string identifier;
 };
 // i.e. 定义的时候用，不会被引用
@@ -620,11 +620,55 @@ public:
         return vec;
     }
 
+    // [3, 5]
+    void recursive_evaluate(
+            shared_ptr<const_init_val_t> init_val, 
+            std::vector<uint32_t> dims, 
+            int layer, 
+            int layer_size,
+            int offset,
+            std::vector<int32_t>& buffer) {
+        if (auto r = dynamic_pointer_cast<const_init_val_scalar_t>(init_val)) {
+            auto [ok, val] = static_eval(r->const_exp);
+            assert(ok);
+            buffer[offset] = val;
+        } else if (auto r = dynamic_pointer_cast<const_init_val_array_t>(init_val)) {
+            if(r->array_elements.size() == 0) {
+                for(int i = 0; i < layer_size; i++) {
+                    buffer[offset + i] = 0;
+                }
+            } else if(auto flat = flatten(init_val); flat.size() == layer_size) {
+                for(int i = 0; i < layer_size; i++) {
+                    auto [ok, val] = static_eval(flat[i]);
+                    assert(ok);
+                    buffer[offset + i] = val;
+                }
+            } else {
+                int new_layer_size = layer_size / dims[layer];
+                int delta_bias = new_layer_size;
+                int bias = 0;
+                for(auto exp: r->array_elements) {
+                    recursive_evaluate(exp, dims, layer + 1, new_layer_size, offset + bias, buffer);
+                    if( dynamic_pointer_cast<const_init_val_scalar_t>(exp) ) {
+                        bias += 1;
+                    }else{
+                        bias += delta_bias;
+                    }
+                }
+                for(int i = bias; i < layer_size; i++){
+                    buffer[offset + i] = 0;
+                }
+            }
+        }
+    }
+
     std::shared_ptr<nonterm_info> compile(const shared_ptr<const_def_t>& constdef) {
         auto [size, dims] = static_array_dims(constdef->array_dims);
 
         std::vector<int32_t> init(size, 0);
-        auto flat_init = flatten(constdef->const_init_val);
+        recursive_evaluate(constdef->const_init_val, dims, 0, size, 0, init);
+        //auto flat_init = flatten(constdef->const_init_val);
+        /*
         if(flat_init.size() == size) {
             for(int i = 0; i < flat_init.size(); i++) {
                 auto [ok, val] = static_eval(flat_init[i]);
@@ -634,7 +678,9 @@ public:
         } else {
             // TODO
             assert(false);
-        }
+        }*/
+
+
         auto varid = add_var(constdef->ident, dims, true, init);
         
         return nonterm_void::newsp();
