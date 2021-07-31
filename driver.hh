@@ -127,16 +127,29 @@ struct nonterm_constant: nonterm_info {
     }
 };
 
-struct nonterm_controlflow: nonterm_info {
+struct nonterm_boolean: nonterm_info {
     std::vector<int> true_exits;
     std::vector<int> false_exits;
-    nonterm_controlflow(const std::vector<int>& true_exits,
+    nonterm_boolean(const std::vector<int>& true_exits,
                         const std::vector<int>& false_exits)
                     :true_exits(true_exits), false_exits(false_exits) {}
-    static std::shared_ptr<nonterm_controlflow> newsp(
+    static std::shared_ptr<nonterm_boolean> newsp(
                         const std::vector<int>& true_exits,
                         const std::vector<int>& false_exits) {
-        return std::make_shared<nonterm_controlflow>(true_exits, false_exits);
+        return std::make_shared<nonterm_boolean>(true_exits, false_exits);
+    }
+};
+
+struct nonterm_controlflow: nonterm_info {
+    std::vector<int> break_exits;
+    std::vector<int> continue_exits;;
+    nonterm_controlflow(const std::vector<int>& break_exits,
+                        const std::vector<int>& continue_exits)
+                    :break_exits(break_exits), continue_exits(continue_exits) {}
+    static std::shared_ptr<nonterm_controlflow> newsp(
+                        const std::vector<int>& break_exits,
+                        const std::vector<int>& continue_exits) {
+        return std::make_shared<nonterm_controlflow>(break_exits, continue_exits);
     }
 };
 
@@ -219,7 +232,7 @@ public:
     std::shared_ptr<nonterm_info> compile_offset(const ptr_list_of<expr>& exps, const std::vector<uint64_t> dims);
     std::shared_ptr<nonterm_info> compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place = nullptr);
 
-    std::shared_ptr<nonterm_controlflow> to_nonterm_controlflow(const shared_ptr<nonterm_info>& info);
+    std::shared_ptr<nonterm_boolean> to_nonterm_boolean(const shared_ptr<nonterm_info>& info);
     std::shared_ptr<nonterm_integer> to_nonterm_integer(const std::shared_ptr<nonterm_info>& info, std::shared_ptr<nonterm_integer> store_place = nullptr);
 
     void backpatch(const std::vector<int>& ids, int value) {
@@ -286,14 +299,19 @@ public:
     std::shared_ptr<nonterm_info> compile(const shared_ptr<block_t>& block, bool enter_new_scoop = true) {
         if(enter_new_scoop) enter_scoop();
 
+        auto info = nonterm_controlflow::newsp({}, {});
+
         for(auto child: block->children) {
-            compile(child);
+            if(auto r = dynamic_pointer_cast<nonterm_controlflow>(compile(child))){
+                for(auto x: r->break_exits) info->break_exits.push_back(x);
+                for(auto x: r->continue_exits) info->continue_exits.push_back(x);
+            }
         }
 
         if(enter_new_scoop) exit_scoop();
 
 
-        return nonterm_void::newsp();
+        return info;
     }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<block_item_t>& item) {
@@ -352,23 +370,7 @@ public:
         assert(false);
     }
 
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_if_t>& stmt) {
-        
-        // TODO check 一下做法对不对
-        auto c = to_nonterm_controlflow(compile(stmt->cond));
-        backpatch(c->true_exits, nxq());
-        compile(stmt->stmt_if_true);    
-        if(stmt->stmt_if_false) gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
-        auto need_update = nxq() - 1;
-        backpatch(c->false_exits, nxq());
-
-        if(stmt->stmt_if_false) {
-            compile(stmt->stmt_if_false);
-            imcodes()[need_update].dest.value = nxq();
-        } 
-
-        return nonterm_void::newsp();
-    }
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_if_t>& stmt);
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_return_t>& stmt) {
         ImCode code;
         code.op = ImCode::RET;
@@ -380,6 +382,17 @@ public:
         return nonterm_void::newsp();
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_while_t>& stmt) {
+        auto continue_entrance = nxq();
+        auto cond_im = to_nonterm_boolean(compile(stmt->cond));
+        auto stmt_extrance = nxq();
+        auto stmt_im = compile(stmt->stmt);
+        auto break_entrance = nxq();
+        backpatch(cond_im->true_exits, stmt_extrance);
+        backpatch(cond_im->false_exits, break_entrance);
+        if(auto s = dynamic_pointer_cast<nonterm_controlflow>(stmt_im)) {
+            backpatch(s->break_exits, break_entrance);
+            backpatch(s->continue_exits, continue_entrance);
+        }
         return nonterm_void::newsp();
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_assign_t>& stmt) {
@@ -465,15 +478,17 @@ public:
         return compile(block, true);
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_continue_t>& stmt) {
-        // todo
-        return nonterm_void::newsp();
+        auto rtn = nonterm_controlflow::newsp({}, {nxq()});
+        gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
+        return rtn;
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_exp_t>& stmt) {
         return compile(stmt->exp);
     }
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_break_t>& stmt) {
-        // todo
-        return nonterm_void::newsp();
+        auto rtn = nonterm_controlflow::newsp({nxq()}, {});
+        gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
+        return rtn;
     }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<decl_t>& decl) {

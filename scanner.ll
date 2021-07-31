@@ -41,6 +41,7 @@ integer_const       {decimal_const}|{octal_const}|{hexadecimal_const}
     "int"               { return yy::parser::make_INT(); }
     "const"             { return yy::parser::make_CONST(); }
     "if"                { return yy::parser::make_IF(); }
+    "else"              { return yy::parser::make_ELSE(); }
     "while"             { return yy::parser::make_WHILE(); }
     "break"             { return yy::parser::make_BREAK(); }
     "continue"          { return yy::parser::make_CONTINUE(); }

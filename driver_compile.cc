@@ -15,14 +15,14 @@ std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& in
     return offset;
 }
 
-std::shared_ptr<nonterm_controlflow> driver::to_nonterm_controlflow(const shared_ptr<nonterm_info>& origin) {
+std::shared_ptr<nonterm_boolean> driver::to_nonterm_boolean(const shared_ptr<nonterm_info>& origin) {
     assert(!dynamic_pointer_cast<nonterm_void>(origin));
-    if(auto info = dynamic_pointer_cast<nonterm_controlflow>(origin)) {
+    if(auto info = dynamic_pointer_cast<nonterm_boolean>(origin)) {
         return info;
     }else {
         gen_imcode(ImCode::JNE, origin, nonterm_constant::newsp(0), 0);
         gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
-        return nonterm_controlflow::newsp({nxq() - 2}, {nxq() - 1});
+        return nonterm_boolean::newsp({nxq() - 2}, {nxq() - 1});
     }
 }
 
@@ -35,7 +35,7 @@ std::shared_ptr<nonterm_integer> driver::to_nonterm_integer(
         if(store_place == nullptr) store_place = nonterm_integer::newsp(add_temp());
         gen_imcode(ImCode::ASSIGN, info, nonterm_void::newsp(), store_place);
         return store_place;
-    } else if(auto s = dynamic_pointer_cast<nonterm_controlflow>(info)) {
+    } else if(auto s = dynamic_pointer_cast<nonterm_boolean>(info)) {
         if(store_place == nullptr) store_place = nonterm_integer::newsp(add_temp());
         backpatch(s->true_exits, nxq());
         gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), store_place);
@@ -53,6 +53,33 @@ std::vector<int> operator+ (std::vector<int>& s1, const std::vector<int>& s2) {
     return s1;
 }
 
+
+std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<stmt_if_t>& stmt) {
+    
+    auto info = nonterm_controlflow::newsp({}, {});
+    
+    // TODO check 一下做法对不对
+    auto c = to_nonterm_boolean(compile(stmt->cond));
+    backpatch(c->true_exits, nxq());
+    if(auto r = dynamic_pointer_cast<nonterm_controlflow>(compile(stmt->stmt_if_true))){
+        info->break_exits = info->break_exits + r->break_exits;
+        info->continue_exits = info->continue_exits + r->break_exits;
+    }  
+    if(stmt->stmt_if_false) gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
+    auto need_update = nxq() - 1;
+    backpatch(c->false_exits, nxq());
+
+    if(stmt->stmt_if_false) {
+        if(auto r = dynamic_pointer_cast<nonterm_controlflow>(compile(stmt->stmt_if_false))){
+            info->break_exits = info->break_exits + r->break_exits;
+            info->continue_exits = info->continue_exits + r->break_exits;
+        }  
+        imcodes()[need_update].dest.value = nxq();
+    } 
+
+    return info;
+}
+
 std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place) {
     if(auto [static_ok, static_value] = static_eval(root); static_ok) {
         return nonterm_constant::newsp(static_value);
@@ -61,7 +88,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     // cannot be static below
     // TODO type checking
     if(auto r = dynamic_pointer_cast<logical_not_expr>(root)) {
-        auto info = to_nonterm_controlflow(compile(r->src));
+        auto info = to_nonterm_boolean(compile(r->src));
         std::swap(info->true_exits, info->false_exits);
         return info;
     }else if(auto r = dynamic_pointer_cast<negative_expr>(root)) {
@@ -109,18 +136,18 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         }else if(type == 1) {    
             gen_imcode(op, compile(r->src1), compile(r->src2), 0);
             gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
-            return nonterm_controlflow::newsp({nxq() - 2}, {nxq() - 1});
+            return nonterm_boolean::newsp({nxq() - 2}, {nxq() - 1});
         }else{
             if(r->op.type == operator_t::LOGICAL_AND) {
-                auto c1 = to_nonterm_controlflow(compile(r->src1));
+                auto c1 = to_nonterm_boolean(compile(r->src1));
                 backpatch(c1->true_exits, nxq());
-                auto c2 = to_nonterm_controlflow(compile(r->src2));
-                return nonterm_controlflow::newsp(c2->true_exits, c1->false_exits + c2->false_exits);
+                auto c2 = to_nonterm_boolean(compile(r->src2));
+                return nonterm_boolean::newsp(c2->true_exits, c1->false_exits + c2->false_exits);
             } else if(r->op.type == operator_t::LOGICAL_OR) { // logical_or, asserted before
-                auto c1 = to_nonterm_controlflow(compile(r->src1));
+                auto c1 = to_nonterm_boolean(compile(r->src1));
                 backpatch(c1->false_exits, nxq());
-                auto c2 = to_nonterm_controlflow(compile(r->src2));
-                return nonterm_controlflow::newsp(c1->true_exits + c2->true_exits, c2->false_exits);
+                auto c2 = to_nonterm_boolean(compile(r->src2));
+                return nonterm_boolean::newsp(c1->true_exits + c2->true_exits, c2->false_exits);
             } else {
                 assert(false);
             }

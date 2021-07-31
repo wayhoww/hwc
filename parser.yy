@@ -31,7 +31,8 @@
     VOID            "void"              
     INT             "int"               
     CONST           "const"             
-    IF              "if"                
+    IF              "if"          
+    ELSE            "else"                
     WHILE           "while"             
     BREAK           "break"             
     CONTINUE        "continue"          
@@ -217,7 +218,7 @@ stmt:
   | exp ";"                             { $$ = std::make_shared<stmt_exp_t>($1);        }
   | ";"                                 { $$ = std::shared_ptr<stmt_exp_t>(nullptr);    }
   | block                               { $$ = std::make_shared<stmt_block_t>($1);      }
-  | "if" "(" cond ")" stmt              { $$ = std::make_shared<stmt_if_t>($3, $5, nullptr); }
+  | "if" "(" cond ")" stmt              { $$ = std::make_shared<stmt_if_t>($3, $5, nullptr); } 
                 /* TODO：没有做就近匹配 */
   | "if" "(" cond ")" stmt "else" stmt  { $$ = std::make_shared<stmt_if_t>($3, $5, $7); }       
   | "while" "(" cond ")" stmt           { $$ = std::make_shared<stmt_while_t>($3, $5); }
