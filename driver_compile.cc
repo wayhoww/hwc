@@ -4,6 +4,7 @@
 std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& indices, const std::vector<uint32_t> dims) {
         // 暂时不做边界检查
     auto offset = nonterm_integer::newsp(add_temp());
+    gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), offset);
     int index = 1;
     for(auto exp: indices) {
         auto dim = compile(exp);
@@ -301,6 +302,17 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
         std::vector<uint32_t> dims;
+        auto dimexps = param->array_dims;
+        for(auto exp: dimexps) {
+            if(exp) {
+                auto [ok, val] = static_eval(exp);
+                assert(ok);
+                dims.push_back(val);
+            } else {
+                dims.push_back(0);
+            }
+        }
+
         auto id = entry(param->ident, dims, false, {});
         ImCode code;
         code.op = ImCode::MARK;

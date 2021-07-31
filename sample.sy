@@ -8,6 +8,10 @@ const int SIZE = 10;
 const int A[SIZE] = {1, 2, 3, 4, 5, 5, 4, 3, 2, 1};
 int results[SIZE];
 
+int test(int a[][3]) {
+    return a[2][1];
+}
+
 int fib(int x) {
     if(x < 2)  return x;  
     else  return fib(x - 2) + fib(x - 1); 
