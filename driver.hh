@@ -32,6 +32,7 @@ struct FunctionDef {
     int entrance;  /* 入口四元式编号  */
     std::string identifier;
     bool returnVoid;
+    bool declarationOnly = false; /* 只有定义，i.e. 外部函数 */
 };
 
 struct Var {
@@ -111,7 +112,8 @@ struct symbol_info {
     std::vector<std::shared_ptr<expr>> init_expr;
 
     bool is_const = false;                          
-    bool is_temp = false;       
+    bool is_temp = false;
+    bool need_init = false;       
 
     // !is_const: 需要运行时辅助初始化
     bool is_static = false; // is_const 表达的是语义， is_static 表达的是进入 main 函数之前的事实            

@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/hwc",
-            "args": ["--imcode-verbose", "${workspaceFolder}/sample_var_init.sy"],
+            "args": ["--imcode-verbose", "${workspaceFolder}/sample_test.sy"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

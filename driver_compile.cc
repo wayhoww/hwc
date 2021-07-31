@@ -209,6 +209,16 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
 
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<comp_unit_t>& comp_unit){
+        // predefined library function
+
+        functions()[add_function("getint", -1, false)  ].declarationOnly = true;
+        functions()[add_function("getch", -1, false)   ].declarationOnly = true;
+        functions()[add_function("getarray", -1, false)].declarationOnly = true;
+
+        functions()[add_function("putint", -1, true)   ].declarationOnly = true;
+        functions()[add_function("putch", -1, true)    ].declarationOnly = true;
+        functions()[add_function("putarray", -1, true) ].declarationOnly = true;
+
         for(auto child: comp_unit->children) {
             if(auto r = dynamic_pointer_cast<comp_unit_item_func_def_t>(child)) {
                 compile(r->func_def, true, false);
@@ -225,11 +235,11 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             }
         }
 
-        // ensure all declared functions are defined, and find the main function
+        // ensure all internal functions are defined, and find the main function
         int main_id = -1;
         for(int i = 0; i < functions().size(); i++){
             auto func = functions()[i];
-            assert(func.entrance >= 0);
+            assert(func.entrance >= 0 || func.declarationOnly);
             if(func.identifier == "main") {
                 main_id = i;
             }
@@ -243,7 +253,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             for(int i = 0; i < global_vars().size(); i++){
                 auto& var = global_vars()[i];
                 auto& sym = symbols[i];
-                if(!sym.is_const) {
+                if(!sym.is_const && sym.need_init) {
                     sym.is_static = true;
                     if(!sym.dims.empty()){
                         // size ? size / 4 ?
@@ -644,6 +654,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         // 取init的时候要用到dims和size
         // TODO init
         auto id = add_var(def_init->ident, dims, false, {});
+        symbols[id].need_init = true;
         if(!dims.empty()) {
             gen_imcode(ImCode::ALLOC, nonterm_constant::newsp(size * 4), nonterm_void::newsp(), nonterm_integer::newsp(id));        
             auto flat_exps = flatten(def_init->init_val);
@@ -753,6 +764,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         std::vector<int32_t> init(size, 0);
         recursive_evaluate(constdef->const_init_val, dims, 0, size, 0, init);
         auto varid = add_var(constdef->ident, dims, true, init);
+        symbols[varid].need_init = true;
         
         return nonterm_void::newsp();
     }

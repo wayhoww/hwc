@@ -11,6 +11,30 @@
 	.eabi_attribute 18, 4
 	.file	"test.c"
 	.text
+	.comm	var0,4,4
+	.text
+	.align	1
+	.global	func
+	.syntax unified
+	.thumb
+	.thumb_func
+	.fpu vfp
+	.type	func, %function
+func:
+	push	{r4, r5, r7, lr}
+	sub	sp, sp, #100
+	add	r7, sp, #0
+	str	r0, [r7, #0]
+	这儿缺少了下标为1的代码:		-		$1	#1	$1
+	movs	r3, [r7, #0]
+	mov	r0, r3
+	movs	r3, #0
+	mov	r0, r3
+	adds	r7, r7, #100
+	mov	sp, r7
+	pop	{r4, r5, r7, pc}
+	.size	func, .-func
+	.text
 	.align	1
 	.global	main
 	.syntax unified
@@ -22,16 +46,10 @@ main:
 	push	{r4, r5, r7, lr}
 	sub	sp, sp, #100
 	add	r7, sp, #0
-	这儿缺少了下标为0的代码:		j!=		#1	#0	imcode 2
-	这儿缺少了下标为1的代码:		jmp				imcode 7
-	这儿缺少了下标为2的代码:		j!=		#2	#0	imcode 4
-	这儿缺少了下标为3的代码:		jmp				imcode 6
-	movs	r3, #1
-	mov	r0, r3
-	这儿缺少了下标为5的代码:		jmp				imcode 7
-	movs	r3, #2
-	mov	r0, r3
-	movs	r3, #3
+	这儿缺少了下标为4的代码:		=		#10		$0
+	movs	r0, a
+	bl	func
+	movs	r3, [r7, #0]
 	mov	r0, r3
 	movs	r3, #0
 	mov	r0, r3
