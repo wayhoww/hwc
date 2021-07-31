@@ -4,7 +4,6 @@
 #include <list>
 #include <string>
 #include <memory>
-#include <optional>
 
 struct construct{ virtual ~construct() = default; };
 
@@ -321,7 +320,6 @@ struct stmt_return_t: public stmt_t {
  **/
 
 struct expr: public construct {
-//    std::optional<int32_t> static_value; /* static value 考虑了 negative 了*/
 };
 
 struct logical_not_expr: public expr {

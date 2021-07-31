@@ -553,6 +553,47 @@ public:
         return vec;
     }
 
+/*
+    // [3, 5]
+    void recursive_compile(
+            shared_ptr<init_val_t> init_val, 
+            std::vector<uint32_t> dims, 
+            int layer, 
+            int layer_size,
+            int offset,
+            std::vector<std::shared_ptr<expr>>& buffer) {
+        if (auto r = dynamic_pointer_cast<init_val_scalar_t>(init_val)) {
+            buffer[offset] = r->exp;
+        } else if (auto r = dynamic_pointer_cast<const_init_val_array_t>(init_val)) {
+            if(r->array_elements.size() == 0) {
+                for(int i = 0; i < layer_size; i++) {
+                    buffer[offset + i] = nullptr;
+                }
+            } else if(auto flat = flatten(init_val); flat.size() == layer_size) {
+                for(int i = 0; i < layer_size; i++) {
+                    auto [ok, val] = static_eval(flat[i]);
+                    assert(ok);
+                    buffer[offset + i] = val;
+                }
+            } else {
+                int new_layer_size = layer_size / dims[layer];
+                int delta_bias = new_layer_size;
+                int bias = 0;
+                for(auto exp: r->array_elements) {
+                    recursive_evaluate(exp, dims, layer + 1, new_layer_size, offset + bias, buffer);
+                    if( dynamic_pointer_cast<const_init_val_scalar_t>(exp) ) {
+                        bias += 1;
+                    }else{
+                        bias += delta_bias;
+                    }
+                }
+                for(int i = bias; i < layer_size; i++){
+                    buffer[offset + i] = 0;
+                }
+            }
+        }
+    }*/
+
     std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_init_t>& def_init) {
         auto [size, dims] = static_array_dims(def_init->array_dims);
         // 取init的时候要用到dims和size
@@ -667,20 +708,6 @@ public:
 
         std::vector<int32_t> init(size, 0);
         recursive_evaluate(constdef->const_init_val, dims, 0, size, 0, init);
-        //auto flat_init = flatten(constdef->const_init_val);
-        /*
-        if(flat_init.size() == size) {
-            for(int i = 0; i < flat_init.size(); i++) {
-                auto [ok, val] = static_eval(flat_init[i]);
-                assert(ok);
-                init[i] = val;
-            }
-        } else {
-            // TODO
-            assert(false);
-        }*/
-
-
         auto varid = add_var(constdef->ident, dims, true, init);
         
         return nonterm_void::newsp();

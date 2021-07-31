@@ -40,14 +40,6 @@ scanner.cc: scanner.ll
 clean: 
 	rm -f parser.cc parser.hh scanner.cc scanner.o driver.hh.gch hwc parser.o driver_compile.o driver_control.o driver_static_eval.o driver_tools.o codegen.o hwc_noenv
 
-clean_noenv:
-	rm -f hwc_noenv parser_noenv.o scanner_noenv.o scanner.o driver.hh.gch hwc parser.o driver_compile.o driver_control.o driver_static_eval.o driver_tools.o codegen.o 
-
-
-
-hwc_noenv: main.cc parser.cc scanner.cc driver_compile.o driver_control.o driver_static_eval.o driver_tools.o codegen.o
-	$(CC) $(CC_FLAGS) -o $@ $^
-
 
 
 
