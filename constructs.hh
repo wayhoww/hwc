@@ -321,7 +321,7 @@ struct stmt_return_t: public stmt_t {
  **/
 
 struct expr: public construct {
-//    std::optional<int64_t> static_value; /* static value 考虑了 negative 了*/
+//    std::optional<int32_t> static_value; /* static value 考虑了 negative 了*/
 };
 
 struct logical_not_expr: public expr {
@@ -356,9 +356,9 @@ struct l_val_t: public expr {
 };
 
 struct number_literal_t: public expr {
-    number_literal_t(int64_t value): value(value) {}
+    number_literal_t(int32_t value): value(value) {}
     number_literal_t(){}
-    int64_t value;
+    int32_t value;
 };
 
 struct func_call_t: public expr {

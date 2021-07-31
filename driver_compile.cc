@@ -1,7 +1,7 @@
 #include "driver.hh"
 
 
-std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& indices, const std::vector<uint64_t> dims) {
+std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& indices, const std::vector<uint32_t> dims) {
         // 暂时不做边界检查
     auto offset = nonterm_integer::newsp(add_temp());
     int index = 1;
@@ -160,7 +160,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         } else {
             if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
             auto offset = compile_offset(r->exps, sym.dims);
-            gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(8), offset);
+            gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(4), offset);
             gen_imcode(ImCode::DAGET, nonterm_integer::newsp(var_id), offset, store_place);
             return store_place;
         }

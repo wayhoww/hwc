@@ -62,7 +62,7 @@ std::string format(const ImCode::Oprand& oprand) {
     return std::string(buffer);
 }
 
-std::string format(const std::vector<uint64_t>& vec) {
+std::string format(const std::vector<uint32_t>& vec) {
     std::string str = "[";
     for(auto item: vec) {
         str.append(std::to_string(item));

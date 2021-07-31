@@ -23,19 +23,19 @@ using std::shared_ptr;
 /* 中间代码数据结构 BEGIN */
 
 struct GlobalVarDef {
-    uint64_t size;                               /* in bytes */
-    std::vector<uint64_t> initValue;                         /* 可能没有初始化 */
+    uint32_t size;                               /* in bytes */
+    std::vector<uint32_t> initValue;                         /* 可能没有初始化 */
     std::string identifier;
 };
 // i.e. 定义的时候用，不会被引用
 struct FunctionDef {
-    uint64_t entrance;  /* 入口四元式编号  */
+    uint32_t entrance;  /* 入口四元式编号  */
     std::string identifier;
     bool returnVoid;
 };
 
 struct Var {
-    uint64_t varID;
+    uint32_t varID;
     bool isTemp;
 };
 
@@ -66,7 +66,7 @@ struct ImCode {
         Type type = INVALID;
         union {
             Var var;            // for Var
-            uint64_t value;     // for immediate & imCodeID
+            uint32_t value;     // for immediate & imCodeID
         };
     };
 
@@ -74,7 +74,7 @@ struct ImCode {
     Oprand src1;    /* 不可能是中间代码编号 */
     Oprand src2;    /* 不可能是中间代码编号 */
     Oprand dest;    /* 不可能是立即数 */
-    std::vector<uint64_t> arguments;    /* call */
+    std::vector<uint32_t> arguments;    /* call */
 };
 
 struct ImProgram {
@@ -93,7 +93,7 @@ void codegen(const ImProgram& program);
 
 std::string format(ImCode::Operator op);
 std::string format(const ImCode::Oprand& oprand);
-std::string format(const std::vector<uint64_t>& vec);
+std::string format(const std::vector<uint32_t>& vec);
 
 /* 工具函数 END */
 
@@ -105,9 +105,9 @@ struct symbol_info {
     int scoop_depth;                        /* 字面意思 */
     std::string identifier = "";            /* 标志符号 */
 
-    uint64_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
-    std::vector<uint64_t> dims;             /* 维度。如果是常数，dims.empty()       */          
-    std::vector<int64_t> init_value;        /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
+    uint32_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
+    std::vector<uint32_t> dims;             /* 维度。如果是常数，dims.empty()       */          
+    std::vector<int32_t> init_value;        /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
 
     bool is_const = false;                          
     bool is_temp = false;                   
@@ -120,9 +120,9 @@ struct nonterm_info {
 
 // literal: 目前仅仅支持 integer
 struct nonterm_constant: nonterm_info {
-    int64_t value;
-    nonterm_constant(int64_t value): value(value) {}
-    static std::shared_ptr<nonterm_constant> newsp(int64_t val) {
+    int32_t value;
+    nonterm_constant(int32_t value): value(value) {}
+    static std::shared_ptr<nonterm_constant> newsp(int32_t val) {
         return std::make_shared<nonterm_constant>(val);
     }
 };
@@ -154,9 +154,9 @@ struct nonterm_controlflow: nonterm_info {
 };
 
 struct nonterm_integer: nonterm_info {
-    uint64_t var_id;
-    nonterm_integer(uint64_t var_id): var_id(var_id) {}
-    static std::shared_ptr<nonterm_integer> newsp(int64_t val) {
+    uint32_t var_id;
+    nonterm_integer(uint32_t var_id): var_id(var_id) {}
+    static std::shared_ptr<nonterm_integer> newsp(int32_t val) {
         return std::make_shared<nonterm_integer>(val);
     }
 };
@@ -172,7 +172,7 @@ class driver {
 protected:
     int current_depth = 0;                  //   当前深度（见注释）
     std::vector<symbol_info> symbols;       //   符号表,  symbols 的下标就是 var_id
-    std::map<shared_ptr<expr>, std::pair<bool, int64_t>> static_eval_cache; 
+    std::map<shared_ptr<expr>, std::pair<bool, int32_t>> static_eval_cache; 
     int nxq() {
         return imcodes().size();
     }
@@ -213,23 +213,23 @@ public:
     // 不要调用 entry
     // 添加函数调用 add_var, 自动判断是否是global的函数，并自动添加到全局变量表和符号表中
 
-    uint64_t entry(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const_var, const std::vector<int64_t>& init_value);
+    uint32_t entry(const std::string& ident, const std::vector<uint32_t>& dims, bool is_const_var, const std::vector<int32_t>& init_value);
     
-    uint64_t add_function(const std::string& ident, uint64_t entrance, bool returnVoid) ;
+    uint32_t add_function(const std::string& ident, uint32_t entrance, bool returnVoid) ;
 
-    uint64_t query_function(const std::string& ident) ;
+    uint32_t query_function(const std::string& ident) ;
 
-    uint64_t add_var(const std::string& ident, const std::vector<uint64_t>& dims, bool is_const, const std::vector<int64_t>& init_value) ;
+    uint32_t add_var(const std::string& ident, const std::vector<uint32_t>& dims, bool is_const, const std::vector<int32_t>& init_value) ;
     
-    uint64_t query_var(const std::string& ident);
+    uint32_t query_var(const std::string& ident);
 
-    uint64_t add_temp();
+    uint32_t add_temp();
 
     void compile() {
         compile(syntax_tree);
     }
 
-    std::shared_ptr<nonterm_info> compile_offset(const ptr_list_of<expr>& exps, const std::vector<uint64_t> dims);
+    std::shared_ptr<nonterm_info> compile_offset(const ptr_list_of<expr>& exps, const std::vector<uint32_t> dims);
     std::shared_ptr<nonterm_info> compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place = nullptr);
 
     std::shared_ptr<nonterm_boolean> to_nonterm_boolean(const shared_ptr<nonterm_info>& info);
@@ -335,7 +335,7 @@ public:
         
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
-        std::vector<uint64_t> dims;
+        std::vector<uint32_t> dims;
         auto id = entry(param->ident, dims, false, {});
         ImCode code;
         code.op = ImCode::MARK;
@@ -409,7 +409,7 @@ public:
         } else {
             auto rval = compile(stmt->exp);
             auto offset = compile_offset(stmt->l_val->exps, dims);
-            gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(8), offset);
+            gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(4), offset);
             gen_imcode(ImCode::DASET, nonterm_integer::newsp(dest->var_id), offset, rval);
             return nonterm_void::newsp();
         }
@@ -530,7 +530,7 @@ public:
         auto [size, dims] = static_array_dims(def_only->array_dims);
         auto id = add_var(def_only->ident, dims, false, {});
         if(!dims.empty() && current_depth > 0) {
-            gen_alloc(id, size * 8);
+            gen_alloc(id, size * 4);
         }
 
         return nonterm_void::newsp();
@@ -559,7 +559,7 @@ public:
         // TODO init
         auto id = add_var(def_init->ident, dims, false, {});
         if(!dims.empty() && current_depth > 0) {
-            gen_alloc(id, size * 8);
+            gen_alloc(id, size * 4);
             auto flat_exps = flatten(def_init->init_val);
             auto index = nonterm_integer::newsp(add_temp());
             gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), index);
@@ -567,7 +567,7 @@ public:
                 for(int i = 0; i < size; i++){
                     gen_imcode(ImCode::DASET, nonterm_integer::newsp(id), index, compile(flat_exps[i]));
                     if(i < size) {
-                        gen_imcode(ImCode::PLUS, index, nonterm_constant::newsp(8), index);
+                        gen_imcode(ImCode::PLUS, index, nonterm_constant::newsp(4), index);
                     }
                 }
             } else {
@@ -585,7 +585,7 @@ public:
         return nonterm_void::newsp();
     }
 
-    void gen_alloc(int id, uint64_t size) {
+    void gen_alloc(int id, uint32_t size) {
         ImCode code;
         code.op = ImCode::ALLOC;
         code.src1.type  = ImCode::Oprand::IMMEDIATE;
@@ -623,7 +623,7 @@ public:
     std::shared_ptr<nonterm_info> compile(const shared_ptr<const_def_t>& constdef) {
         auto [size, dims] = static_array_dims(constdef->array_dims);
 
-        std::vector<int64_t> init(size, 0);
+        std::vector<int32_t> init(size, 0);
         auto flat_init = flatten(constdef->const_init_val);
         if(flat_init.size() == size) {
             for(int i = 0; i < flat_init.size(); i++) {
@@ -640,9 +640,9 @@ public:
         return nonterm_void::newsp();
     }
 
-    std::pair<uint64_t, std::vector<uint64_t>> static_array_dims(const ptr_list_of<expr>& dimsdef) {
-        uint64_t size = 1;
-        std::vector<uint64_t> dims;
+    std::pair<uint32_t, std::vector<uint32_t>> static_array_dims(const ptr_list_of<expr>& dimsdef) {
+        uint32_t size = 1;
+        std::vector<uint32_t> dims;
         for(auto dim: dimsdef) {
             auto [ok, val] = static_eval(dim);
             assert(ok);
@@ -657,9 +657,9 @@ public:
     /* { true, val } 有静态数值          */
     /* { false, _} 反之                 */
     /*  考虑先用记忆化解决问题             */
-    std::pair<bool, int64_t> static_eval_offset(const ptr_list_of<expr> indices, 
-                                                const std::vector<uint64_t>& dims);
-    std::pair<bool, int64_t> static_eval(shared_ptr<expr> root);
+    std::pair<bool, int32_t> static_eval_offset(const ptr_list_of<expr> indices, 
+                                                const std::vector<uint32_t>& dims);
+    std::pair<bool, int32_t> static_eval(shared_ptr<expr> root);
 };
 
 #endif

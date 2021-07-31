@@ -1,8 +1,8 @@
 #include "driver.hh"
 
-std::pair<bool, int64_t> driver::static_eval_offset(
+std::pair<bool, int32_t> driver::static_eval_offset(
         const ptr_list_of<expr> indices,                                     
-        const std::vector<uint64_t>& dims) {
+        const std::vector<uint32_t>& dims) {
 
     // 这个是统一的逻辑
     int offset = 0;
@@ -16,13 +16,13 @@ std::pair<bool, int64_t> driver::static_eval_offset(
     return {true, offset};
 }
 
-std::pair<bool, int64_t> driver::static_eval(shared_ptr<expr> root) {
+std::pair<bool, int32_t> driver::static_eval(shared_ptr<expr> root) {
     if(static_eval_cache.count(root)){
         return static_eval_cache[root];
     }
 
-    std::pair<bool, int64_t> rst1;       
-    std::pair<bool, int64_t> rst2;
+    std::pair<bool, int32_t> rst1;       
+    std::pair<bool, int32_t> rst2;
     auto& ok1 = rst1.first;
     auto& ok2 = rst2.first;
     auto& val1 = rst1.second;
