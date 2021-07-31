@@ -231,8 +231,19 @@ stmt:
   | ";"                                 { $$ = std::shared_ptr<stmt_exp_t>(nullptr);    }
   | block                               { $$ = std::make_shared<stmt_block_t>($1);      }
   | "if" "(" cond ")" stmt              { $$ = std::make_shared<stmt_if_t>($3, $5, nullptr); } 
-                /* TODO：没有做就近匹配 */
-  | "if" "(" cond ")" stmt "else" stmt  { $$ = std::make_shared<stmt_if_t>($3, $5, $7); }       
+  | "if" "(" cond ")" stmt "else" stmt  { 
+      /* 做就近匹配 */
+      $$ = std::make_shared<stmt_if_t>($3, $5, $7); 
+      auto p = $$;
+      while(auto pr = dynamic_pointer_cast<stmt_if_t>(p)){
+          if(auto r = dynamic_pointer_cast<stmt_if_t>(pr->stmt_if_true); r && r->stmt_if_false == nullptr) {
+              std::swap(pr->stmt_if_false, r->stmt_if_false);
+              p = r;
+          }else{
+              break;
+          }
+      }
+  }       
   | "while" "(" cond ")" stmt           { $$ = std::make_shared<stmt_while_t>($3, $5); }
   | "break" ";"                         { $$ = std::make_shared<stmt_break_t>();       }
   | "continue" ";"                      { $$ = std::make_shared<stmt_continue_t>();    }
