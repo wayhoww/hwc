@@ -1,6 +1,10 @@
 # Samples
 samples
 .vscode
+Makefile
+CMakeLists.txt
+CMakeList.txt
+build
 
 # Prerequisites
 *.d

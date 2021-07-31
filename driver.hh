@@ -240,11 +240,9 @@ public:
     }
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<comp_unit_t>& comp_unit){
-        printf("IMCODE GEN\n\n");
         for(auto child: comp_unit->children) {
             compile(child);
         }
-        dump_to(stdout);
         codegen(imProgram);
         return nonterm_void::newsp();
     }
