@@ -388,6 +388,7 @@ namespace yy {
       char dummy4[sizeof (ptr_list_of<expr>)];
 
       // init_array_elements
+      // real_init_array_elements
       char dummy5[sizeof (ptr_list_of<init_val_t>)];
 
       // var_def_list
@@ -618,33 +619,34 @@ namespace yy {
         S_var_def = 52,                          // var_def
         S_init_val = 53,                         // init_val
         S_init_array_elements = 54,              // init_array_elements
-        S_func_def = 55,                         // func_def
-        S_func_f_params = 56,                    // func_f_params
-        S_real_func_f_params = 57,               // real_func_f_params
-        S_func_f_param = 58,                     // func_f_param
-        S_array_dims_func_param = 59,            // array_dims_func_param
-        S_array_dims_func_param_real = 60,       // array_dims_func_param_real
-        S_block = 61,                            // block
-        S_block_elements = 62,                   // block_elements
-        S_block_item = 63,                       // block_item
-        S_ident = 64,                            // ident
-        S_stmt = 65,                             // stmt
-        S_exp = 66,                              // exp
-        S_cond = 67,                             // cond
-        S_l_val = 68,                            // l_val
-        S_array_indices = 69,                    // array_indices
-        S_primary_exp = 70,                      // primary_exp
-        S_number = 71,                           // number
-        S_unary_exp = 72,                        // unary_exp
-        S_func_r_params = 73,                    // func_r_params
-        S_func_r_params_elements = 74,           // func_r_params_elements
-        S_mul_exp = 75,                          // mul_exp
-        S_add_exp = 76,                          // add_exp
-        S_rel_exp = 77,                          // rel_exp
-        S_eq_exp = 78,                           // eq_exp
-        S_l_and_exp = 79,                        // l_and_exp
-        S_l_or_exp = 80,                         // l_or_exp
-        S_const_exp = 81                         // const_exp
+        S_real_init_array_elements = 55,         // real_init_array_elements
+        S_func_def = 56,                         // func_def
+        S_func_f_params = 57,                    // func_f_params
+        S_real_func_f_params = 58,               // real_func_f_params
+        S_func_f_param = 59,                     // func_f_param
+        S_array_dims_func_param = 60,            // array_dims_func_param
+        S_array_dims_func_param_real = 61,       // array_dims_func_param_real
+        S_block = 62,                            // block
+        S_block_elements = 63,                   // block_elements
+        S_block_item = 64,                       // block_item
+        S_ident = 65,                            // ident
+        S_stmt = 66,                             // stmt
+        S_exp = 67,                              // exp
+        S_cond = 68,                             // cond
+        S_l_val = 69,                            // l_val
+        S_array_indices = 70,                    // array_indices
+        S_primary_exp = 71,                      // primary_exp
+        S_number = 72,                           // number
+        S_unary_exp = 73,                        // unary_exp
+        S_func_r_params = 74,                    // func_r_params
+        S_func_r_params_elements = 75,           // func_r_params_elements
+        S_mul_exp = 76,                          // mul_exp
+        S_add_exp = 77,                          // add_exp
+        S_rel_exp = 78,                          // rel_exp
+        S_eq_exp = 79,                           // eq_exp
+        S_l_and_exp = 80,                        // l_and_exp
+        S_l_or_exp = 81,                         // l_or_exp
+        S_const_exp = 82                         // const_exp
       };
     };
 
@@ -701,6 +703,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
+      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
         value.move< ptr_list_of<init_val_t> > (std::move (that.value));
         break;
 
@@ -1195,6 +1198,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
+      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
         value.template destroy< ptr_list_of<init_val_t> > ();
         break;
 
@@ -2319,8 +2323,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 201,     ///< Last index in yytable_.
-      yynnts_ = 45,  ///< Number of nonterminal symbols.
+      yylast_ = 186,     ///< Last index in yytable_.
+      yynnts_ = 46,  ///< Number of nonterminal symbols.
       yyfinal_ = 14 ///< Termination state number.
     };
 
@@ -2412,6 +2416,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
+      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
         value.copy< ptr_list_of<init_val_t> > (YY_MOVE (that.value));
         break;
 
@@ -2568,6 +2573,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_init_array_elements: // init_array_elements
+      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
         value.move< ptr_list_of<init_val_t> > (YY_MOVE (s.value));
         break;
 
@@ -2734,7 +2740,7 @@ switch (yykind)
   }
 
 } // yy
-#line 2738 "parser.hh"
+#line 2744 "parser.hh"
 
 
 

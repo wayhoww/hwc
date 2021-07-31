@@ -157,7 +157,13 @@ init_val:
 %nterm <ptr_list_of<init_val_t>> init_array_elements;
 init_array_elements: 
     %empty {}
-  | init_array_elements init_val { $$ = $1; $$.push_back($2); }
+  | real_init_array_elements { $$ = $1; }
+
+  
+%nterm <ptr_list_of<init_val_t>> real_init_array_elements;
+real_init_array_elements:
+    init_val { $$ = ptr_list_of<init_val_t>(); $$.push_back($1); }
+  | real_init_array_elements "," init_val { $$ = $1; $$.push_back($3); }
 ;
 
 %nterm <std::shared_ptr<func_def_t>> func_def;

@@ -1,8 +1,8 @@
 const int test_init_1[4][2] = {};
 const int test_init_2[4][2] = {1, 2, 3, 4, 5, 6, 7, 8};
 const int test_init_3[4][2] = {{1, 2}, {3, 4}, 5, 6, 7, 8};
-const int test_init_5[4][2] = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
 const int test_init_4[4][2] = {1, 2, {3}, {5}, 7, 8};
+const int test_init_5[4][2] = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
 
 const int SIZE = 10;
 const int A[SIZE] = {1, 2, 3, 4, 5, 5, 4, 3, 2, 1};
@@ -32,6 +32,15 @@ int main(){
         i = i + 1;
     }
     return rtn_value;
+}
+
+void foo(){
+    int test_init_1[4][2] = {};
+    int test_init_2[4][2] = {1, 2, 3, 4, 5, 6, 7, 8};
+    int test_init_3[4][2] = {{1, 2}, {3, 4}, 5, 6, 7, 8};
+    int test_init_4[4][2] = {1, 2, {3}, {5}, 7, 8};
+    int test_init_5[4][2] = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+    int test_init_6 = 12;
 }
 
 /* continue?  */
