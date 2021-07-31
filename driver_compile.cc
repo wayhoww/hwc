@@ -210,54 +210,123 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<comp_unit_t>& comp_unit){
         for(auto child: comp_unit->children) {
-            compile(child);
+            if(auto r = dynamic_pointer_cast<comp_unit_item_func_def_t>(child)) {
+                compile(r->func_def, true, false);
+            } else if(auto r = dynamic_pointer_cast<comp_unit_item_decl_t>(child)) {
+                compile(r->decl);
+            } else { 
+                assert(false);
+            }
         }
-        codegen(imProgram);
+        
+        for(auto child: comp_unit->children) {
+            if(auto r = dynamic_pointer_cast<comp_unit_item_func_def_t>(child)) {
+                compile(r->func_def, false, true);
+            }
+        }
+
+        // ensure all declared functions are defined, and find the main function
+        int main_id = -1;
+        for(int i = 0; i < functions().size(); i++){
+            auto func = functions()[i];
+            assert(func.entrance >= 0);
+            if(func.identifier == "main") {
+                main_id = i;
+            }
+        }
+        if(main_id >= 0 && !functions()[main_id].returnVoid) {
+            // generate a starter function
+            auto funcid = add_function("__hwc_start", nxq(), false);
+            imProgram.startFunction = funcid;
+
+            // init global vars
+            for(int i = 0; i < global_vars().size(); i++){
+                auto& var = global_vars()[i];
+                auto& sym = symbols[i];
+                if(!sym.is_const) {
+                    sym.is_static = true;
+                    if(!sym.dims.empty()){
+                        // size ? size / 4 ?
+                        sym.init_value = std::vector<int32_t>(sym.size / 4, 0);
+                        for(int j = 0; j < sym.init_expr.size(); j++) {
+                            auto exp = sym.init_expr[j];
+                            if(exp) {
+                                auto [static_ok, static_val] = static_eval(exp, true);
+                                if(static_ok) {
+                                    sym.init_value[j] = static_val;
+                                }else{
+                                    sym.is_static = false;
+                                    gen_imcode(ImCode::DASET, nonterm_integer::newsp(i), nonterm_constant::newsp(4 * j), compile(exp));
+                                }
+                            }else{
+                                sym.init_value[j] = 0;
+                            }
+                        }
+                    }else{
+                        sym.init_value = std::vector<int32_t>(1, 0);
+                        if(auto exp = sym.init_expr[0]) {
+                            auto [static_ok, static_val] = static_eval(exp, true);
+                            if(static_ok) sym.init_value[0] = static_val;
+                            else {
+                                sym.is_static = false;
+                                compile(exp, nonterm_integer::newsp(i));
+                            }
+                        } // else do nothing
+                    }
+                }
+                var.initValue = sym.init_value;
+            }
+            
+            // call main 并返回 main 的返回值
+            auto func_rtn = nonterm_integer::newsp(add_temp());
+            ImCode code;
+            code.op = ImCode::CALL;
+            code.src1.type = ImCode::Oprand::FUNCID;
+            code.src1.value = main_id;
+            code.dest = get_oprand(func_rtn);
+            imcodes().push_back(code);
+
+            gen_imcode(ImCode::RET, func_rtn, nonterm_void::newsp(), nonterm_void::newsp());
+        }else{
+            // TODO
+            // when to init if main does not exist
+        }
         return nonterm_void::newsp();
     }
 
-    std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<comp_unit_item_t>& ptr){
-        auto decl = dynamic_pointer_cast<comp_unit_item_decl_t>(ptr);  
-        auto func_def = dynamic_pointer_cast<comp_unit_item_func_def_t>(ptr);  
-        if(decl) {  return compile(decl->decl); }
-        else if(func_def) { return compile(func_def->func_def); }
-        else { assert(false); }
-
-
-        return nonterm_void::newsp();
-    }
-
-    std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<func_def_t>& funcdef) {
+    std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<func_def_t>& funcdef, bool decl, bool define) {
         auto type = funcdef->func_type->type;
         auto funcname = funcdef->ident;
-
-        // 逻辑要搞清楚
-        // 多次调用、递归调用同一个函数，对每一个局部变量得到的 var id 必定是
-        // 一样的。这不是实现问题，是逻辑问题
-        // 在开始生成其代码之前 enter scoop，在生成结束之后 exit scoop，恰好没问题
-        // 一个函数知会被生成一次代码
-
-        auto entrance = imcodes().size();
-        auto funcid = add_function(funcname, entrance, funcdef->func_type->type == b_type_t::VOID);
-        if(funcname == "main") {
-            this->imProgram.startFunction = funcid;
-        }
-        
-        enter_scoop();
-        
-        // 参数
-        int i = 0;
-        for(auto param: funcdef->params->params) {
-            compile(param, i++);
+        if(decl){
+            auto funcid = add_function(funcname, -1, funcdef->func_type->type == b_type_t::VOID);
         }
 
-        compile(funcdef->block, false);
+        if(define){
 
-        // 结尾自动 return 
-        
-        gen_imcode(ImCode::RET, nonterm_void::newsp(), nonterm_void::newsp(), nonterm_void::newsp());
+            // 逻辑要搞清楚
+            // 多次调用、递归调用同一个函数，对每一个局部变量得到的 var id 必定是
+            // 一样的。这不是实现问题，是逻辑问题
+            // 在开始生成其代码之前 enter scoop，在生成结束之后 exit scoop，恰好没问题
+            // 一个函数知会被生成一次代码
 
-        exit_scoop();
+            auto func = query_function(funcname);
+            functions()[func].entrance = nxq();
+            enter_scoop();
+            
+            // 参数
+            int i = 0;
+            for(auto param: funcdef->params->params) {
+                compile(param, i++);
+            }
+
+            compile(funcdef->block, false);
+
+            // 结尾自动 return 
+            
+            gen_imcode(ImCode::RET, nonterm_void::newsp(), nonterm_void::newsp(), nonterm_void::newsp());
+
+            exit_scoop();
+        }
 
         return nonterm_void::newsp();
     }
@@ -593,14 +662,17 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
                     }
                 }
             }else{
-                /* todo */
-                assert(false);
+                symbols[id].init_expr = buffer;
             }
         
         } else {
             if(auto r = dynamic_pointer_cast<init_val_scalar_t>(def_init->init_val)) {
-                auto rst = nonterm_integer::newsp(id);
-                to_nonterm_integer(compile(r->exp, rst), rst);
+                if(current_depth > 0) {
+                    auto rst = nonterm_integer::newsp(id);
+                    to_nonterm_integer(compile(r->exp, rst), rst);
+                }else {
+                    symbols[id].init_expr = { r->exp };
+                }
             } else {
                 assert(false);
             }

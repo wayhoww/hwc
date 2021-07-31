@@ -1,0 +1,12 @@
+int a = 5;
+int b = a;
+int c = plus_one(1);
+int d[2] = {b, c};
+
+int plus_one(int x) {
+    return x + 1;
+}
+
+int main(){
+    return 0;
+}

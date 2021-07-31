@@ -16,8 +16,8 @@ std::pair<bool, int32_t> driver::static_eval_offset(
     return {true, offset};
 }
 
-std::pair<bool, int32_t> driver::static_eval(shared_ptr<expr> root) {
-    if(static_eval_cache.count(root)){
+std::pair<bool, int32_t> driver::static_eval(shared_ptr<expr> root, bool for_init) {
+    if(!for_init && static_eval_cache.count(root)){
         return static_eval_cache[root];
     }
 
@@ -59,13 +59,13 @@ std::pair<bool, int32_t> driver::static_eval(shared_ptr<expr> root) {
                 r && (
                 var_id = query_var(r->ident),
                 rst1 = static_eval_offset(r->exps, symbols[var_id].dims), 
-                ok1 && symbols[var_id].is_const)) {
+                ok1 && (symbols[var_id].is_const || (for_init && symbols[var_id].is_static) ) )) {
         rst = symbols[var_id].init_value[val1];
     }else if(auto r = dynamic_pointer_cast<number_literal_t>(root)) {
         rst = r->value;
     }else{
         final_result.first = false;
     }
-    static_eval_cache[root] = final_result;
+    if(!for_init) static_eval_cache[root] = final_result;
     return final_result;
 }

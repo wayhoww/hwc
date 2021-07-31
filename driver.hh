@@ -29,7 +29,7 @@ struct GlobalVarDef {
 };
 // i.e. 定义的时候用，不会被引用
 struct FunctionDef {
-    uint32_t entrance;  /* 入口四元式编号  */
+    int entrance;  /* 入口四元式编号  */
     std::string identifier;
     bool returnVoid;
 };
@@ -108,9 +108,13 @@ struct symbol_info {
     uint32_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
     std::vector<uint32_t> dims;             /* 维度。如果是常数，dims.empty()       */          
     std::vector<int32_t> init_value;        /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
+    std::vector<std::shared_ptr<expr>> init_expr;
 
     bool is_const = false;                          
-    bool is_temp = false;                   
+    bool is_temp = false;       
+
+    // !is_const: 需要运行时辅助初始化
+    bool is_static = false; // is_const 表达的是语义， is_static 表达的是进入 main 函数之前的事实            
 };
 
 // 因为是完全不交叉的，所以分成子类
@@ -271,7 +275,7 @@ public:
     std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_init_t>& def_init);
     std::shared_ptr<nonterm_info> compile(const shared_ptr<const_decl_t>& decl);
     std::shared_ptr<nonterm_info> compile(const shared_ptr<const_def_t>& constdef);
-    std::shared_ptr<nonterm_info> compile(const shared_ptr<func_def_t>& funcdef);
+    std::shared_ptr<nonterm_info> compile(const shared_ptr<func_def_t>& funcdef, bool decl = true, bool define = true);
     std::shared_ptr<nonterm_info> compile(const shared_ptr<func_f_param_t>& param, int param_index);
 
     // 常量与变量初始化
@@ -291,7 +295,7 @@ public:
     std::pair<uint32_t, std::vector<uint32_t>> static_array_dims(const ptr_list_of<expr>& dimsdef);
     std::pair<bool, int32_t> static_eval_offset(const ptr_list_of<expr> indices, 
                                                 const std::vector<uint32_t>& dims);
-    std::pair<bool, int32_t> static_eval(shared_ptr<expr> root);
+    std::pair<bool, int32_t> static_eval(shared_ptr<expr> root, bool for_init = false);
 };
 
 #endif
