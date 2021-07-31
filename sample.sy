@@ -1,53 +1,32 @@
+const int SIZE = 10;
+const int A[SIZE] = {1, 2, 3, 4, 5, 5, 4, 3, 2, 1};
+int results[SIZE];
+
 int fib(int x) {
-    if(x < 2) { return x; }
-    else { return fib(x - 2) + fib(x - 1); }
+    if(x < 2)  return x;  
+    else  return fib(x - 2) + fib(x - 1); 
 }
 
 int main(){
-    int x;
-    x = 10;
-    int rst;
-    rst = fib(x);
-    return rst;
-}
-
-
-
-/* 这个文件是目前可生成中间代码的源代码例子 */
-
-/*
-const int a = 3;
-const int b = 4;
-const int c[a][b] = 1;
-
-int d = 2;
-int e[2][4];
-
-int fib(int x, int a){
-    int y = 2;
-    return fib(x-a, x+a);
-}
-
-
-int main(){
-    const int a = 1;
-    const int b = 1;
-    const int c[3][4] = 1;
-
-    int d;
-    d = 3 + 4;
-    c[1][2] = (5 + d) * d / (2 + c[1][2]);
-
-    int e[2][4];
-    e[1][2] = c[3][4];
-
-    int x;
-    x = fib(e[2][c[2][1]], b); 
-
-    if(x > 0) {
-        x = 2;
+    int i = 0;
+    
+    while(i < 10) {
+        results[i] = fib(A[i]);
+        i = i + 1;
     }
+    
+    i = 0;
+
+    int rtn_value = 0;
+
+    while(1) {
+        if(A[i] == 4 || A[i] == 5) continue;
+        if(i == SIZE) break;
+        rtn_value = rtn_value + results[i];
+        i = i + 1;
+    }
+    return rtn_value;
 }
 
-int g;
-*/
+/* continue?  */
+// if-else conflict 

@@ -121,7 +121,13 @@ const_init_val:
 %nterm <ptr_list_of<const_init_val_t>> const_array_elements;
 const_array_elements: 
     %empty {}
-  | const_array_elements "," const_init_val { $$ = $1; $$.push_back($3); }
+  | real_const_array_elements { $$ = $1; }
+  
+%nterm <ptr_list_of<const_init_val_t>> real_const_array_elements;
+
+real_const_array_elements:
+    real_const_array_elements "," const_init_val { $$ = $1; $$.push_back($3); }
+  | const_init_val { $$ = ptr_list_of<const_init_val_t>(); $$.push_back($1); }
 ;
 
 %nterm <std::shared_ptr<var_decl_t>> var_decl;

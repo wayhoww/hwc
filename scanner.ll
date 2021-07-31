@@ -19,8 +19,7 @@ digit               [0-9]
 nonzero_digit       [1-9]
 octal_digit         [0-7]
 hexadecimal_digit   [0-9a-fA-F] 
-
-identifier          {letter}({letter}|{digit})*
+identifier          ({letter}|_)({letter}|_|{digit})*
 
 decimal_const       {nonzero_digit}{digit}*
 octal_const         0{octal_digit}*
@@ -28,7 +27,8 @@ hexadecimal_const   (0x|0X){hexadecimal_digit}+
 integer_const       {decimal_const}|{octal_const}|{hexadecimal_const}
 
 
-%x IN_COMMENT
+%x IN_BLOCK_COMMENT
+%x IN_LINE_COMMENT
 
 %%
 
@@ -36,7 +36,8 @@ integer_const       {decimal_const}|{octal_const}|{hexadecimal_const}
 # http://westes.github.io/flex/manual/How-can-I-match-C_002dstyle-comments_003f.html
 
 <INITIAL>{
-    "/*"                BEGIN(IN_COMMENT);
+    "/*"                BEGIN(IN_BLOCK_COMMENT);
+    "//"                BEGIN(IN_LINE_COMMENT);
     "void"              { return yy::parser::make_VOID(); }
     "int"               { return yy::parser::make_INT(); }
     "const"             { return yy::parser::make_CONST(); }
@@ -74,11 +75,17 @@ integer_const       {decimal_const}|{octal_const}|{hexadecimal_const}
     {integer_const}     { return yy::parser::make_INT_CONST(std::stoi(yytext)); };
 }
 
-<IN_COMMENT>{
+<IN_BLOCK_COMMENT>{
     "*/"      BEGIN(INITIAL);
     [^*\n]+   // eat comment in chunks
     "*"       // eat the lone star
     \n        yylineno++;
+}
+
+
+<IN_LINE_COMMENT>{
+    [^\n]+   // eat comment in chunks
+    \n        { BEGIN(INITIAL); yylineno++; }
 }
 
 <<EOF>> return yy::parser::make_YYEOF();

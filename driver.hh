@@ -336,7 +336,6 @@ public:
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
         std::vector<uint64_t> dims;
-        // TODO init
         auto id = entry(param->ident, dims, false, {});
         ImCode code;
         code.op = ImCode::MARK;
@@ -386,6 +385,7 @@ public:
         auto cond_im = to_nonterm_boolean(compile(stmt->cond));
         auto stmt_extrance = nxq();
         auto stmt_im = compile(stmt->stmt);
+        gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), continue_entrance);
         auto break_entrance = nxq();
         backpatch(cond_im->true_exits, stmt_extrance);
         backpatch(cond_im->false_exits, break_entrance);
@@ -528,7 +528,6 @@ public:
 
     std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_only_t>& def_only) {
         auto [size, dims] = static_array_dims(def_only->array_dims);
-        // todo init
         auto id = add_var(def_only->ident, dims, false, {});
         if(!dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
@@ -538,6 +537,22 @@ public:
     }    
     
     
+    void flatten(shared_ptr<init_val_t> init_val, std::vector<std::shared_ptr<expr>>& vec) {
+        if (auto r = dynamic_pointer_cast<init_val_scalar_t>(init_val)) {
+            vec.push_back(r->exp);
+        } else if (auto r = dynamic_pointer_cast<init_val_array_t>(init_val)) {
+            for(auto sub: r->array_elements) {
+                flatten(sub, vec);
+            }
+        }
+    }
+
+    std::vector<std::shared_ptr<expr>> flatten(shared_ptr<init_val_t> init_val) {
+        std::vector<std::shared_ptr<expr>> vec;
+        flatten(init_val, vec);
+        return vec;
+    }
+
     std::shared_ptr<nonterm_info> compile(const shared_ptr<var_def_init_t>& def_init) {
         auto [size, dims] = static_array_dims(def_init->array_dims);
         // 取init的时候要用到dims和size
@@ -545,6 +560,26 @@ public:
         auto id = add_var(def_init->ident, dims, false, {});
         if(!dims.empty() && current_depth > 0) {
             gen_alloc(id, size * 8);
+            auto flat_exps = flatten(def_init->init_val);
+            auto index = nonterm_integer::newsp(add_temp());
+            gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), index);
+            if(flat_exps.size() == size) {
+                for(int i = 0; i < size; i++){
+                    gen_imcode(ImCode::DASET, nonterm_integer::newsp(id), index, compile(flat_exps[i]));
+                    if(i < size) {
+                        gen_imcode(ImCode::PLUS, index, nonterm_constant::newsp(8), index);
+                    }
+                }
+            } else {
+                // TODO
+                assert(false);
+            }
+        } else {
+            if(auto r = dynamic_pointer_cast<init_val_scalar_t>(def_init->init_val)) {
+                compile(r->exp, nonterm_integer::newsp(id));
+            } else {
+                assert(false);
+            }
         }
 
         return nonterm_void::newsp();
@@ -569,13 +604,39 @@ public:
         return nonterm_void::newsp();
     }
 
+    void flatten(shared_ptr<const_init_val_t> init_val, std::vector<std::shared_ptr<expr>>& vec) {
+        if (auto r = dynamic_pointer_cast<const_init_val_scalar_t>(init_val)) {
+            vec.push_back(r->const_exp);
+        } else if (auto r = dynamic_pointer_cast<const_init_val_array_t>(init_val)) {
+            for(auto sub: r->array_elements) {
+                flatten(sub, vec);
+            }
+        }
+    }
+
+    std::vector<std::shared_ptr<expr>> flatten(shared_ptr<const_init_val_t> init_val) {
+        std::vector<std::shared_ptr<expr>> vec;
+        flatten(init_val, vec);
+        return vec;
+    }
+
     std::shared_ptr<nonterm_info> compile(const shared_ptr<const_def_t>& constdef) {
         auto [size, dims] = static_array_dims(constdef->array_dims);
 
-        // TODO 暂时不做 initialization
-        // constdef->const_init_val
-        auto varid = add_var(constdef->ident, dims, true, std::vector<int64_t>(size, 0));
-
+        std::vector<int64_t> init(size, 0);
+        auto flat_init = flatten(constdef->const_init_val);
+        if(flat_init.size() == size) {
+            for(int i = 0; i < flat_init.size(); i++) {
+                auto [ok, val] = static_eval(flat_init[i]);
+                assert(ok);
+                init[i] = val;
+            }
+        } else {
+            // TODO
+            assert(false);
+        }
+        auto varid = add_var(constdef->ident, dims, true, init);
+        
         return nonterm_void::newsp();
     }
 
