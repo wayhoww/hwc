@@ -32,7 +32,7 @@
 
 
 /**
- ** \file parser.tab.hh
+ ** \file parser.hh
  ** Define the yy::parser class.
  */
 
@@ -42,15 +42,15 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_PARSER_TAB_HH_INCLUDED
-# define YY_YY_PARSER_TAB_HH_INCLUDED
+#ifndef YY_YY_PARSER_HH_INCLUDED
+# define YY_YY_PARSER_HH_INCLUDED
 // "%code requires" blocks.
 #line 10 "parser.yy"
 
     class driver;
     #include "constructs.hh"
 
-#line 54 "parser.tab.hh"
+#line 54 "parser.hh"
 
 
 # include <cstdlib> // std::abort
@@ -175,11 +175,11 @@
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 
 namespace yy {
-#line 183 "parser.tab.hh"
+#line 183 "parser.hh"
 
 
 
@@ -377,6 +377,7 @@ namespace yy {
       char dummy2[sizeof (ptr_list_of<block_item_t>)];
 
       // const_array_elements
+      // real_const_array_elements
       char dummy3[sizeof (ptr_list_of<const_init_val_t>)];
 
       // array_dims
@@ -570,7 +571,7 @@ namespace yy {
         S_VOID = 5,                              // "void"
         S_INT = 6,                               // "int"
         S_CONST = 7,                             // "const"
-        S_IF = 4,                                // "if"
+        S_IF = 8,                                // "if"
         S_ELSE = 9,                              // "else"
         S_WHILE = 10,                            // "while"
         S_BREAK = 11,                            // "break"
@@ -611,38 +612,39 @@ namespace yy {
         S_array_dims = 46,                       // array_dims
         S_const_init_val = 47,                   // const_init_val
         S_const_array_elements = 48,             // const_array_elements
-        S_var_decl = 49,                         // var_decl
-        S_var_def_list = 50,                     // var_def_list
-        S_var_def = 51,                          // var_def
-        S_init_val = 52,                         // init_val
-        S_init_array_elements = 53,              // init_array_elements
-        S_func_def = 54,                         // func_def
-        S_func_f_params = 55,                    // func_f_params
-        S_real_func_f_params = 56,               // real_func_f_params
-        S_func_f_param = 57,                     // func_f_param
-        S_array_dims_func_param = 58,            // array_dims_func_param
-        S_array_dims_func_param_real = 59,       // array_dims_func_param_real
-        S_block = 60,                            // block
-        S_block_elements = 61,                   // block_elements
-        S_block_item = 62,                       // block_item
-        S_ident = 63,                            // ident
-        S_stmt = 64,                             // stmt
-        S_exp = 65,                              // exp
-        S_cond = 66,                             // cond
-        S_l_val = 67,                            // l_val
-        S_array_indices = 68,                    // array_indices
-        S_primary_exp = 69,                      // primary_exp
-        S_number = 70,                           // number
-        S_unary_exp = 71,                        // unary_exp
-        S_func_r_params = 72,                    // func_r_params
-        S_func_r_params_elements = 73,           // func_r_params_elements
-        S_mul_exp = 74,                          // mul_exp
-        S_add_exp = 75,                          // add_exp
-        S_rel_exp = 76,                          // rel_exp
-        S_eq_exp = 77,                           // eq_exp
-        S_l_and_exp = 78,                        // l_and_exp
-        S_l_or_exp = 79,                         // l_or_exp
-        S_const_exp = 80                         // const_exp
+        S_real_const_array_elements = 49,        // real_const_array_elements
+        S_var_decl = 50,                         // var_decl
+        S_var_def_list = 51,                     // var_def_list
+        S_var_def = 52,                          // var_def
+        S_init_val = 53,                         // init_val
+        S_init_array_elements = 54,              // init_array_elements
+        S_func_def = 55,                         // func_def
+        S_func_f_params = 56,                    // func_f_params
+        S_real_func_f_params = 57,               // real_func_f_params
+        S_func_f_param = 58,                     // func_f_param
+        S_array_dims_func_param = 59,            // array_dims_func_param
+        S_array_dims_func_param_real = 60,       // array_dims_func_param_real
+        S_block = 61,                            // block
+        S_block_elements = 62,                   // block_elements
+        S_block_item = 63,                       // block_item
+        S_ident = 64,                            // ident
+        S_stmt = 65,                             // stmt
+        S_exp = 66,                              // exp
+        S_cond = 67,                             // cond
+        S_l_val = 68,                            // l_val
+        S_array_indices = 69,                    // array_indices
+        S_primary_exp = 70,                      // primary_exp
+        S_number = 71,                           // number
+        S_unary_exp = 72,                        // unary_exp
+        S_func_r_params = 73,                    // func_r_params
+        S_func_r_params_elements = 74,           // func_r_params_elements
+        S_mul_exp = 75,                          // mul_exp
+        S_add_exp = 76,                          // add_exp
+        S_rel_exp = 77,                          // rel_exp
+        S_eq_exp = 78,                           // eq_exp
+        S_l_and_exp = 79,                        // l_and_exp
+        S_l_or_exp = 80,                         // l_or_exp
+        S_const_exp = 81                         // const_exp
       };
     };
 
@@ -686,6 +688,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (std::move (that.value));
         break;
 
@@ -1179,6 +1182,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.template destroy< ptr_list_of<const_init_val_t> > ();
         break;
 
@@ -2315,8 +2319,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 188,     ///< Last index in yytable_.
-      yynnts_ = 44,  ///< Number of nonterminal symbols.
+      yylast_ = 201,     ///< Last index in yytable_.
+      yynnts_ = 45,  ///< Number of nonterminal symbols.
       yyfinal_ = 14 ///< Termination state number.
     };
 
@@ -2362,7 +2366,7 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     4,     9,    10,    11,    12,    13,    14,
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36
@@ -2395,6 +2399,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.copy< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
@@ -2550,6 +2555,7 @@ switch (yykind)
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (YY_MOVE (s.value));
         break;
 
@@ -2728,9 +2734,9 @@ switch (yykind)
   }
 
 } // yy
-#line 2732 "parser.tab.hh"
+#line 2738 "parser.hh"
 
 
 
 
-#endif // !YY_YY_PARSER_TAB_HH_INCLUDED
+#endif // !YY_YY_PARSER_HH_INCLUDED

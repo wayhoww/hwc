@@ -38,7 +38,7 @@
 
 
 
-#include "parser.tab.hh"
+#include "parser.hh"
 
 
 // Unqualified %code blocks.
@@ -51,7 +51,7 @@
         std::cerr << m << '\n';
     }
 
-#line 55 "parser.tab.cc"
+#line 55 "parser.cc"
 
 
 #ifndef YY_
@@ -124,7 +124,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 128 "parser.tab.cc"
+#line 128 "parser.cc"
 
   /// Build a parser object.
   parser::parser (driver& drv_yyarg)
@@ -201,6 +201,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.YY_MOVE_OR_COPY< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
@@ -342,6 +343,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
@@ -483,6 +485,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.copy< ptr_list_of<const_init_val_t> > (that.value);
         break;
 
@@ -622,6 +625,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (that.value);
         break;
 
@@ -1002,6 +1006,7 @@ namespace yy {
         break;
 
       case symbol_kind::S_const_array_elements: // const_array_elements
+      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
         yylhs.value.emplace< ptr_list_of<const_init_val_t> > ();
         break;
 
@@ -1138,73 +1143,73 @@ namespace yy {
                         {
     drv.syntax_tree = yystack_[0].value.as < std::shared_ptr<comp_unit_t> > ();
 }
-#line 1142 "parser.tab.cc"
+#line 1147 "parser.cc"
     break;
 
   case 3: // comp_unit: comp_unit_item
 #line 73 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<comp_unit_t> > () = std::make_shared<comp_unit_t>(); yylhs.value.as < std::shared_ptr<comp_unit_t> > ()->children.push_back(yystack_[0].value.as < std::shared_ptr<comp_unit_item_t> > ());          }
-#line 1148 "parser.tab.cc"
+#line 1153 "parser.cc"
     break;
 
   case 4: // comp_unit: comp_unit comp_unit_item
 #line 74 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<comp_unit_t> > () = yystack_[1].value.as < std::shared_ptr<comp_unit_t> > (); yylhs.value.as < std::shared_ptr<comp_unit_t> > ()->children.push_back(yystack_[0].value.as < std::shared_ptr<comp_unit_item_t> > ()); }
-#line 1154 "parser.tab.cc"
+#line 1159 "parser.cc"
     break;
 
   case 5: // comp_unit_item: func_def
 #line 79 "parser.yy"
                 { yylhs.value.as < std::shared_ptr<comp_unit_item_t> > () = std::make_shared<comp_unit_item_func_def_t>(yystack_[0].value.as < std::shared_ptr<func_def_t> > ()); }
-#line 1160 "parser.tab.cc"
+#line 1165 "parser.cc"
     break;
 
   case 6: // comp_unit_item: decl
 #line 80 "parser.yy"
                 { yylhs.value.as < std::shared_ptr<comp_unit_item_t> > () = std::make_shared<comp_unit_item_decl_t>(yystack_[0].value.as < std::shared_ptr<decl_t> > ());     }
-#line 1166 "parser.tab.cc"
+#line 1171 "parser.cc"
     break;
 
   case 7: // decl: const_decl_stmt
 #line 85 "parser.yy"
                     { yylhs.value.as < std::shared_ptr<decl_t> > () = std::make_shared<decl_const_decl_t>(yystack_[0].value.as < std::shared_ptr<const_decl_t> > ()); }
-#line 1172 "parser.tab.cc"
+#line 1177 "parser.cc"
     break;
 
-  case 4: // decl: var_decl
+  case 8: // decl: var_decl
 #line 86 "parser.yy"
                { yylhs.value.as < std::shared_ptr<decl_t> > () = std::make_shared<decl_var_decl_t>(yystack_[0].value.as < std::shared_ptr<var_decl_t> > ());   }
-#line 1178 "parser.tab.cc"
+#line 1183 "parser.cc"
     break;
 
   case 9: // const_decl: "const" b_type const_def
 #line 92 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<const_decl_t> > () = std::make_shared<const_decl_t>(); yylhs.value.as < std::shared_ptr<const_decl_t> > ()->b_type = yystack_[1].value.as < std::shared_ptr<b_type_t> > (); yylhs.value.as < std::shared_ptr<const_decl_t> > ()->const_defs.push_back(yystack_[0].value.as < std::shared_ptr<const_def_t> > ()); }
-#line 1184 "parser.tab.cc"
+#line 1189 "parser.cc"
     break;
 
   case 10: // const_decl: const_decl "," const_def
 #line 93 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<const_decl_t> > () = yystack_[2].value.as < std::shared_ptr<const_decl_t> > (); yylhs.value.as < std::shared_ptr<const_decl_t> > ()->const_defs.push_back(yystack_[0].value.as < std::shared_ptr<const_def_t> > ());}
-#line 1190 "parser.tab.cc"
+#line 1195 "parser.cc"
     break;
 
   case 11: // const_decl_stmt: const_decl ";"
 #line 96 "parser.yy"
                                 { yylhs.value.as < std::shared_ptr<const_decl_t> > () = yystack_[1].value.as < std::shared_ptr<const_decl_t> > (); }
-#line 1196 "parser.tab.cc"
+#line 1201 "parser.cc"
     break;
 
   case 12: // b_type: "int"
 #line 100 "parser.yy"
           { yylhs.value.as < std::shared_ptr<b_type_t> > () = std::make_shared<b_type_t>(b_type_t::INT); }
-#line 1202 "parser.tab.cc"
+#line 1207 "parser.cc"
     break;
 
   case 13: // b_type: "void"
 #line 101 "parser.yy"
            { yylhs.value.as < std::shared_ptr<b_type_t> > () = std::make_shared<b_type_t>(b_type_t::VOID); }
-#line 1208 "parser.tab.cc"
+#line 1213 "parser.cc"
     break;
 
   case 14: // const_def: ident array_dims "=" const_init_val
@@ -1212,103 +1217,115 @@ namespace yy {
                                                {
     yylhs.value.as < std::shared_ptr<const_def_t> > () = std::make_shared<const_def_t>(yystack_[3].value.as < std::string > (), yystack_[2].value.as < ptr_list_of<expr> > (), yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ());
 }
-#line 1216 "parser.tab.cc"
+#line 1221 "parser.cc"
     break;
 
   case 15: // array_dims: %empty
 #line 111 "parser.yy"
            {}
-#line 1222 "parser.tab.cc"
+#line 1227 "parser.cc"
     break;
 
   case 16: // array_dims: array_dims "[" const_exp "]"
 #line 112 "parser.yy"
                                  { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1228 "parser.tab.cc"
+#line 1233 "parser.cc"
     break;
 
   case 17: // const_init_val: const_exp
 #line 117 "parser.yy"
               { yylhs.value.as < std::shared_ptr<const_init_val_t> > () = std::make_shared<const_init_val_scalar_t>(yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1234 "parser.tab.cc"
+#line 1239 "parser.cc"
     break;
 
   case 18: // const_init_val: "{" const_array_elements "}"
 #line 118 "parser.yy"
                                  { yylhs.value.as < std::shared_ptr<const_init_val_t> > () = std::make_shared<const_init_val_array_t>(yystack_[1].value.as < ptr_list_of<const_init_val_t> > ()); }
-#line 1240 "parser.tab.cc"
+#line 1245 "parser.cc"
     break;
 
   case 19: // const_array_elements: %empty
 #line 123 "parser.yy"
            {}
-#line 1246 "parser.tab.cc"
+#line 1251 "parser.cc"
     break;
 
-  case 20: // const_array_elements: const_array_elements "," const_init_val
+  case 20: // const_array_elements: real_const_array_elements
 #line 124 "parser.yy"
-                                            { yylhs.value.as < ptr_list_of<const_init_val_t> > () = yystack_[2].value.as < ptr_list_of<const_init_val_t> > (); yylhs.value.as < ptr_list_of<const_init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ()); }
-#line 1252 "parser.tab.cc"
+                              { yylhs.value.as < ptr_list_of<const_init_val_t> > () = yystack_[0].value.as < ptr_list_of<const_init_val_t> > (); }
+#line 1257 "parser.cc"
     break;
 
-  case 21: // var_decl: b_type var_def_list ";"
+  case 21: // real_const_array_elements: real_const_array_elements "," const_init_val
 #line 129 "parser.yy"
+                                                 { yylhs.value.as < ptr_list_of<const_init_val_t> > () = yystack_[2].value.as < ptr_list_of<const_init_val_t> > (); yylhs.value.as < ptr_list_of<const_init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ()); }
+#line 1263 "parser.cc"
+    break;
+
+  case 22: // real_const_array_elements: const_init_val
+#line 130 "parser.yy"
+                   { yylhs.value.as < ptr_list_of<const_init_val_t> > () = ptr_list_of<const_init_val_t>(); yylhs.value.as < ptr_list_of<const_init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ()); }
+#line 1269 "parser.cc"
+    break;
+
+  case 23: // var_decl: b_type var_def_list ";"
+#line 135 "parser.yy"
                             {
         yylhs.value.as < std::shared_ptr<var_decl_t> > () = std::make_shared<var_decl_t>(yystack_[2].value.as < std::shared_ptr<b_type_t> > (), yystack_[1].value.as < ptr_list_of<var_def_t> > ());
     }
-#line 1260 "parser.tab.cc"
+#line 1277 "parser.cc"
     break;
 
-  case 22: // var_def_list: var_def
-#line 136 "parser.yy"
-            { yylhs.value.as < ptr_list_of<var_def_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<var_def_t> > ()); }
-#line 1266 "parser.tab.cc"
-    break;
-
-  case 23: // var_def_list: var_def_list "," var_def
-#line 137 "parser.yy"
-                             { yylhs.value.as < ptr_list_of<var_def_t> > () = yystack_[2].value.as < ptr_list_of<var_def_t> > (); yylhs.value.as < ptr_list_of<var_def_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<var_def_t> > ()); }
-#line 1272 "parser.tab.cc"
-    break;
-
-  case 24: // var_def: ident array_dims
+  case 24: // var_def_list: var_def
 #line 142 "parser.yy"
-                                    { yylhs.value.as < std::shared_ptr<var_def_t> > () = std::make_shared<var_def_only_t>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < ptr_list_of<expr> > ()); }
-#line 1278 "parser.tab.cc"
+            { yylhs.value.as < ptr_list_of<var_def_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<var_def_t> > ()); }
+#line 1283 "parser.cc"
     break;
 
-  case 25: // var_def: ident array_dims "=" init_val
+  case 25: // var_def_list: var_def_list "," var_def
 #line 143 "parser.yy"
-                                    { yylhs.value.as < std::shared_ptr<var_def_t> > () = std::make_shared<var_def_init_t>(yystack_[3].value.as < std::string > (), yystack_[2].value.as < ptr_list_of<expr> > (), yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
-#line 1284 "parser.tab.cc"
+                             { yylhs.value.as < ptr_list_of<var_def_t> > () = yystack_[2].value.as < ptr_list_of<var_def_t> > (); yylhs.value.as < ptr_list_of<var_def_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<var_def_t> > ()); }
+#line 1289 "parser.cc"
     break;
 
-  case 26: // init_val: exp
+  case 26: // var_def: ident array_dims
 #line 148 "parser.yy"
-        { yylhs.value.as < std::shared_ptr<init_val_t> > () = std::make_shared<init_val_scalar_t>(yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1290 "parser.tab.cc"
+                                    { yylhs.value.as < std::shared_ptr<var_def_t> > () = std::make_shared<var_def_only_t>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < ptr_list_of<expr> > ()); }
+#line 1295 "parser.cc"
     break;
 
-  case 27: // init_val: "{" init_array_elements "}"
+  case 27: // var_def: ident array_dims "=" init_val
 #line 149 "parser.yy"
-                                {{ yylhs.value.as < std::shared_ptr<init_val_t> > () = std::make_shared<init_val_array_t>(yystack_[1].value.as < ptr_list_of<init_val_t> > ()); }}
-#line 1296 "parser.tab.cc"
+                                    { yylhs.value.as < std::shared_ptr<var_def_t> > () = std::make_shared<var_def_init_t>(yystack_[3].value.as < std::string > (), yystack_[2].value.as < ptr_list_of<expr> > (), yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
+#line 1301 "parser.cc"
     break;
 
-  case 28: // init_array_elements: %empty
-#line 153 "parser.yy"
-           {}
-#line 1302 "parser.tab.cc"
-    break;
-
-  case 29: // init_array_elements: init_array_elements init_val
+  case 28: // init_val: exp
 #line 154 "parser.yy"
-                                 { yylhs.value.as < ptr_list_of<init_val_t> > () = yystack_[1].value.as < ptr_list_of<init_val_t> > (); yylhs.value.as < ptr_list_of<init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
-#line 1308 "parser.tab.cc"
+        { yylhs.value.as < std::shared_ptr<init_val_t> > () = std::make_shared<init_val_scalar_t>(yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1307 "parser.cc"
     break;
 
-  case 30: // func_def: b_type ident "(" func_f_params ")" block
-#line 158 "parser.yy"
+  case 29: // init_val: "{" init_array_elements "}"
+#line 155 "parser.yy"
+                                {{ yylhs.value.as < std::shared_ptr<init_val_t> > () = std::make_shared<init_val_array_t>(yystack_[1].value.as < ptr_list_of<init_val_t> > ()); }}
+#line 1313 "parser.cc"
+    break;
+
+  case 30: // init_array_elements: %empty
+#line 159 "parser.yy"
+           {}
+#line 1319 "parser.cc"
+    break;
+
+  case 31: // init_array_elements: init_array_elements init_val
+#line 160 "parser.yy"
+                                 { yylhs.value.as < ptr_list_of<init_val_t> > () = yystack_[1].value.as < ptr_list_of<init_val_t> > (); yylhs.value.as < ptr_list_of<init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
+#line 1325 "parser.cc"
+    break;
+
+  case 32: // func_def: b_type ident "(" func_f_params ")" block
+#line 164 "parser.yy"
                                                    {
     yylhs.value.as < std::shared_ptr<func_def_t> > () = std::make_shared<func_def_t>();
     yylhs.value.as < std::shared_ptr<func_def_t> > ()->func_type = yystack_[5].value.as < std::shared_ptr<b_type_t> > ();
@@ -1316,414 +1333,414 @@ namespace yy {
     yylhs.value.as < std::shared_ptr<func_def_t> > ()->params = yystack_[2].value.as < std::shared_ptr<func_f_params_t> > ();
     yylhs.value.as < std::shared_ptr<func_def_t> > ()->block = yystack_[0].value.as < std::shared_ptr<block_t> > ();
 }
-#line 1320 "parser.tab.cc"
+#line 1337 "parser.cc"
     break;
 
-  case 31: // func_f_params: %empty
-#line 168 "parser.yy"
-           { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = std::make_shared<func_f_params_t>(); }
-#line 1326 "parser.tab.cc"
-    break;
-
-  case 32: // func_f_params: real_func_f_params
-#line 169 "parser.yy"
-                       { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = yystack_[0].value.as < std::shared_ptr<func_f_params_t> > (); }
-#line 1332 "parser.tab.cc"
-    break;
-
-  case 33: // real_func_f_params: real_func_f_params "," func_f_param
+  case 33: // func_f_params: %empty
 #line 174 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = yystack_[2].value.as < std::shared_ptr<func_f_params_t> > (); yylhs.value.as < std::shared_ptr<func_f_params_t> > ()->params.push_back(yystack_[0].value.as < std::shared_ptr<func_f_param_t> > ()); }
-#line 1338 "parser.tab.cc"
+           { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = std::make_shared<func_f_params_t>(); }
+#line 1343 "parser.cc"
     break;
 
-  case 34: // real_func_f_params: func_f_param
+  case 34: // func_f_params: real_func_f_params
 #line 175 "parser.yy"
-                 { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = std::make_shared<func_f_params_t>(); yylhs.value.as < std::shared_ptr<func_f_params_t> > ()->params.push_back(yystack_[0].value.as < std::shared_ptr<func_f_param_t> > ()); }
-#line 1344 "parser.tab.cc"
+                       { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = yystack_[0].value.as < std::shared_ptr<func_f_params_t> > (); }
+#line 1349 "parser.cc"
     break;
 
-  case 35: // func_f_param: b_type ident array_dims_func_param
-#line 179 "parser.yy"
+  case 35: // real_func_f_params: real_func_f_params "," func_f_param
+#line 180 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = yystack_[2].value.as < std::shared_ptr<func_f_params_t> > (); yylhs.value.as < std::shared_ptr<func_f_params_t> > ()->params.push_back(yystack_[0].value.as < std::shared_ptr<func_f_param_t> > ()); }
+#line 1355 "parser.cc"
+    break;
+
+  case 36: // real_func_f_params: func_f_param
+#line 181 "parser.yy"
+                 { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = std::make_shared<func_f_params_t>(); yylhs.value.as < std::shared_ptr<func_f_params_t> > ()->params.push_back(yystack_[0].value.as < std::shared_ptr<func_f_param_t> > ()); }
+#line 1361 "parser.cc"
+    break;
+
+  case 37: // func_f_param: b_type ident array_dims_func_param
+#line 185 "parser.yy"
                                                  {
     yylhs.value.as < std::shared_ptr<func_f_param_t> > () = std::make_shared<func_f_param_t>();
     yylhs.value.as < std::shared_ptr<func_f_param_t> > ()->b_type = yystack_[2].value.as < std::shared_ptr<b_type_t> > ();
     yylhs.value.as < std::shared_ptr<func_f_param_t> > ()->ident = yystack_[1].value.as < std::string > ();
     yylhs.value.as < std::shared_ptr<func_f_param_t> > ()->array_dims = yystack_[0].value.as < ptr_list_of<expr> > ();
 }
-#line 1355 "parser.tab.cc"
+#line 1372 "parser.cc"
     break;
 
-  case 36: // array_dims_func_param: %empty
-#line 188 "parser.yy"
-           {}
-#line 1361 "parser.tab.cc"
-    break;
-
-  case 37: // array_dims_func_param: array_dims_func_param_real
-#line 189 "parser.yy"
-                               { yylhs.value.as < ptr_list_of<expr> > () = yystack_[0].value.as < ptr_list_of<expr> > (); }
-#line 1367 "parser.tab.cc"
-    break;
-
-  case 38: // array_dims_func_param_real: "[" "]"
+  case 38: // array_dims_func_param: %empty
 #line 194 "parser.yy"
-            { yylhs.value.as < ptr_list_of<expr> > ().push_back(nullptr); }
-#line 1373 "parser.tab.cc"
-    break;
-
-  case 39: // array_dims_func_param_real: array_dims_func_param_real "[" exp "]"
-#line 195 "parser.yy"
-                                           { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1379 "parser.tab.cc"
-    break;
-
-  case 40: // block: "{" block_elements "}"
-#line 199 "parser.yy"
-                              { yylhs.value.as < std::shared_ptr<block_t> > () = std::make_shared<block_t>(yystack_[1].value.as < ptr_list_of<block_item_t> > ()); }
-#line 1385 "parser.tab.cc"
-    break;
-
-  case 41: // block_elements: %empty
-#line 203 "parser.yy"
            {}
-#line 1391 "parser.tab.cc"
+#line 1378 "parser.cc"
     break;
 
-  case 42: // block_elements: block_elements block_item
-#line 204 "parser.yy"
-                              { yylhs.value.as < ptr_list_of<block_item_t> > () = yystack_[1].value.as < ptr_list_of<block_item_t> > (); yylhs.value.as < ptr_list_of<block_item_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<block_item_t> > ()); }
-#line 1397 "parser.tab.cc"
+  case 39: // array_dims_func_param: array_dims_func_param_real
+#line 195 "parser.yy"
+                               { yylhs.value.as < ptr_list_of<expr> > () = yystack_[0].value.as < ptr_list_of<expr> > (); }
+#line 1384 "parser.cc"
     break;
 
-  case 43: // block_item: decl
+  case 40: // array_dims_func_param_real: "[" "]"
+#line 200 "parser.yy"
+            { yylhs.value.as < ptr_list_of<expr> > ().push_back(nullptr); }
+#line 1390 "parser.cc"
+    break;
+
+  case 41: // array_dims_func_param_real: array_dims_func_param_real "[" exp "]"
+#line 201 "parser.yy"
+                                           { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
+#line 1396 "parser.cc"
+    break;
+
+  case 42: // block: "{" block_elements "}"
+#line 205 "parser.yy"
+                              { yylhs.value.as < std::shared_ptr<block_t> > () = std::make_shared<block_t>(yystack_[1].value.as < ptr_list_of<block_item_t> > ()); }
+#line 1402 "parser.cc"
+    break;
+
+  case 43: // block_elements: %empty
 #line 209 "parser.yy"
-         { yylhs.value.as < std::shared_ptr<block_item_t> > () = std::make_shared<block_item_decl_t>(yystack_[0].value.as < std::shared_ptr<decl_t> > ()); }
-#line 1403 "parser.tab.cc"
+           {}
+#line 1408 "parser.cc"
     break;
 
-  case 44: // block_item: stmt
+  case 44: // block_elements: block_elements block_item
 #line 210 "parser.yy"
+                              { yylhs.value.as < ptr_list_of<block_item_t> > () = yystack_[1].value.as < ptr_list_of<block_item_t> > (); yylhs.value.as < ptr_list_of<block_item_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<block_item_t> > ()); }
+#line 1414 "parser.cc"
+    break;
+
+  case 45: // block_item: decl
+#line 215 "parser.yy"
+         { yylhs.value.as < std::shared_ptr<block_item_t> > () = std::make_shared<block_item_decl_t>(yystack_[0].value.as < std::shared_ptr<decl_t> > ()); }
+#line 1420 "parser.cc"
+    break;
+
+  case 46: // block_item: stmt
+#line 216 "parser.yy"
          { yylhs.value.as < std::shared_ptr<block_item_t> > () = std::make_shared<block_item_stmt_t>(yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
-#line 1409 "parser.tab.cc"
+#line 1426 "parser.cc"
     break;
 
-  case 45: // ident: "identifier"
-#line 213 "parser.yy"
-             { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 1415 "parser.tab.cc"
-    break;
-
-  case 46: // stmt: l_val "=" exp ";"
-#line 217 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_assign_t>(yystack_[3].value.as < std::shared_ptr<l_val_t> > (), yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1421 "parser.tab.cc"
-    break;
-
-  case 47: // stmt: exp ";"
-#line 218 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_exp_t>(yystack_[1].value.as < std::shared_ptr<expr> > ());        }
-#line 1427 "parser.tab.cc"
-    break;
-
-  case 48: // stmt: ";"
+  case 47: // ident: "identifier"
 #line 219 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::shared_ptr<stmt_exp_t>(nullptr);    }
-#line 1433 "parser.tab.cc"
+             { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
+#line 1432 "parser.cc"
     break;
 
-  case 49: // stmt: block
-#line 220 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_block_t>(yystack_[0].value.as < std::shared_ptr<block_t> > ());      }
-#line 1439 "parser.tab.cc"
-    break;
-
-  case 50: // stmt: "if" "(" cond ")" stmt
-#line 221 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_if_t>(yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > (), nullptr); }
-#line 1445 "parser.tab.cc"
-    break;
-
-  case 51: // stmt: "if" "(" cond ")" stmt "else" stmt
+  case 48: // stmt: l_val "=" exp ";"
 #line 223 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_if_t>(yystack_[4].value.as < std::shared_ptr<expr> > (), yystack_[2].value.as < std::shared_ptr<stmt_t> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
-#line 1451 "parser.tab.cc"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_assign_t>(yystack_[3].value.as < std::shared_ptr<l_val_t> > (), yystack_[1].value.as < std::shared_ptr<expr> > ()); }
+#line 1438 "parser.cc"
     break;
 
-  case 52: // stmt: "while" "(" cond ")" stmt
+  case 49: // stmt: exp ";"
 #line 224 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_while_t>(yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
-#line 1457 "parser.tab.cc"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_exp_t>(yystack_[1].value.as < std::shared_ptr<expr> > ());        }
+#line 1444 "parser.cc"
     break;
 
-  case 53: // stmt: "break" ";"
+  case 50: // stmt: ";"
 #line 225 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_break_t>();       }
-#line 1463 "parser.tab.cc"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::shared_ptr<stmt_exp_t>(nullptr);    }
+#line 1450 "parser.cc"
     break;
 
-  case 54: // stmt: "continue" ";"
+  case 51: // stmt: block
 #line 226 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_continue_t>();    }
-#line 1469 "parser.tab.cc"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_block_t>(yystack_[0].value.as < std::shared_ptr<block_t> > ());      }
+#line 1456 "parser.cc"
     break;
 
-  case 55: // stmt: "return" ";"
+  case 52: // stmt: "if" "(" cond ")" stmt
 #line 227 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_return_t>(nullptr); }
-#line 1475 "parser.tab.cc"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_if_t>(yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > (), nullptr); }
+#line 1462 "parser.cc"
     break;
 
-  case 56: // stmt: "return" exp ";"
-#line 228 "parser.yy"
-                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_return_t>(yystack_[1].value.as < std::shared_ptr<expr> > ());    }
-#line 1481 "parser.tab.cc"
+  case 53: // stmt: "if" "(" cond ")" stmt "else" stmt
+#line 229 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_if_t>(yystack_[4].value.as < std::shared_ptr<expr> > (), yystack_[2].value.as < std::shared_ptr<stmt_t> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
+#line 1468 "parser.cc"
     break;
 
-  case 57: // exp: add_exp
+  case 54: // stmt: "while" "(" cond ")" stmt
+#line 230 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_while_t>(yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
+#line 1474 "parser.cc"
+    break;
+
+  case 55: // stmt: "break" ";"
+#line 231 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_break_t>();       }
+#line 1480 "parser.cc"
+    break;
+
+  case 56: // stmt: "continue" ";"
+#line 232 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_continue_t>();    }
+#line 1486 "parser.cc"
+    break;
+
+  case 57: // stmt: "return" ";"
 #line 233 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_return_t>(nullptr); }
+#line 1492 "parser.cc"
+    break;
+
+  case 58: // stmt: "return" exp ";"
+#line 234 "parser.yy"
+                                        { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_return_t>(yystack_[1].value.as < std::shared_ptr<expr> > ());    }
+#line 1498 "parser.cc"
+    break;
+
+  case 59: // exp: add_exp
+#line 239 "parser.yy"
              { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1487 "parser.tab.cc"
+#line 1504 "parser.cc"
     break;
 
-  case 58: // cond: l_or_exp
-#line 236 "parser.yy"
+  case 60: // cond: l_or_exp
+#line 242 "parser.yy"
                { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1493 "parser.tab.cc"
+#line 1510 "parser.cc"
     break;
 
-  case 59: // l_val: ident array_indices
-#line 240 "parser.yy"
-                        { yylhs.value.as < std::shared_ptr<l_val_t> > () = std::make_shared<l_val_t>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < ptr_list_of<expr> > ()); }
-#line 1499 "parser.tab.cc"
-    break;
-
-  case 60: // l_val: ident
-#line 241 "parser.yy"
-          { yylhs.value.as < std::shared_ptr<l_val_t> > ()=std::make_shared<l_val_t>(yystack_[0].value.as < std::string > (), ptr_list_of<expr>()); }
-#line 1505 "parser.tab.cc"
-    break;
-
-  case 61: // array_indices: "[" exp "]"
+  case 61: // l_val: ident array_indices
 #line 246 "parser.yy"
-                 {{ yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }}
-#line 1511 "parser.tab.cc"
+                        { yylhs.value.as < std::shared_ptr<l_val_t> > () = std::make_shared<l_val_t>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < ptr_list_of<expr> > ()); }
+#line 1516 "parser.cc"
     break;
 
-  case 62: // array_indices: array_indices "[" exp "]"
+  case 62: // l_val: ident
 #line 247 "parser.yy"
-                               { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1517 "parser.tab.cc"
+          { yylhs.value.as < std::shared_ptr<l_val_t> > ()=std::make_shared<l_val_t>(yystack_[0].value.as < std::string > (), ptr_list_of<expr>()); }
+#line 1522 "parser.cc"
     break;
 
-  case 63: // primary_exp: "(" exp ")"
+  case 63: // array_indices: "[" exp "]"
 #line 252 "parser.yy"
-                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[1].value.as < std::shared_ptr<expr> > (); }
-#line 1523 "parser.tab.cc"
+                 {{ yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }}
+#line 1528 "parser.cc"
     break;
 
-  case 64: // primary_exp: l_val
+  case 64: // array_indices: array_indices "[" exp "]"
 #line 253 "parser.yy"
-                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<l_val_t> > (); }
-#line 1529 "parser.tab.cc"
+                               { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
+#line 1534 "parser.cc"
     break;
 
-  case 65: // primary_exp: number
-#line 254 "parser.yy"
-                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<number_literal_t> > (); }
-#line 1535 "parser.tab.cc"
-    break;
-
-  case 66: // number: "integer"
+  case 65: // primary_exp: "(" exp ")"
 #line 258 "parser.yy"
-                  { yylhs.value.as < std::shared_ptr<number_literal_t> > () = std::make_shared<number_literal_t>(yystack_[0].value.as < long long > ()); }
-#line 1541 "parser.tab.cc"
+                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[1].value.as < std::shared_ptr<expr> > (); }
+#line 1540 "parser.cc"
     break;
 
-  case 67: // unary_exp: primary_exp
-#line 262 "parser.yy"
-                  { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1547 "parser.tab.cc"
+  case 66: // primary_exp: l_val
+#line 259 "parser.yy"
+                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<l_val_t> > (); }
+#line 1546 "parser.cc"
     break;
 
-  case 68: // unary_exp: ident "(" func_r_params ")"
-#line 263 "parser.yy"
-                                { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<func_call_t>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::shared_ptr<func_r_params_t> > ()); }
-#line 1553 "parser.tab.cc"
+  case 67: // primary_exp: number
+#line 260 "parser.yy"
+                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<number_literal_t> > (); }
+#line 1552 "parser.cc"
     break;
 
-  case 69: // unary_exp: "+" unary_exp
+  case 68: // number: "integer"
 #line 264 "parser.yy"
-                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1559 "parser.tab.cc"
+                  { yylhs.value.as < std::shared_ptr<number_literal_t> > () = std::make_shared<number_literal_t>(yystack_[0].value.as < long long > ()); }
+#line 1558 "parser.cc"
     break;
 
-  case 70: // unary_exp: "-" unary_exp
-#line 265 "parser.yy"
+  case 69: // unary_exp: primary_exp
+#line 268 "parser.yy"
+                  { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1564 "parser.cc"
+    break;
+
+  case 70: // unary_exp: ident "(" func_r_params ")"
+#line 269 "parser.yy"
+                                { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<func_call_t>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::shared_ptr<func_r_params_t> > ()); }
+#line 1570 "parser.cc"
+    break;
+
+  case 71: // unary_exp: "+" unary_exp
+#line 270 "parser.yy"
+                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1576 "parser.cc"
+    break;
+
+  case 72: // unary_exp: "-" unary_exp
+#line 271 "parser.yy"
                     { 
       auto e = dynamic_pointer_cast<negative_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ());
       if(e) yylhs.value.as < std::shared_ptr<expr> > () = e->src;
       else  yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<negative_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ()); 
     }
-#line 1569 "parser.tab.cc"
+#line 1586 "parser.cc"
     break;
 
-  case 71: // unary_exp: "!" unary_exp
-#line 270 "parser.yy"
+  case 73: // unary_exp: "!" unary_exp
+#line 276 "parser.yy"
                     { 
       auto e = dynamic_pointer_cast<logical_not_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ());
       if(e) yylhs.value.as < std::shared_ptr<expr> > () = e->src;
       else  yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<logical_not_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ());
     }
-#line 1579 "parser.tab.cc"
+#line 1596 "parser.cc"
     break;
 
-  case 72: // func_r_params: %empty
-#line 280 "parser.yy"
-                { yylhs.value.as < std::shared_ptr<func_r_params_t> > () = std::make_shared<func_r_params_t>(); }
-#line 1585 "parser.tab.cc"
-    break;
-
-  case 73: // func_r_params: func_r_params_elements
-#line 281 "parser.yy"
-                           { yylhs.value.as < std::shared_ptr<func_r_params_t> > () = std::make_shared<func_r_params_t>(yystack_[0].value.as < ptr_list_of<expr> > ()); }
-#line 1591 "parser.tab.cc"
-    break;
-
-  case 74: // func_r_params_elements: exp
+  case 74: // func_r_params: %empty
 #line 286 "parser.yy"
-                                     { yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[0].value.as < std::shared_ptr<expr> > ());            }
-#line 1597 "parser.tab.cc"
+                { yylhs.value.as < std::shared_ptr<func_r_params_t> > () = std::make_shared<func_r_params_t>(); }
+#line 1602 "parser.cc"
     break;
 
-  case 75: // func_r_params_elements: func_r_params_elements "," exp
+  case 75: // func_r_params: func_r_params_elements
 #line 287 "parser.yy"
-                                     { yylhs.value.as < ptr_list_of<expr> > () = yystack_[2].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[0].value.as < std::shared_ptr<expr> > ());   }
-#line 1603 "parser.tab.cc"
+                           { yylhs.value.as < std::shared_ptr<func_r_params_t> > () = std::make_shared<func_r_params_t>(yystack_[0].value.as < ptr_list_of<expr> > ()); }
+#line 1608 "parser.cc"
     break;
 
-  case 76: // mul_exp: unary_exp
+  case 76: // func_r_params_elements: exp
 #line 292 "parser.yy"
-               { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1609 "parser.tab.cc"
+                                     { yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[0].value.as < std::shared_ptr<expr> > ());            }
+#line 1614 "parser.cc"
     break;
 
-  case 77: // mul_exp: mul_exp "*" unary_exp
+  case 77: // func_r_params_elements: func_r_params_elements "," exp
 #line 293 "parser.yy"
-                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MULTIPLY, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1615 "parser.tab.cc"
+                                     { yylhs.value.as < ptr_list_of<expr> > () = yystack_[2].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[0].value.as < std::shared_ptr<expr> > ());   }
+#line 1620 "parser.cc"
     break;
 
-  case 78: // mul_exp: mul_exp "/" unary_exp
-#line 294 "parser.yy"
-                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::DIVIDE  , yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1621 "parser.tab.cc"
-    break;
-
-  case 79: // mul_exp: mul_exp "%" unary_exp
-#line 295 "parser.yy"
-                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MODULE  , yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1627 "parser.tab.cc"
-    break;
-
-  case 80: // add_exp: mul_exp
-#line 300 "parser.yy"
-             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1633 "parser.tab.cc"
-    break;
-
-  case 81: // add_exp: add_exp "+" mul_exp
-#line 301 "parser.yy"
-                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::PLUS,  yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1639 "parser.tab.cc"
-    break;
-
-  case 82: // add_exp: add_exp "-" mul_exp
-#line 302 "parser.yy"
-                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MINUS, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1645 "parser.tab.cc"
-    break;
-
-  case 83: // rel_exp: add_exp
-#line 307 "parser.yy"
-             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1651 "parser.tab.cc"
-    break;
-
-  case 84: // rel_exp: add_exp "<" add_exp
-#line 308 "parser.yy"
-                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LESS, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1657 "parser.tab.cc"
-    break;
-
-  case 85: // rel_exp: add_exp ">" add_exp
-#line 309 "parser.yy"
-                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::GREATER, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1663 "parser.tab.cc"
-    break;
-
-  case 86: // rel_exp: add_exp "<=" add_exp
-#line 310 "parser.yy"
-                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LESS_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1669 "parser.tab.cc"
-    break;
-
-  case 87: // rel_exp: add_exp ">=" add_exp
-#line 311 "parser.yy"
-                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::GREATER_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1675 "parser.tab.cc"
-    break;
-
-  case 88: // eq_exp: rel_exp
-#line 316 "parser.yy"
-             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1681 "parser.tab.cc"
-    break;
-
-  case 89: // eq_exp: eq_exp "==" rel_exp
-#line 317 "parser.yy"
-                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1687 "parser.tab.cc"
-    break;
-
-  case 90: // eq_exp: eq_exp "!=" rel_exp
-#line 318 "parser.yy"
-                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::NOT_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1693 "parser.tab.cc"
-    break;
-
-  case 91: // l_and_exp: eq_exp
-#line 323 "parser.yy"
-            { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1699 "parser.tab.cc"
-    break;
-
-  case 92: // l_and_exp: l_and_exp "&&" eq_exp
-#line 324 "parser.yy"
-                            { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LOGICAL_AND, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1705 "parser.tab.cc"
-    break;
-
-  case 93: // l_or_exp: l_and_exp
-#line 329 "parser.yy"
+  case 78: // mul_exp: unary_exp
+#line 298 "parser.yy"
                { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1711 "parser.tab.cc"
+#line 1626 "parser.cc"
     break;
 
-  case 94: // l_or_exp: l_or_exp "||" l_and_exp
+  case 79: // mul_exp: mul_exp "*" unary_exp
+#line 299 "parser.yy"
+                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MULTIPLY, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1632 "parser.cc"
+    break;
+
+  case 80: // mul_exp: mul_exp "/" unary_exp
+#line 300 "parser.yy"
+                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::DIVIDE  , yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1638 "parser.cc"
+    break;
+
+  case 81: // mul_exp: mul_exp "%" unary_exp
+#line 301 "parser.yy"
+                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MODULE  , yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1644 "parser.cc"
+    break;
+
+  case 82: // add_exp: mul_exp
+#line 306 "parser.yy"
+             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1650 "parser.cc"
+    break;
+
+  case 83: // add_exp: add_exp "+" mul_exp
+#line 307 "parser.yy"
+                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::PLUS,  yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1656 "parser.cc"
+    break;
+
+  case 84: // add_exp: add_exp "-" mul_exp
+#line 308 "parser.yy"
+                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MINUS, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1662 "parser.cc"
+    break;
+
+  case 85: // rel_exp: add_exp
+#line 313 "parser.yy"
+             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1668 "parser.cc"
+    break;
+
+  case 86: // rel_exp: add_exp "<" add_exp
+#line 314 "parser.yy"
+                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LESS, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1674 "parser.cc"
+    break;
+
+  case 87: // rel_exp: add_exp ">" add_exp
+#line 315 "parser.yy"
+                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::GREATER, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1680 "parser.cc"
+    break;
+
+  case 88: // rel_exp: add_exp "<=" add_exp
+#line 316 "parser.yy"
+                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LESS_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1686 "parser.cc"
+    break;
+
+  case 89: // rel_exp: add_exp ">=" add_exp
+#line 317 "parser.yy"
+                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::GREATER_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1692 "parser.cc"
+    break;
+
+  case 90: // eq_exp: rel_exp
+#line 322 "parser.yy"
+             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1698 "parser.cc"
+    break;
+
+  case 91: // eq_exp: eq_exp "==" rel_exp
+#line 323 "parser.yy"
+                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1704 "parser.cc"
+    break;
+
+  case 92: // eq_exp: eq_exp "!=" rel_exp
+#line 324 "parser.yy"
+                         { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::NOT_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1710 "parser.cc"
+    break;
+
+  case 93: // l_and_exp: eq_exp
+#line 329 "parser.yy"
+            { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1716 "parser.cc"
+    break;
+
+  case 94: // l_and_exp: l_and_exp "&&" eq_exp
 #line 330 "parser.yy"
+                            { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LOGICAL_AND, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
+#line 1722 "parser.cc"
+    break;
+
+  case 95: // l_or_exp: l_and_exp
+#line 335 "parser.yy"
+               { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
+#line 1728 "parser.cc"
+    break;
+
+  case 96: // l_or_exp: l_or_exp "||" l_and_exp
+#line 336 "parser.yy"
                               { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LOGICAL_OR, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1717 "parser.tab.cc"
+#line 1734 "parser.cc"
     break;
 
-  case 95: // const_exp: add_exp
-#line 334 "parser.yy"
+  case 97: // const_exp: add_exp
+#line 340 "parser.yy"
                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1723 "parser.tab.cc"
+#line 1740 "parser.cc"
     break;
 
 
-#line 1727 "parser.tab.cc"
+#line 1744 "parser.cc"
 
             default:
               break;
@@ -1908,142 +1925,146 @@ namespace yy {
 
 
 
-  const short parser::yypact_ninf_ = -131;
+  const short parser::yypact_ninf_ = -134;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const short
   parser::yypact_[] =
   {
-      47,  -131,  -131,    20,     4,    47,  -131,  -131,    16,  -131,
-       5,  -131,  -131,     5,  -131,  -131,     5,  -131,  -131,    29,
-    -131,     0,  -131,  -131,  -131,     5,  -131,    20,   -15,   -10,
-    -131,  -131,     5,    42,    21,  -131,   124,   150,   127,    28,
-      59,    20,  -131,   150,   150,   150,   150,  -131,  -131,   -12,
-    -131,  -131,  -131,  -131,  -131,    98,    18,    18,    43,  -131,
-    -131,  -131,    49,  -131,    62,  -131,  -131,  -131,  -131,  -131,
-    -131,    50,    32,   150,   150,    64,   150,   150,   150,   150,
-     150,  -131,    -7,  -131,   150,   110,  -131,  -131,  -131,  -131,
-      69,    71,    70,   150,  -131,  -131,  -131,    98,    98,   127,
-    -131,    85,   101,   105,    99,   107,   140,  -131,  -131,  -131,
-       5,  -131,  -131,  -131,   108,   117,  -131,   150,  -131,   122,
-    -131,  -131,   150,   150,  -131,  -131,  -131,   112,  -131,   150,
-    -131,  -131,   125,    13,  -131,    48,   142,   147,   129,  -131,
-     137,    68,   150,   150,   150,   150,   150,   150,   150,   150,
-      68,  -131,   159,    18,    18,    18,    18,  -131,  -131,    48,
-     142,  -131,    68,  -131
+      71,  -134,  -134,    20,    11,    71,  -134,  -134,    29,  -134,
+      14,  -134,  -134,    14,  -134,  -134,    14,  -134,  -134,    55,
+    -134,    -2,  -134,  -134,  -134,    14,  -134,    20,   -13,   -10,
+    -134,  -134,    14,   -11,    17,  -134,    48,   170,   154,    -1,
+       7,    20,  -134,   170,   170,   170,   170,  -134,  -134,    12,
+    -134,  -134,  -134,  -134,  -134,    65,    70,    70,    27,   154,
+    -134,  -134,    30,  -134,    33,  -134,  -134,  -134,  -134,  -134,
+    -134,    22,    32,   170,   170,    37,   170,   170,   170,   170,
+     170,  -134,  -134,    38,    51,  -134,   170,   112,  -134,  -134,
+    -134,  -134,    50,    60,    72,   170,  -134,  -134,  -134,    65,
+      65,  -134,   154,    87,    68,    74,    96,    97,   137,  -134,
+    -134,  -134,    14,  -134,  -134,  -134,    98,   107,  -134,   170,
+    -134,    99,  -134,  -134,   170,   170,  -134,  -134,  -134,   100,
+    -134,   170,  -134,  -134,   102,    13,  -134,    80,   113,   119,
+     114,  -134,   109,   141,   170,   170,   170,   170,   170,   170,
+     170,   170,   141,  -134,   123,    70,    70,    70,    70,  -134,
+    -134,    80,   113,  -134,   141,  -134
   };
 
   const signed char
   parser::yydefact_[] =
   {
        0,    13,    12,     0,     0,     2,     3,     6,     0,     7,
-       0,     4,     5,     0,     1,     4,     0,    11,    45,     0,
-      22,    15,     9,    15,    10,     0,    21,    31,    24,     0,
-      23,    15,     0,     0,    32,    34,     0,     0,     0,    36,
-       0,     0,    66,     0,     0,     0,     0,    28,    25,    60,
-      26,    64,    67,    65,    76,    80,    57,    95,     0,    19,
-      14,    17,     0,    35,    37,    41,    30,    33,    71,    69,
-      70,     0,     0,    72,     0,    59,     0,     0,     0,     0,
-       0,    16,     0,    38,     0,     0,    63,    27,    29,    74,
-       0,    73,     0,     0,    77,    78,    79,    81,    82,     0,
-      18,     0,     0,     0,     0,     0,     0,    48,    40,    43,
-       0,    49,    42,    44,     0,    64,    68,     0,    61,     0,
-      20,    39,     0,     0,    53,    54,    55,     0,    47,     0,
-      75,    62,     0,    83,    88,    91,    93,    58,     0,    56,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    46,    50,    87,    86,    85,    84,    89,    90,    92,
-      94,    52,     0,    51
+       0,     8,     5,     0,     1,     4,     0,    11,    47,     0,
+      24,    15,     9,    15,    10,     0,    23,    33,    26,     0,
+      25,    15,     0,     0,    34,    36,     0,     0,     0,    38,
+       0,     0,    68,     0,     0,     0,     0,    30,    27,    62,
+      28,    66,    69,    67,    78,    82,    59,    97,     0,    19,
+      14,    17,     0,    37,    39,    43,    32,    35,    73,    71,
+      72,     0,     0,    74,     0,    61,     0,     0,     0,     0,
+       0,    16,    22,     0,    20,    40,     0,     0,    65,    29,
+      31,    76,     0,    75,     0,     0,    79,    80,    81,    83,
+      84,    18,     0,     0,     0,     0,     0,     0,     0,    50,
+      42,    45,     0,    51,    44,    46,     0,    66,    70,     0,
+      63,     0,    21,    41,     0,     0,    55,    56,    57,     0,
+      49,     0,    77,    64,     0,    85,    90,    93,    95,    60,
+       0,    58,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,    48,    52,    89,    88,    87,    86,    91,
+      92,    94,    96,    54,     0,    53
   };
 
   const short
   parser::yypgoto_[] =
   {
-    -131,  -131,  -131,   164,    87,  -131,  -131,     3,   160,   154,
-      79,  -131,  -131,  -131,   155,   111,  -131,  -131,  -131,  -131,
-     138,  -131,  -131,   144,  -131,  -131,    -4,  -130,   -33,    63,
-     -75,  -131,  -131,  -131,   -29,  -131,  -131,    10,   -37,   -77,
-      34,    36,  -131,   151
+    -134,  -134,  -134,   145,    69,  -134,  -134,     3,   139,   136,
+     -52,  -134,  -134,  -134,  -134,   138,   103,  -134,  -134,  -134,
+    -134,   128,  -134,  -134,   130,  -134,  -134,    -8,  -133,   -33,
+      56,   -83,  -134,  -134,  -134,   -29,  -134,  -134,    21,   -37,
+     -46,    34,    31,  -134,   143
   };
 
   const unsigned char
   parser::yydefgoto_[] =
   {
-       0,     4,     5,     6,     7,     4,     9,    10,    22,    28,
-      60,    82,    11,    19,    20,    48,    72,    12,    33,    34,
-      35,    63,    64,   111,    85,   112,    49,   113,   114,   132,
-      51,    75,    52,    53,    54,    90,    91,    55,    56,   134,
-     135,   136,   137,    61
+       0,     4,     5,     6,     7,     8,     9,    10,    22,    28,
+      60,    83,    84,    11,    19,    20,    48,    72,    12,    33,
+      34,    35,    63,    64,   113,    87,   114,    49,   115,   116,
+     134,    51,    75,    52,    53,    54,    92,    93,    55,    56,
+     136,   137,   138,   139,    61
   };
 
   const unsigned char
   parser::yytable_[] =
   {
-      57,    57,    21,    50,    14,    23,    13,    36,    23,    18,
-     115,   152,    38,    71,    68,    69,    70,    31,    37,    73,
-     161,    74,    99,    37,    39,     1,     2,   142,   143,   100,
-      32,    27,   163,   144,   145,    42,    18,    79,    80,    50,
-      89,    92,    79,    80,    32,    16,    17,    94,    95,    96,
-      41,   101,     1,     2,     3,    43,    44,    45,    25,    26,
-     119,    62,    57,    46,   146,   147,   115,    47,    87,   157,
-     158,    42,    18,   127,    40,   115,   102,    81,   103,   104,
-     105,   106,    86,    83,   130,   133,   133,   115,   110,    97,
-      98,    43,    44,    45,    65,    84,   140,    93,   107,    46,
-     117,   116,    31,    65,   118,   153,   154,   155,   156,   133,
-     133,   133,   133,    42,    18,     1,     2,     3,   102,   121,
-     103,   104,   105,   106,    76,    77,    78,    42,    18,   124,
-      42,    18,   122,    43,    44,    45,   123,   125,   128,   129,
-     107,    46,   139,    42,    18,    65,   108,    43,    44,    45,
-      43,    44,    45,    42,    18,    46,   131,   141,    46,    47,
-     148,   150,    59,    43,    44,    45,   149,   151,   162,    15,
-     126,    46,   109,    43,    44,    45,    24,    29,   120,    67,
-      30,    46,   159,    88,    66,   160,   138,     0,    58
+      57,    57,    21,    50,   117,    23,    13,    82,    23,    36,
+     154,    14,    38,    71,    68,    69,    70,    31,    18,   163,
+      37,    40,    57,    37,    39,     1,     2,   144,   145,    27,
+      32,   165,    62,   146,   147,    42,    18,    79,    80,    50,
+      91,    94,    65,    73,    32,    74,    41,    96,    97,    98,
+     122,    42,    18,   103,    88,    43,    44,    45,    16,    17,
+     117,    81,   121,    46,    85,    57,    86,    47,    89,   117,
+      95,    43,    44,    45,   101,   129,     1,     2,     3,    46,
+     102,   117,   118,    47,    25,    26,   132,   135,   135,   119,
+     112,    76,    77,    78,    79,    80,   148,   149,   142,   124,
+      99,   100,   159,   160,    31,   125,   120,   155,   156,   157,
+     158,   135,   135,   135,   135,    42,    18,     1,     2,     3,
+     104,   123,   105,   106,   107,   108,   126,   127,   130,   131,
+     141,   150,   164,   133,   143,    43,    44,    45,   151,   153,
+      42,    18,   109,    46,    42,    18,   152,    65,   110,   104,
+      15,   105,   106,   107,   108,    24,   111,    42,    18,    29,
+      43,    44,    45,    30,    43,    44,    45,   128,    46,    67,
+      66,   109,    46,    42,    18,    90,    65,    43,    44,    45,
+      58,   140,   162,     0,   161,    46,     0,     0,     0,    59,
+       0,     0,     0,    43,    44,    45,     0,     0,     0,     0,
+       0,    46
   };
 
   const short
   parser::yycheck_[] =
   {
-      37,    38,    10,    36,     0,    13,     3,    22,    16,     4,
-      85,   141,    22,    46,    43,    44,    45,    25,    33,    31,
-     150,    33,    29,    33,    32,     5,     6,    14,    15,    36,
-      27,    31,   162,    20,    21,     3,     4,    24,    25,    72,
-      73,    74,    24,    25,    41,    29,    30,    76,    77,    78,
-      29,    84,     5,     6,     7,    23,    24,    25,    29,    30,
-      93,    33,    99,    31,    16,    17,   141,    35,    36,   146,
-     147,     3,     4,   106,    32,   150,     4,    34,    10,    11,
-      12,    13,    32,    34,   117,   122,   123,   162,    85,    79,
-      80,    23,    24,    25,    35,    33,   129,    33,    30,    31,
-      29,    32,   110,    35,    34,   142,   143,   144,   145,   146,
-     147,   148,   149,     3,     4,     5,     6,     7,     4,    34,
-      10,    11,    12,    13,    26,    27,    28,     3,     4,    30,
-       3,     4,    31,    23,    24,    25,    31,    30,    30,    22,
-      30,    31,    30,     3,     4,    35,    36,    23,    24,    25,
-      23,    24,    25,     3,     4,    31,    34,    32,    31,    35,
-      18,    32,    35,    23,    24,    25,    19,    30,     9,     5,
-      30,    31,    85,    23,    24,    25,    16,    23,    99,    41,
-      25,    31,   148,    72,    40,   149,   123,    -1,    37
+      37,    38,    10,    36,    87,    13,     3,    59,    16,    22,
+     143,     0,    22,    46,    43,    44,    45,    25,     4,   152,
+      33,    32,    59,    33,    32,     5,     6,    14,    15,    31,
+      27,   164,    33,    20,    21,     3,     4,    24,    25,    72,
+      73,    74,    35,    31,    41,    33,    29,    76,    77,    78,
+     102,     3,     4,    86,    32,    23,    24,    25,    29,    30,
+     143,    34,    95,    31,    34,   102,    33,    35,    36,   152,
+      33,    23,    24,    25,    36,   108,     5,     6,     7,    31,
+      29,   164,    32,    35,    29,    30,   119,   124,   125,    29,
+      87,    26,    27,    28,    24,    25,    16,    17,   131,    31,
+      79,    80,   148,   149,   112,    31,    34,   144,   145,   146,
+     147,   148,   149,   150,   151,     3,     4,     5,     6,     7,
+       8,    34,    10,    11,    12,    13,    30,    30,    30,    22,
+      30,    18,     9,    34,    32,    23,    24,    25,    19,    30,
+       3,     4,    30,    31,     3,     4,    32,    35,    36,     8,
+       5,    10,    11,    12,    13,    16,    87,     3,     4,    23,
+      23,    24,    25,    25,    23,    24,    25,    30,    31,    41,
+      40,    30,    31,     3,     4,    72,    35,    23,    24,    25,
+      37,   125,   151,    -1,   150,    31,    -1,    -1,    -1,    35,
+      -1,    -1,    -1,    23,    24,    25,    -1,    -1,    -1,    -1,
+      -1,    31
   };
 
   const signed char
   parser::yystos_[] =
   {
        0,     5,     6,     7,    38,    39,    40,    41,    42,    43,
-      44,    49,    54,    44,     0,    40,    29,    30,     4,    50,
-      51,    63,    45,    63,    45,    29,    30,    31,    46,    46,
-      51,    63,    44,    55,    56,    57,    22,    33,    22,    63,
-      32,    29,     3,    23,    24,    25,    31,    35,    52,    63,
-      65,    67,    69,    70,    71,    74,    75,    75,    80,    35,
-      47,    80,    33,    58,    59,    35,    60,    57,    71,    71,
-      71,    65,    53,    31,    33,    68,    26,    27,    28,    24,
-      25,    34,    48,    34,    33,    61,    32,    36,    52,    65,
-      72,    73,    65,    33,    71,    71,    71,    74,    74,    29,
-      36,    65,     4,    10,    11,    12,    13,    30,    36,    41,
-      44,    60,    62,    64,    65,    67,    32,    29,    34,    65,
-      47,    34,    31,    31,    30,    30,    30,    65,    30,    22,
-      65,    34,    66,    75,    76,    77,    78,    79,    66,    30,
-      65,    32,    14,    15,    20,    21,    16,    17,    18,    19,
-      32,    30,    64,    75,    75,    75,    75,    76,    76,    77,
-      78,    64,     9,    64
+      44,    50,    55,    44,     0,    40,    29,    30,     4,    51,
+      52,    64,    45,    64,    45,    29,    30,    31,    46,    46,
+      52,    64,    44,    56,    57,    58,    22,    33,    22,    64,
+      32,    29,     3,    23,    24,    25,    31,    35,    53,    64,
+      66,    68,    70,    71,    72,    75,    76,    76,    81,    35,
+      47,    81,    33,    59,    60,    35,    61,    58,    72,    72,
+      72,    66,    54,    31,    33,    69,    26,    27,    28,    24,
+      25,    34,    47,    48,    49,    34,    33,    62,    32,    36,
+      53,    66,    73,    74,    66,    33,    72,    72,    72,    75,
+      75,    36,    29,    66,     8,    10,    11,    12,    13,    30,
+      36,    41,    44,    61,    63,    65,    66,    68,    32,    29,
+      34,    66,    47,    34,    31,    31,    30,    30,    30,    66,
+      30,    22,    66,    34,    67,    76,    77,    78,    79,    80,
+      67,    30,    66,    32,    14,    15,    20,    21,    16,    17,
+      18,    19,    32,    30,    65,    76,    76,    76,    76,    77,
+      77,    78,    79,    65,     9,    65
   };
 
   const signed char
@@ -2051,14 +2072,14 @@ namespace yy {
   {
        0,    37,    38,    39,    39,    40,    40,    41,    41,    42,
       42,    43,    44,    44,    45,    46,    46,    47,    47,    48,
-      48,    49,    50,    50,    51,    51,    52,    52,    53,    53,
-      54,    55,    55,    56,    56,    57,    58,    58,    59,    59,
-      60,    61,    61,    62,    62,    63,    64,    64,    64,    64,
-      64,    64,    64,    64,    64,    64,    64,    65,    66,    67,
-      67,    68,    68,    69,    69,    69,    70,    71,    71,    71,
-      71,    71,    72,    72,    73,    73,    74,    74,    74,    74,
-      75,    75,    75,    76,    76,    76,    76,    76,    77,    77,
-      77,    78,    78,    79,    79,    80
+      48,    49,    49,    50,    51,    51,    52,    52,    53,    53,
+      54,    54,    55,    56,    56,    57,    57,    58,    59,    59,
+      60,    60,    61,    62,    62,    63,    63,    64,    65,    65,
+      65,    65,    65,    65,    65,    65,    65,    65,    65,    66,
+      67,    68,    68,    69,    69,    70,    70,    70,    71,    72,
+      72,    72,    72,    72,    73,    73,    74,    74,    75,    75,
+      75,    75,    76,    76,    76,    77,    77,    77,    77,    77,
+      78,    78,    78,    79,    79,    80,    80,    81
   };
 
   const signed char
@@ -2066,14 +2087,14 @@ namespace yy {
   {
        0,     2,     1,     1,     2,     1,     1,     1,     1,     3,
        3,     2,     1,     1,     4,     0,     4,     1,     3,     0,
-       3,     3,     1,     3,     2,     4,     1,     3,     0,     2,
-       6,     0,     1,     3,     1,     3,     0,     1,     2,     4,
-       3,     0,     2,     1,     1,     1,     4,     2,     1,     1,
-       5,     7,     5,     2,     2,     2,     3,     1,     1,     2,
-       1,     3,     4,     3,     1,     1,     1,     1,     4,     2,
-       2,     2,     0,     1,     1,     3,     1,     3,     3,     3,
-       1,     3,     3,     1,     3,     3,     3,     3,     1,     3,
-       3,     1,     3,     1,     3,     1
+       1,     3,     1,     3,     1,     3,     2,     4,     1,     3,
+       0,     2,     6,     0,     1,     3,     1,     3,     0,     1,
+       2,     4,     3,     0,     2,     1,     1,     1,     4,     2,
+       1,     1,     5,     7,     5,     2,     2,     2,     3,     1,
+       1,     2,     1,     3,     4,     3,     1,     1,     1,     1,
+       4,     2,     2,     2,     0,     1,     1,     3,     1,     3,
+       3,     3,     1,     3,     3,     1,     3,     3,     3,     3,
+       1,     3,     3,     1,     3,     1,     3,     1
   };
 
 
@@ -2091,9 +2112,9 @@ namespace yy {
   "\",\"", "\";\"", "\"(\"", "\")\"", "\"[\"", "\"]\"", "\"{\"", "\"}\"",
   "$accept", "start_symbol", "comp_unit", "comp_unit_item", "decl",
   "const_decl", "const_decl_stmt", "b_type", "const_def", "array_dims",
-  "const_init_val", "const_array_elements", "var_decl", "var_def_list",
-  "var_def", "init_val", "init_array_elements", "func_def",
-  "func_f_params", "real_func_f_params", "func_f_param",
+  "const_init_val", "const_array_elements", "real_const_array_elements",
+  "var_decl", "var_def_list", "var_def", "init_val", "init_array_elements",
+  "func_def", "func_f_params", "real_func_f_params", "func_f_param",
   "array_dims_func_param", "array_dims_func_param_real", "block",
   "block_elements", "block_item", "ident", "stmt", "exp", "cond", "l_val",
   "array_indices", "primary_exp", "number", "unary_exp", "func_r_params",
@@ -2109,14 +2130,14 @@ namespace yy {
   {
        0,    66,    66,    73,    74,    79,    80,    85,    86,    92,
       93,    96,   100,   101,   105,   111,   112,   117,   118,   123,
-     124,   129,   136,   137,   142,   143,   148,   149,   153,   154,
-     158,   168,   169,   174,   175,   179,   188,   189,   194,   195,
-     199,   203,   204,   209,   210,   213,   217,   218,   219,   220,
-     221,   223,   224,   225,   226,   227,   228,   233,   236,   240,
-     241,   246,   247,   252,   253,   254,   258,   262,   263,   264,
-     265,   270,   280,   281,   286,   287,   292,   293,   294,   295,
-     300,   301,   302,   307,   308,   309,   310,   311,   316,   317,
-     318,   323,   324,   329,   330,   334
+     124,   129,   130,   135,   142,   143,   148,   149,   154,   155,
+     159,   160,   164,   174,   175,   180,   181,   185,   194,   195,
+     200,   201,   205,   209,   210,   215,   216,   219,   223,   224,
+     225,   226,   227,   229,   230,   231,   232,   233,   234,   239,
+     242,   246,   247,   252,   253,   258,   259,   260,   264,   268,
+     269,   270,   271,   276,   286,   287,   292,   293,   298,   299,
+     300,   301,   306,   307,   308,   313,   314,   315,   316,   317,
+     322,   323,   324,   329,   330,   335,   336,   340
   };
 
   void
@@ -2148,8 +2169,8 @@ namespace yy {
 
 
 } // yy
-#line 2152 "parser.tab.cc"
+#line 2173 "parser.cc"
 
-#line 337 "parser.yy"
+#line 343 "parser.yy"
 
 
