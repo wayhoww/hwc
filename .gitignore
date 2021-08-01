@@ -3,8 +3,14 @@ samples
 .vscode
 Makefile
 CMakeLists.txt
-CMakeList.txt
 build
+cmake-build-debug/
+.vscode/
+hwc
+*.gch
+*.S
+*.s
+
 
 # Prerequisites
 *.d
