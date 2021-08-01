@@ -10,6 +10,7 @@ hwc
 *.gch
 *.S
 *.s
+*.o
 .idea/
 
 
