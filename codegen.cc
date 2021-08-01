@@ -61,7 +61,7 @@ int get_func_size(int funcid, const ImProgram& imProgram) {
         if(k < imProgram.globalVars.size()) continue;
         size += v;
     }
-    return v;
+    return size;
 }
 
 std::vector<int> get_label_info(const ImProgram& imProgram) {
