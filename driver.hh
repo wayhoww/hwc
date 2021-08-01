@@ -23,20 +23,32 @@ using std::shared_ptr;
 /* 中间代码数据结构 BEGIN */
 
 struct GlobalVarDef {
-    uint32_t size;                               /* in bytes */
+    int32_t size;                               /* in bytes */
     std::vector<int32_t> initValue;                         /* 可能没有初始化 */
     std::string identifier;
+    bool isArray = false;
 };
+
+struct Argument {
+    // dims.empty(): scalar
+    // 否则：数组
+    // dims[0] == -1，因为形参不指定最高维度大小
+    Argument(const std::vector<int32_t>& dims): dims(dims) {};
+    Argument(){}
+    std::vector<int32_t> dims;
+};
+
 // i.e. 定义的时候用，不会被引用
 struct FunctionDef {
     int entrance;  /* 入口四元式编号  */
     std::string identifier;
     bool returnVoid;
     bool declarationOnly = false; /* 只有定义，i.e. 外部函数 */
+    std::vector<Argument> arguments;
 };
 
 struct Var {
-    uint32_t varID;
+    int32_t varID;
     bool isTemp;
 };
 
@@ -67,7 +79,7 @@ struct ImCode {
         Type type = INVALID;
         union {
             Var var;            // for Var
-            uint32_t value;     // for immediate & imCodeID
+            int32_t value;     // for immediate & imCodeID
         };
     };
 
@@ -75,7 +87,7 @@ struct ImCode {
     Oprand src1;    /* 不可能是中间代码编号 */
     Oprand src2;    /* 不可能是中间代码编号 */
     Oprand dest;    /* 不可能是立即数 */
-    std::vector<uint32_t> arguments;    /* call */
+    std::vector<int32_t> arguments;    /* call */
 };
 
 struct ImProgram {
@@ -94,7 +106,7 @@ void codegen(const ImProgram& program);
 
 std::string format(ImCode::Operator op);
 std::string format(const ImCode::Oprand& oprand);
-std::string format(const std::vector<uint32_t>& vec);
+std::string format(const std::vector<int32_t>& vec);
 
 /* 工具函数 END */
 
@@ -106,8 +118,8 @@ struct symbol_info {
     int scoop_depth;                        /* 字面意思 */
     std::string identifier = "";            /* 标志符号 */
 
-    uint32_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
-    std::vector<uint32_t> dims;             /* 维度。如果是常数，dims.empty()       */          
+    int32_t size;                          /* 大小。常数也要设置大小。以机器字为单位  */
+    std::vector<int32_t> dims;             /* 维度。如果是常数，dims.empty()       */          
     std::vector<int32_t> init_value;        /* 是冗余的，初始化数值，如果是数组，则取 init_value[0]. */
     std::vector<std::shared_ptr<expr>> init_expr;
 
@@ -160,8 +172,8 @@ struct nonterm_controlflow: nonterm_info {
 };
 
 struct nonterm_integer: nonterm_info {
-    uint32_t var_id;
-    nonterm_integer(uint32_t var_id): var_id(var_id) {}
+    int32_t var_id;
+    nonterm_integer(int32_t var_id): var_id(var_id) {}
     static std::shared_ptr<nonterm_integer> newsp(int32_t val) {
         return std::make_shared<nonterm_integer>(val);
     }
@@ -227,12 +239,12 @@ public:
 
     // 不要调用 entry
     // 添加函数调用 add_var, 自动判断是否是global的函数，并自动添加到全局变量表和符号表中
-    uint32_t entry(const std::string& ident, const std::vector<uint32_t>& dims, bool is_const_var, const std::vector<int32_t>& init_value);
-    uint32_t add_function(const std::string& ident, uint32_t entrance, bool returnVoid) ;
-    uint32_t query_function(const std::string& ident) ;
-    uint32_t add_var(const std::string& ident, const std::vector<uint32_t>& dims, bool is_const, const std::vector<int32_t>& init_value) ;
-    uint32_t query_var(const std::string& ident);
-    uint32_t add_temp();
+    int32_t entry(const std::string& ident, const std::vector<int32_t>& dims, bool is_const_var, const std::vector<int32_t>& init_value);
+    int32_t add_function(const std::string& ident, int32_t entrance, bool returnVoid, const std::vector<Argument>& arguments);
+    int32_t query_function(const std::string& ident) ;
+    int32_t add_var(const std::string& ident, const std::vector<int32_t>& dims, bool is_const, const std::vector<int32_t>& init_value) ;
+    int32_t query_var(const std::string& ident);
+    int32_t add_temp();
 
     // 类型转换
     std::shared_ptr<nonterm_boolean> to_nonterm_boolean(const shared_ptr<nonterm_info>& info);
@@ -254,7 +266,7 @@ public:
 
     // 表达式解析
     std::shared_ptr<nonterm_info> compile(const shared_ptr<expr>& root, std::shared_ptr<nonterm_integer> store_place = nullptr);
-    std::shared_ptr<nonterm_info> compile_offset(const ptr_list_of<expr>& exps, const std::vector<uint32_t> dims);
+    std::shared_ptr<nonterm_info> compile_offset(const ptr_list_of<expr>& exps, const std::vector<int32_t> dims);
 
     // 语句
     std::shared_ptr<nonterm_info> compile(const shared_ptr<stmt_t>& stmt);
@@ -287,16 +299,16 @@ public:
     void flatten(shared_ptr<const_init_val_t> init_val, std::vector<std::shared_ptr<expr>>& vec);
     std::vector<std::shared_ptr<expr>> flatten(shared_ptr<const_init_val_t> init_val);
 
-    void recursive_evaluate(shared_ptr<const_init_val_t> init_val, std::vector<uint32_t> dims, 
+    void recursive_evaluate(shared_ptr<const_init_val_t> init_val, std::vector<int32_t> dims, 
             int layer, int layer_size, int offset, std::vector<int32_t>& buffer);
-    void recursive_compile(shared_ptr<init_val_t> init_val, std::vector<uint32_t> dims, 
+    void recursive_compile(shared_ptr<init_val_t> init_val, std::vector<int32_t> dims, 
             int layer, int layer_size, int offset, std::vector<std::shared_ptr<expr>>& buffer);
 
 
     // 静态分析
-    std::pair<uint32_t, std::vector<uint32_t>> static_array_dims(const ptr_list_of<expr>& dimsdef);
+    std::pair<int32_t, std::vector<int32_t>> static_array_dims(const ptr_list_of<expr>& dimsdef);
     std::pair<bool, int32_t> static_eval_offset(const ptr_list_of<expr> indices, 
-                                                const std::vector<uint32_t>& dims);
+                                                const std::vector<int32_t>& dims);
     std::pair<bool, int32_t> static_eval(shared_ptr<expr> root, bool for_init = false);
 };
 

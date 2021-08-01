@@ -1,7 +1,7 @@
 #include "driver.hh"
 
 
-std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& indices, const std::vector<uint32_t> dims) {
+std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& indices, const std::vector<int32_t> dims) {
         // 暂时不做边界检查
     auto offset = nonterm_integer::newsp(add_temp());
     gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), offset);
@@ -211,13 +211,13 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<comp_unit_t>& comp_unit){
         // predefined library function
 
-        functions()[add_function("getint", -1, false)  ].declarationOnly = true;
-        functions()[add_function("getch", -1, false)   ].declarationOnly = true;
-        functions()[add_function("getarray", -1, false)].declarationOnly = true;
+        functions()[add_function("getint", -1, false, {})  ].declarationOnly = true;
+        functions()[add_function("getch", -1, false, {})   ].declarationOnly = true;
+        functions()[add_function("getarray", -1, false, {Argument({-1})})].declarationOnly = true;
 
-        functions()[add_function("putint", -1, true)   ].declarationOnly = true;
-        functions()[add_function("putch", -1, true)    ].declarationOnly = true;
-        functions()[add_function("putarray", -1, true) ].declarationOnly = true;
+        functions()[add_function("putint", -1, true, {Argument()} )   ].declarationOnly = true;
+        functions()[add_function("putch", -1, true, {Argument()})    ].declarationOnly = true;
+        functions()[add_function("putarray", -1, true, { Argument(), Argument({-1})})].declarationOnly = true;
 
         for(auto child: comp_unit->children) {
             if(auto r = dynamic_pointer_cast<comp_unit_item_func_def_t>(child)) {
@@ -246,7 +246,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         }
         if(main_id >= 0 && !functions()[main_id].returnVoid) {
             // generate a starter function
-            auto funcid = add_function("__hwc_start", nxq(), false);
+            auto funcid = add_function("__hwc_start", nxq(), false, {});
             imProgram.startFunction = funcid;
 
             // init global vars
@@ -308,7 +308,12 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         auto type = funcdef->func_type->type;
         auto funcname = funcdef->ident;
         if(decl){
-            auto funcid = add_function(funcname, -1, funcdef->func_type->type == b_type_t::VOID);
+            std::vector<Argument> argu;
+            for(auto param: funcdef->params->params) {
+                auto [size, dims] = static_array_dims(param->array_dims);
+                argu.push_back(Argument(dims));
+            }
+            auto funcid = add_function(funcname, -1, funcdef->func_type->type == b_type_t::VOID, argu);
         }
 
         if(define){
@@ -380,7 +385,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
-        std::vector<uint32_t> dims;
+        std::vector<int32_t> dims;
         auto dimexps = param->array_dims;
         for(auto exp: dimexps) {
             if(exp) {
@@ -614,7 +619,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     // [3, 5]
     void driver::recursive_compile(
             shared_ptr<init_val_t> init_val, 
-            std::vector<uint32_t> dims, 
+            std::vector<int32_t> dims, 
             int layer, 
             int layer_size,
             int offset,
@@ -719,7 +724,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     // [3, 5]
     void driver::recursive_evaluate(
             shared_ptr<const_init_val_t> init_val, 
-            std::vector<uint32_t> dims, 
+            std::vector<int32_t> dims, 
             int layer, 
             int layer_size,
             int offset,
@@ -769,14 +774,19 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         return nonterm_void::newsp();
     }
 
-    std::pair<uint32_t, std::vector<uint32_t>> driver::static_array_dims(const ptr_list_of<expr>& dimsdef) {
-        uint32_t size = 1;
-        std::vector<uint32_t> dims;
+    std::pair<int32_t, std::vector<int32_t>> driver::static_array_dims(const ptr_list_of<expr>& dimsdef) {
+        int32_t size = 1;
+        std::vector<int32_t> dims;
         for(auto dim: dimsdef) {
-            auto [ok, val] = static_eval(dim);
-            assert(ok);
-            size *= val;
-            dims.push_back(val);
+            if(dim == nullptr) {
+                dims.push_back(-1);
+                size *= 0;
+            }else {
+                auto [ok, val] = static_eval(dim);
+                assert(ok);
+                size *= val;
+                dims.push_back(val);
+            }
         }
         return std::make_pair(size, dims);      
     }

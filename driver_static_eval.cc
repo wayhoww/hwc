@@ -2,7 +2,7 @@
 
 std::pair<bool, int32_t> driver::static_eval_offset(
         const ptr_list_of<expr> indices,                                     
-        const std::vector<uint32_t>& dims) {
+        const std::vector<int32_t>& dims) {
 
     // 这个是统一的逻辑
     int offset = 0;

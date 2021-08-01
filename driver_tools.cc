@@ -73,22 +73,40 @@ std::string format(const std::vector<int_t>& vec) {
     return str;
 }
 
+template<>
+std::string format(const std::vector<Argument>& vec) {
+    std::string str = "[";
+    for(auto item: vec) {
+        str.append("_");
+        for(auto dim : item.dims) {
+            str.append("[");
+            if(dim >= 0){
+                str.append(std::to_string(dim));
+            }
+            str.append("]");
+        }
+        str.append(", ");
+    }
+    str.append("]");
+    return str;
+}
+
 void driver::dump_to(FILE* file) {
     fprintf(file, "Global Variables\n\n");
-    fprintf(file, "%-20s%-20s%-20s%-20s\n", "VarID", "Identifier", "Size (in bytes)", "Init Value (in int32)");
-    fprintf(file, "--------------------------------------------------------------------------------\n");
+    fprintf(file, "%-20s%-20s%-20s%-20s%-20s\n", "VarID", "Identifier", "Size (in bytes)", "Array", "Init Value (in int32)");
+    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
     for(int i = 0; i < global_vars().size(); i++) {
         auto var = global_vars()[i];
-        fprintf(file, "%-20d%-20s%-20d%-20s\n", i, var.identifier.c_str(), var.size, format<int32_t>(var.initValue).c_str());
+        fprintf(file, "%-20d%-20s%-20d%-20s%-20s\n", i, var.identifier.c_str(), var.size,  (var.isArray ? "YES" : "NO"), format<int32_t>(var.initValue).c_str());
     }        
     fprintf(file, "\n\n");
 
     fprintf(file, "Functions\n\n");
-    fprintf(file, "%-20s%-20s%-20s%-20s\n", "Function ID", "Function Name", "Entrance", "Start Function");
-    fprintf(file, "--------------------------------------------------------------------------------\n");
+    fprintf(file, "%-20s%-20s%-20s%-20s%-20s\n", "Function ID", "Function Name", "Entrance", "Start Function", "Arguments");
+    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
     for(int i = 0; i < functions().size(); i++) {
         auto func = functions()[i];
-        fprintf(file, "%-20d%-20s%-20d%-20s\n", i, func.identifier.c_str(), func.entrance, imProgram.startFunction == i ? "YES" : "");
+        fprintf(file, "%-20d%-20s%-20d%-20s%-20s\n", i, func.identifier.c_str(), func.entrance, imProgram.startFunction == i ? "YES" : "", format(func.arguments).c_str());
     }
     fprintf(file, "\n\n");
 
@@ -97,6 +115,6 @@ void driver::dump_to(FILE* file) {
     fprintf(file, "------------------------------------------------------------------------------------------------------------------------\n");
     for(int i = 0; i < imcodes().size(); i++) {
         auto code = imcodes()[i];
-        fprintf(file, "%-20d%-20s%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format<uint32_t>(code.arguments).c_str());
+        fprintf(file, "%-20d%-20s%-20s%-20s%-20s%-20s\n", i, format(code.op).c_str(), format(code.src1).c_str(), format(code.src2).c_str(), format(code.dest).c_str(), format<int32_t>(code.arguments).c_str());
     }
 }

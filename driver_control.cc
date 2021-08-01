@@ -1,6 +1,6 @@
 #include "driver.hh"
 
-uint32_t driver::entry(const std::string& ident, const std::vector<uint32_t>& dims, bool is_const_var, const std::vector<int32_t>& init_value) {
+int32_t driver::entry(const std::string& ident, const std::vector<int32_t>& dims, bool is_const_var, const std::vector<int32_t>& init_value) {
     for(int i = symbols.size() - 1; i >= 0; i--) {
         if(symbols[i].scoop_depth < current_depth) {
             break;
@@ -21,7 +21,7 @@ uint32_t driver::entry(const std::string& ident, const std::vector<uint32_t>& di
     return symbols.size() - 1;
 }
 
-uint32_t driver::query_var(const std::string& ident) {
+int32_t driver::query_var(const std::string& ident) {
     for(int i = symbols.size() - 1; i >= 0; i--) {
         if(symbols[i].identifier == ident){
             return i;
@@ -31,7 +31,7 @@ uint32_t driver::query_var(const std::string& ident) {
     return 0;
 }
 
-uint32_t driver::add_function(const std::string& ident, uint32_t entrance, bool returnVoid) {
+int32_t driver::add_function(const std::string& ident, int32_t entrance, bool returnVoid, const std::vector<Argument>& arguments) {
     for(int i = 0; i < functions().size(); i++) {
         if(functions()[i].identifier == ident){
             assert(false);
@@ -46,11 +46,12 @@ uint32_t driver::add_function(const std::string& ident, uint32_t entrance, bool 
     func.entrance = entrance;
     func.identifier = ident;
     func.returnVoid = returnVoid;
+    func.arguments = arguments;
     functions().push_back(func);
     return functions().size() - 1;
 }
 
-uint32_t driver::query_function(const std::string& ident) {
+int32_t driver::query_function(const std::string& ident) {
     for(int i = 0; i < functions().size(); i++) {
         auto func = functions()[i];
         if(func.identifier == ident) {
@@ -62,7 +63,7 @@ uint32_t driver::query_function(const std::string& ident) {
 }
 
 
-uint32_t driver::add_var(const std::string& ident, const std::vector<uint32_t>& dims, bool is_const, const std::vector<int32_t>& init_value) {
+int32_t driver::add_var(const std::string& ident, const std::vector<int32_t>& dims, bool is_const, const std::vector<int32_t>& init_value) {
     if(current_depth == 0) {
         for(int i = 0; i < functions().size(); i++) {
             if(functions()[i].identifier == ident){
@@ -75,7 +76,7 @@ uint32_t driver::add_var(const std::string& ident, const std::vector<uint32_t>& 
             }
         }
     }
-    uint32_t size = 4;
+    int32_t size = 4;
     for(auto dim: dims)
         size *= dim;
     
@@ -85,6 +86,7 @@ uint32_t driver::add_var(const std::string& ident, const std::vector<uint32_t>& 
         var.size = size;
         // TODO 这边还是转 byte 比较好
         var.initValue = init_value;
+        if(dims.size())var.isArray = true;
         global_vars().push_back(var);
     }
     
@@ -92,7 +94,7 @@ uint32_t driver::add_var(const std::string& ident, const std::vector<uint32_t>& 
     return varID;
 }
 
-uint32_t driver::add_temp() {
+int32_t driver::add_temp() {
     symbol_info sym;
     sym.size = 4;
     sym.is_const = false;
