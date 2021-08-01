@@ -4,9 +4,38 @@
 
 using std::endl;
 
-std::map<int, int> var;
-std::ofstream outfile;
-int globalNum = 0;
+std::pair<int, int> get_entrance_exit(int funcid, const ImProgram& imProgram) {
+    int entrance = imProgram.functions[funcid].entrance;
+    if(imProgram.functions[funcid].declarationOnly) return {entrance, entrance};
+
+    int exit = -1;
+
+    for(auto func: imProgram.functions) {
+        if(func.entrance > entrance && (exit == -1 || func.entrance < exit)) {
+            exit = entrance;
+        }
+    }
+    return {entrance, exit};
+}
+
+std::set<int> get_all_func_calls(int funcid, const ImProgram& imProgram) {
+    if(imProgram.functions[funcid].declarationOnly) return {};
+
+    std::set<int> calls;
+
+    auto [entrance, exit] = get_entrance_exit(funcid, imProgram);
+    for(int i = entrance; i < exit; i++) {
+        if(imProgram.imcodes[i].op == ImCode::CALL) {
+            calls.insert(imProgram.imcodes[i].src1.value);
+        }
+    }
+    return calls;
+}
+
+// 加上static，不要暴露符号，避免命名冲突
+static std::map<int, int> var;
+static std::ofstream outfile;
+static int globalNum = 0;
 
 void callFunction(const struct ImCode &code, std::string &name, bool &hasReturn) {
     for (int i = 0; i < code.arguments.size(); i++) {
