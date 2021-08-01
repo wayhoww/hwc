@@ -32,6 +32,55 @@ std::set<int> get_all_func_calls(int funcid, const ImProgram& imProgram) {
     return calls;
 }
 
+int get_func_size(int funcid, const ImProgram& imProgram) {
+    if(imProgram.functions[funcid].declarationOnly) return {};
+
+    std::map<int, int> sizes;
+
+    auto [entrance, exit] = get_entrance_exit(funcid, imProgram);
+    for(int i = entrance; i < exit; i++) {
+        auto code = imProgram.imcodes[i];
+
+        ImCode::Oprand oprands[] = {code.src1, code.src2, code.dest};
+        for(auto oprand: oprands) {
+            if(oprand.type == ImCode::Oprand::VAR) {
+                auto varid = oprand.var.varID;
+                if(!sizes.count(varid)) sizes[varid] = 0;
+                sizes[varid] = std::max(sizes[varid], 4);
+            }
+        }
+
+
+        if(code.op == ImCode::ALLOC) {
+            sizes[code.dest.var.varID] = std::max(code.src1.value, sizes[code.dest.var.varID]);
+        }
+    }
+
+    int size = 0;
+    for(auto [k, v]: sizes) {
+        if(k < imProgram.globalVars.size()) continue;
+        size += v;
+    }
+    return v;
+}
+
+std::vector<int> get_label_info(const ImProgram& imProgram) {
+    auto& imcodes = imProgram.imcodes;
+    std::vector<int> A(imcodes.size(), -1);
+    for(auto code: imcodes){
+        if(code.dest.type == ImCode::Oprand::IMCODEID) {
+            A[code.dest.value] = 0;
+        }
+    }
+    int value = 0;
+    for(auto& val: A) {
+        if(val == 0) {
+            val = value++;
+        }
+    }
+    return A;
+}
+
 
 // 加上static，不要暴露符号，避免命名冲突
 static std::map<int, int> var;
