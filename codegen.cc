@@ -32,6 +32,7 @@ std::set<int> get_all_func_calls(int funcid, const ImProgram& imProgram) {
     return calls;
 }
 
+
 // 加上static，不要暴露符号，避免命名冲突
 static std::map<int, int> var;
 static std::ofstream outfile;
