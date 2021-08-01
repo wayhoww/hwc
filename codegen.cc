@@ -4,39 +4,9 @@
 
 using std::endl;
 
-std::pair<int, int> get_entrance_exit(int funcid, const ImProgram& imProgram) {
-    int entrance = imProgram.functions[funcid].entrance;
-    if(imProgram.functions[funcid].declarationOnly) return {entrance, entrance};
-
-    int exit = -1;
-
-    for(auto func: imProgram.functions) {
-        if(func.entrance > entrance && (exit == -1 || func.entrance < exit)) {
-            exit = entrance;
-        }
-    }
-    return {entrance, exit};
-}
-
-std::set<int> get_all_func_calls(int funcid, const ImProgram& imProgram) {
-    if(imProgram.functions[funcid].declarationOnly) return {};
-
-    std::set<int> calls;
-
-    auto [entrance, exit] = get_entrance_exit(funcid, imProgram);
-    for(int i = entrance; i < exit; i++) {
-        if(imProgram.imcodes[i].op == ImCode::CALL) {
-            calls.insert(imProgram.imcodes[i].src1.value);
-        }
-    }
-    return calls;
-}
-
-
-// 加上static，不要暴露符号，避免命名冲突
-static std::map<int, int> var;
-static std::ofstream outfile;
-static int globalNum = 0;
+std::map<int, int> var;
+std::ofstream outfile;
+int globalNum = 0;
 
 void callFunction(const struct ImCode &code, std::string &name, bool &hasReturn) {
     for (int i = 0; i < code.arguments.size(); i++) {
@@ -212,18 +182,109 @@ void codegen(const ImProgram &program) {
                     outfile << "\tmovs\tr3, #" << program.imcodes[codeIndex].src1.value << endl;
                     outfile << "\tmov\tr0, r3" << endl;
                 }
+            } else if (Operator == ImCode::ASSIGN) {
+                outfile << "\tmovs\tr3, #" << program.imcodes[codeIndex].src1.value;
+                if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
+                    outfile << "\tstr\tr3, [r7, #"
+                            << varFunctionIndex * 4 << "]" << endl;
+                    var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                    varFunctionIndex++;
+                } else {
+                    outfile << "\tstr\tr3, [r7, #"
+                            << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                }
+            } else if (Operator == ImCode::PLUS) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src2.value] << "]" << endl
+                            << "\tadds\tr3, r3, #"
+                            << program.imcodes[codeIndex].src1.value << endl
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src1.value] << "]" << endl
+                            << "\tadds\tr3, r3, #"
+                            << program.imcodes[codeIndex].src2.value << endl
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+
+                } else {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src1.value] << "]" << endl
+                            << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src2.value] << "]" << endl
+                            << "\tadd\tr3, r3, r2\n"
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                }
+            } else if (Operator == ImCode::MINUS) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src2.value] << "]" << endl
+                            << "\trsb\tr3, r3, #"
+                            << program.imcodes[codeIndex].src1.value << endl
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src1.value] << "]" << endl
+                            << "\tsubs\tr3, r3, #"
+                            << program.imcodes[codeIndex].src2.value << endl
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                } else {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src1.value] << "]" << endl
+                            << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src2.value] << "]" << endl
+                            << "\tsubs\tr3, r3, r2\n"
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                }
+            } else if (Operator == ImCode::MULTIPLY) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src2.value] << "]" << endl
+                            << "\tmovs\tr2, #"
+                            << program.imcodes[codeIndex].src1.value << endl
+                            << "\tmul\tr3, r2, r3\n"
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src1.value] << "]" << endl
+                            << "\tmovs\tr2, #"
+                            << program.imcodes[codeIndex].src2.value << endl
+                            << "\tmul\tr3, r2, r3\n"
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                } else {
+                    outfile << "\tldr\tr3, [r7, #" << var[program.imcodes[codeIndex].src1.value] << "]" << endl
+                            << "\tldr\tr2, [r7, #" << var[program.imcodes[codeIndex].src2.value] << "]" << endl
+                            << "\tmul\tr3, r2, r3\n"
+                            << "\tstr\tr3, [r7, #" << var[program.imcodes[codeIndex].dest.value] << "]" << endl;
+                }
+            }  else if (Operator == ImCode::DIVIDE) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    outfile<<"除法正在实现"<<endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    outfile<<"除法正在实现"<<endl;
+                } else {
+                    outfile<<"除法正在实现"<<endl;
+                }
+            }   else if (Operator == ImCode::MODULE) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    outfile<<"求余正在实现"<<endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    outfile<<"除法正在实现"<<endl;
+                } else {
+                    outfile<<"除法正在实现"<<endl;
+                }
             } else {
                 outfile << "\t这儿缺少了下标为" << codeIndex << "的代码:\t\t" << format(program.imcodes[codeIndex].op).c_str()
                         << "\t"
                         << "\t" << format(program.imcodes[codeIndex].src1).c_str()
                         << "\t" << format(program.imcodes[codeIndex].src2).c_str()
                         << "\t" << format(program.imcodes[codeIndex].dest).c_str() << endl;
-
             }
         }
         if (!functionEntrance.empty()) {
             nextFunction = functionEntrance.top();
             functionEntrance.pop();
+            varFunctionIndex = 0;
         }
         outfile << "\tadds\tr7, r7, #" << varSizeNeedByFunction - floatStack << "\n"
                 << "\tmov\tsp, r7" << endl;

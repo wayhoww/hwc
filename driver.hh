@@ -63,7 +63,7 @@ struct ImCode {
         DASET,  // displacement addressing set， src1 目的地指针， src2 偏移地址（以byte），dest：实际上的src数字
         DAGET,  // displacement addressing get， 同上
         MARK,   // mark
-        ASSIGN  // 赋值         
+        ASSIGN  // 赋值
     };
 
     struct Oprand {
