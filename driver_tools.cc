@@ -52,10 +52,10 @@ std::string format(const ImCode::Oprand& oprand) {
         }
         break;
     case ImCode::Oprand::INVALID:
-        sprintf(buffer, "");
+        sprintf(buffer, " ");
         break;
     default:
-        sprintf(buffer, "");
+        sprintf(buffer, " ");
         assert(false);
         break;
     }

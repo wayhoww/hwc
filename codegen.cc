@@ -12,7 +12,7 @@ std::pair<int, int> get_entrance_exit(int funcid, const ImProgram &imProgram) {
 
     for (auto func: imProgram.functions) {
         if (func.entrance > entrance && (exit == -1 || func.entrance < exit)) {
-            exit = entrance;
+            exit = func.entrance;
         }
     }
     if (exit < 0) {
