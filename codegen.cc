@@ -130,14 +130,20 @@ void callFunction(const struct ImCode &code, std::string &name, bool &hasReturn)
 
 }
 
-std::string getvar(int index, const ImProgram &program) {
+void getvar(std::string ope,std::string reg,int index, const ImProgram &program) {
     if (index < globalNum) {
-        return program.globalVars[index].identifier;
+        std::string anotherReg = "r2";
+        if(reg==anotherReg){
+            anotherReg="r3";
+        }
+        outfile <<"\tmovw\t"<<anotherReg<<", #:lower16:"<<program.globalVars[index].identifier<<endl
+                <<"\tmovt\t"<<anotherReg<<", #:upper16:"<<program.globalVars[index].identifier<<endl;
+        outfile << "\t"<<ope<<"\t"<<reg<<", ["<<anotherReg<<"]"<<endl;
     } else {
         if (var[index] != 0)
-            return "[r7, #" + std::to_string(var[index]) + "]";
+            outfile << "\t"<<ope<<"\t"<<reg<<", [r7, #" + std::to_string(var[index]) + "]"<<endl;
         else
-            return "[r7]";
+            outfile << "\t"<<ope<<"\t"<<reg<<", [r7]"<<endl;
     }
 }
 
@@ -154,8 +160,11 @@ bool IsParm(int index) {
 }
 
 void PrintImeVar(std::string reg, int item) {
+    int a = ((item>>16)&0xffff);
     outfile<<"\tmov\t"<<reg<<", #"<<(item&0xffff)<< endl;
-    outfile<<"\tmovt\t"<<reg<<", "<<((item>>16)&0xffff)<< endl;
+    if(a!=0) {
+        outfile << "\tmovt\t" << reg << ", " << a << endl;
+    }
 }
 
 void codegen(const ImProgram &program) {
@@ -260,8 +269,9 @@ void codegen(const ImProgram &program) {
                 isParm[program.imcodes[codeIndex].dest.value] = true;
                 int parmindex = program.imcodes[codeIndex].src1.value;
                 if (parmindex < 4) {
-                    outfile << "\tstr\tr" << program.imcodes[codeIndex].src1.value << ", "
-                            << getvar(varFunctionIndex * 4, program) << endl;
+                    getvar("str","r"+std::to_string(program.imcodes[codeIndex].src1.value),program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr" << program.imcodes[codeIndex].src1.value << ", "
+//                            << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
                     var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                     varFunctionIndex++;
                 } else {
@@ -273,8 +283,9 @@ void codegen(const ImProgram &program) {
                     if (i < 4) {
                         //如果是变量
                         if (!IsArray(program.imcodes[codeIndex].arguments[i])) {
-                            outfile << "\tldr\tr" << i << ", "
-                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
+                            getvar("ldr","r"+std::to_string(i),program.imcodes[codeIndex].arguments[i], program);
+//                            outfile << "\tldr\tr" << i << ", "
+//                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
                             PrintImeVar("r3", var[program.imcodes[codeIndex].arguments[i]]);
                             outfile<<"\tadd\tr3, r7, r3\n"
@@ -284,8 +295,9 @@ void codegen(const ImProgram &program) {
                     } else {
                         //如果是变量
                         if (!IsArray(program.imcodes[codeIndex].arguments[i])) {
-                            outfile << "\tldr\tr3, "
-                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
+                            getvar("ldr","r3",program.imcodes[codeIndex].arguments[i], program);
+//                            outfile << "\tldr\tr3, "
+//                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
                             PrintImeVar("r3", var[program.imcodes[codeIndex].arguments[i]]);
                             outfile<<"\tadd\tr3, r7, r3\n";
@@ -299,14 +311,16 @@ void codegen(const ImProgram &program) {
                 }
                 outfile << "\tbl\t" << program.functions[program.imcodes[codeIndex].src1.value].identifier << endl;
                 if (program.functions[program.imcodes[codeIndex].src1.value].returnVoid) {
-                    outfile << "\tstr\tr0, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
+                    getvar("str","r0",program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr0, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
                 }
 //                callFunction(program.imcodes[codeIndex],
 //                             program.functions[program.imcodes[codeIndex].src1.value].identifier,
 //                             program.functions[program.imcodes[codeIndex].src1.value].returnVoid);
             } else if (Operator == ImCode::RET) {
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
-                    outfile << "\tldr\tr3, " << getvar(program.imcodes[codeIndex].src1.value, program) << endl;
+                    getvar("ldr","r3",program.imcodes[codeIndex].src1.value, program);
+//                    outfile << "\tldr\tr3, " << getvar(program.imcodes[codeIndex].src1.value, program) << endl;
                     outfile << "\tmov\tr0, r3" << endl;
                 } else {
                     PrintImeVar("r3",program.imcodes[codeIndex].src1.value);
@@ -315,11 +329,13 @@ void codegen(const ImProgram &program) {
             } else if (Operator == ImCode::ASSIGN) {
                 PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
                 if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
-                    outfile << "\tstr\tr3, " << getvar(varFunctionIndex * 4, program) << endl;
+                    getvar("str","r3",program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
                     var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                     varFunctionIndex++;
                 } else {
-                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
+                    getvar("str","r3",program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
                 }
             } else if (Operator == ImCode::PLUS) {
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
