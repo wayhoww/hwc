@@ -154,10 +154,13 @@ bool IsParm(int index) {
 }
 
 void PrintImeVar(std::string reg, int item) {
-    outfile << "\tmovs\t" << reg << ",#" << item << endl;
+    outfile<<"\tmov\t"<<reg<<", #"<<(item&0xffff)<< endl;
+    outfile<<"\tmovt\t"<<reg<<", "<<((item>>16)&0xffff)<< endl;
 }
 
 void codegen(const ImProgram &program) {
+    PrintImeVar("r1",5120000);
+    PrintImeVar("r1",-5120000);
     std::vector<int> labelCode = get_label_info(program);
     std::priority_queue<int, std::vector<int>, std::greater<int>> functionEntrance;
     for (auto function:program.functions) {
