@@ -7,12 +7,14 @@ build
 cmake-build-debug/
 .vscode/
 hwc
+hwc_lw
 *.gch
 *.S
 *.s
 *.o
 .idea/
 codegen2.cc
+
 
 
 # Prerequisites
