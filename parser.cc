@@ -1,8 +1,8 @@
-// A Bison parser, made by GNU Bison 3.7.6.
+// A Bison parser, made by GNU Bison 3.5.1.
 
 // Skeleton implementation for Bison LALR(1) parsers in C++
 
-// Copyright (C) 2002-2015, 2018-2021 Free Software Foundation, Inc.
+// Copyright (C) 2002-2015, 2018-2020 Free Software Foundation, Inc.
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // As a special exception, you may create a larger work that contains
 // part or all of the Bison parser skeleton and distribute that work
@@ -30,9 +30,8 @@
 // This special exception was added by the Free Software Foundation in
 // version 2.2 of Bison.
 
-// DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
-// especially those whose name start with YY_ or yy_.  They are
-// private implementation details that can be changed or removed.
+// Undocumented macros, especially those whose name start with YY_,
+// are private implementation details.  Do not rely on them.
 
 
 
@@ -51,7 +50,7 @@
         std::cerr << m << '\n';
     }
 
-#line 55 "parser.cc"
+#line 54 "parser.cc"
 
 
 #ifndef YY_
@@ -65,7 +64,6 @@
 #  define YY_(msgid) msgid
 # endif
 #endif
-
 
 // Whether we are compiled with exception support.
 #ifndef YY_EXCEPTIONS
@@ -103,13 +101,13 @@
 # define YY_STACK_PRINT()               \
   do {                                  \
     if (yydebug_)                       \
-      yy_stack_print_ ();                \
+      yystack_print_ ();                \
   } while (false)
 
 #else // !YYDEBUG
 
 # define YYCDEBUG if (false) std::cerr
-# define YY_SYMBOL_PRINT(Title, Symbol)  YY_USE (Symbol)
+# define YY_SYMBOL_PRINT(Title, Symbol)  YYUSE (Symbol)
 # define YY_REDUCE_PRINT(Rule)           static_cast<void> (0)
 # define YY_STACK_PRINT()                static_cast<void> (0)
 
@@ -124,7 +122,8 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 128 "parser.cc"
+#line 126 "parser.cc"
+
 
   /// Build a parser object.
   parser::parser (driver& drv_yyarg)
@@ -144,7 +143,7 @@ namespace yy {
   {}
 
   /*---------------.
-  | symbol kinds.  |
+  | Symbol types.  |
   `---------------*/
 
 
@@ -175,13 +174,13 @@ namespace yy {
     : state (s)
   {}
 
-  parser::symbol_kind_type
-  parser::by_state::kind () const YY_NOEXCEPT
+  parser::symbol_number_type
+  parser::by_state::type_get () const YY_NOEXCEPT
   {
     if (state == empty_state)
-      return symbol_kind::S_YYEMPTY;
+      return empty_symbol;
     else
-      return YY_CAST (symbol_kind_type, yystos_[+state]);
+      return yystos_[+state];
   }
 
   parser::stack_symbol_type::stack_symbol_type ()
@@ -190,133 +189,133 @@ namespace yy {
   parser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
     : super_type (YY_MOVE (that.state))
   {
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.YY_MOVE_OR_COPY< long long > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.YY_MOVE_OR_COPY< ptr_list_of<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.YY_MOVE_OR_COPY< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.YY_MOVE_OR_COPY< ptr_list_of<expr> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.YY_MOVE_OR_COPY< ptr_list_of<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.YY_MOVE_OR_COPY< ptr_list_of<var_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.YY_MOVE_OR_COPY< std::shared_ptr<b_type_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.YY_MOVE_OR_COPY< std::shared_ptr<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.YY_MOVE_OR_COPY< std::shared_ptr<block_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.YY_MOVE_OR_COPY< std::shared_ptr<comp_unit_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.YY_MOVE_OR_COPY< std::shared_ptr<comp_unit_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.YY_MOVE_OR_COPY< std::shared_ptr<const_decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.YY_MOVE_OR_COPY< std::shared_ptr<const_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.YY_MOVE_OR_COPY< std::shared_ptr<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.YY_MOVE_OR_COPY< std::shared_ptr<decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.YY_MOVE_OR_COPY< std::shared_ptr<expr> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.YY_MOVE_OR_COPY< std::shared_ptr<func_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.YY_MOVE_OR_COPY< std::shared_ptr<func_f_param_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.YY_MOVE_OR_COPY< std::shared_ptr<func_f_params_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.YY_MOVE_OR_COPY< std::shared_ptr<func_r_params_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.YY_MOVE_OR_COPY< std::shared_ptr<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.YY_MOVE_OR_COPY< std::shared_ptr<l_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.YY_MOVE_OR_COPY< std::shared_ptr<number_literal_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.YY_MOVE_OR_COPY< std::shared_ptr<stmt_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.YY_MOVE_OR_COPY< std::shared_ptr<var_decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.YY_MOVE_OR_COPY< std::shared_ptr<var_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
@@ -333,133 +332,133 @@ namespace yy {
   parser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
     : super_type (s)
   {
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.move< long long > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.move< ptr_list_of<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.move< ptr_list_of<expr> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.move< ptr_list_of<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.move< ptr_list_of<var_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.move< std::shared_ptr<b_type_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.move< std::shared_ptr<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.move< std::shared_ptr<block_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.move< std::shared_ptr<comp_unit_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.move< std::shared_ptr<comp_unit_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.move< std::shared_ptr<const_decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.move< std::shared_ptr<const_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.move< std::shared_ptr<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.move< std::shared_ptr<decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.move< std::shared_ptr<expr> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.move< std::shared_ptr<func_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.move< std::shared_ptr<func_f_param_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.move< std::shared_ptr<func_f_params_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.move< std::shared_ptr<func_r_params_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.move< std::shared_ptr<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.move< std::shared_ptr<l_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.move< std::shared_ptr<number_literal_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.move< std::shared_ptr<stmt_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.move< std::shared_ptr<var_decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.move< std::shared_ptr<var_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.move< std::string > (YY_MOVE (that.value));
         break;
 
@@ -468,7 +467,7 @@ namespace yy {
     }
 
     // that is emptied.
-    that.kind_ = symbol_kind::S_YYEMPTY;
+    that.type = empty_symbol;
   }
 
 #if YY_CPLUSPLUS < 201103L
@@ -476,133 +475,133 @@ namespace yy {
   parser::stack_symbol_type::operator= (const stack_symbol_type& that)
   {
     state = that.state;
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.copy< long long > (that.value);
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.copy< ptr_list_of<block_item_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.copy< ptr_list_of<const_init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.copy< ptr_list_of<expr> > (that.value);
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.copy< ptr_list_of<init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.copy< ptr_list_of<var_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.copy< std::shared_ptr<b_type_t> > (that.value);
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.copy< std::shared_ptr<block_item_t> > (that.value);
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.copy< std::shared_ptr<block_t> > (that.value);
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.copy< std::shared_ptr<comp_unit_item_t> > (that.value);
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.copy< std::shared_ptr<comp_unit_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.copy< std::shared_ptr<const_decl_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.copy< std::shared_ptr<const_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.copy< std::shared_ptr<const_init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.copy< std::shared_ptr<decl_t> > (that.value);
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.copy< std::shared_ptr<expr> > (that.value);
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.copy< std::shared_ptr<func_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.copy< std::shared_ptr<func_f_param_t> > (that.value);
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.copy< std::shared_ptr<func_f_params_t> > (that.value);
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.copy< std::shared_ptr<func_r_params_t> > (that.value);
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.copy< std::shared_ptr<init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.copy< std::shared_ptr<l_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.copy< std::shared_ptr<number_literal_t> > (that.value);
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.copy< std::shared_ptr<stmt_t> > (that.value);
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.copy< std::shared_ptr<var_decl_t> > (that.value);
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.copy< std::shared_ptr<var_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.copy< std::string > (that.value);
         break;
 
@@ -617,133 +616,133 @@ namespace yy {
   parser::stack_symbol_type::operator= (stack_symbol_type& that)
   {
     state = that.state;
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.move< long long > (that.value);
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.move< ptr_list_of<block_item_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.move< ptr_list_of<expr> > (that.value);
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.move< ptr_list_of<init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.move< ptr_list_of<var_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.move< std::shared_ptr<b_type_t> > (that.value);
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.move< std::shared_ptr<block_item_t> > (that.value);
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.move< std::shared_ptr<block_t> > (that.value);
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.move< std::shared_ptr<comp_unit_item_t> > (that.value);
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.move< std::shared_ptr<comp_unit_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.move< std::shared_ptr<const_decl_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.move< std::shared_ptr<const_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.move< std::shared_ptr<const_init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.move< std::shared_ptr<decl_t> > (that.value);
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.move< std::shared_ptr<expr> > (that.value);
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.move< std::shared_ptr<func_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.move< std::shared_ptr<func_f_param_t> > (that.value);
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.move< std::shared_ptr<func_f_params_t> > (that.value);
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.move< std::shared_ptr<func_r_params_t> > (that.value);
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.move< std::shared_ptr<init_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.move< std::shared_ptr<l_val_t> > (that.value);
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.move< std::shared_ptr<number_literal_t> > (that.value);
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.move< std::shared_ptr<stmt_t> > (that.value);
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.move< std::shared_ptr<var_decl_t> > (that.value);
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.move< std::shared_ptr<var_def_t> > (that.value);
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.move< std::string > (that.value);
         break;
 
@@ -768,20 +767,22 @@ namespace yy {
 #if YYDEBUG
   template <typename Base>
   void
-  parser::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
+  parser::yy_print_ (std::ostream& yyo,
+                                     const basic_symbol<Base>& yysym) const
   {
     std::ostream& yyoutput = yyo;
-    YY_USE (yyoutput);
+    YYUSE (yyoutput);
+    symbol_number_type yytype = yysym.type_get ();
+#if defined __GNUC__ && ! defined __clang__ && ! defined __ICC && __GNUC__ * 100 + __GNUC_MINOR__ <= 408
+    // Avoid a (spurious) G++ 4.8 warning about "array subscript is
+    // below array bounds".
     if (yysym.empty ())
-      yyo << "empty symbol";
-    else
-      {
-        symbol_kind_type yykind = yysym.kind ();
-        yyo << (yykind < YYNTOKENS ? "token" : "nterm")
-            << ' ' << yysym.name () << " (";
-        YY_USE (yykind);
-        yyo << ')';
-      }
+      std::abort ();
+#endif
+    yyo << (yytype < yyntokens_ ? "token" : "nterm")
+        << ' ' << yytname_[yytype] << " (";
+    YYUSE (yytype);
+    yyo << ')';
   }
 #endif
 
@@ -840,11 +841,11 @@ namespace yy {
   parser::state_type
   parser::yy_lr_goto_state_ (state_type yystate, int yysym)
   {
-    int yyr = yypgoto_[yysym - YYNTOKENS] + yystate;
+    int yyr = yypgoto_[yysym - yyntokens_] + yystate;
     if (0 <= yyr && yyr <= yylast_ && yycheck_[yyr] == yystate)
       return yytable_[yyr];
     else
-      return yydefgoto_[yysym - YYNTOKENS];
+      return yydefgoto_[yysym - yyntokens_];
   }
 
   bool
@@ -901,7 +902,6 @@ namespace yy {
   `-----------------------------------------------*/
   yynewstate:
     YYCDEBUG << "Entering state " << int (yystack_[0].state) << '\n';
-    YY_STACK_PRINT ();
 
     // Accept?
     if (yystack_[0].state == yyfinal_)
@@ -922,7 +922,7 @@ namespace yy {
     // Read a lookahead token.
     if (yyla.empty ())
       {
-        YYCDEBUG << "Reading a token\n";
+        YYCDEBUG << "Reading a token: ";
 #if YY_EXCEPTIONS
         try
 #endif // YY_EXCEPTIONS
@@ -941,20 +941,10 @@ namespace yy {
       }
     YY_SYMBOL_PRINT ("Next token is", yyla);
 
-    if (yyla.kind () == symbol_kind::S_YYerror)
-    {
-      // The scanner already issued an error message, process directly
-      // to error recovery.  But do not keep the error token as
-      // lookahead, it is too special and may lead us to an endless
-      // loop in error recovery. */
-      yyla.kind_ = symbol_kind::S_YYUNDEF;
-      goto yyerrlab1;
-    }
-
     /* If the proper action on seeing token YYLA.TYPE is to reduce or
        to detect an error, take that action.  */
-    yyn += yyla.kind ();
-    if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yyla.kind ())
+    yyn += yyla.type_get ();
+    if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yyla.type_get ())
       {
         goto yydefault;
       }
@@ -1001,131 +991,131 @@ namespace yy {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         yylhs.value.emplace< long long > ();
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         yylhs.value.emplace< ptr_list_of<block_item_t> > ();
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         yylhs.value.emplace< ptr_list_of<const_init_val_t> > ();
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         yylhs.value.emplace< ptr_list_of<expr> > ();
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         yylhs.value.emplace< ptr_list_of<init_val_t> > ();
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         yylhs.value.emplace< ptr_list_of<var_def_t> > ();
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         yylhs.value.emplace< std::shared_ptr<b_type_t> > ();
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         yylhs.value.emplace< std::shared_ptr<block_item_t> > ();
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         yylhs.value.emplace< std::shared_ptr<block_t> > ();
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         yylhs.value.emplace< std::shared_ptr<comp_unit_item_t> > ();
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         yylhs.value.emplace< std::shared_ptr<comp_unit_t> > ();
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         yylhs.value.emplace< std::shared_ptr<const_decl_t> > ();
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         yylhs.value.emplace< std::shared_ptr<const_def_t> > ();
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         yylhs.value.emplace< std::shared_ptr<const_init_val_t> > ();
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         yylhs.value.emplace< std::shared_ptr<decl_t> > ();
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         yylhs.value.emplace< std::shared_ptr<expr> > ();
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         yylhs.value.emplace< std::shared_ptr<func_def_t> > ();
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         yylhs.value.emplace< std::shared_ptr<func_f_param_t> > ();
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         yylhs.value.emplace< std::shared_ptr<func_f_params_t> > ();
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         yylhs.value.emplace< std::shared_ptr<func_r_params_t> > ();
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         yylhs.value.emplace< std::shared_ptr<init_val_t> > ();
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         yylhs.value.emplace< std::shared_ptr<l_val_t> > ();
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         yylhs.value.emplace< std::shared_ptr<number_literal_t> > ();
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         yylhs.value.emplace< std::shared_ptr<stmt_t> > ();
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         yylhs.value.emplace< std::shared_ptr<var_decl_t> > ();
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         yylhs.value.emplace< std::shared_ptr<var_def_t> > ();
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         yylhs.value.emplace< std::string > ();
         break;
 
@@ -1143,205 +1133,205 @@ namespace yy {
         {
           switch (yyn)
             {
-  case 2: // start_symbol: comp_unit
+  case 2:
 #line 66 "parser.yy"
                         {
     drv.syntax_tree = yystack_[0].value.as < std::shared_ptr<comp_unit_t> > ();
 }
-#line 1152 "parser.cc"
+#line 1142 "parser.cc"
     break;
 
-  case 3: // comp_unit: comp_unit_item
+  case 3:
 #line 73 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<comp_unit_t> > () = std::make_shared<comp_unit_t>(); yylhs.value.as < std::shared_ptr<comp_unit_t> > ()->children.push_back(yystack_[0].value.as < std::shared_ptr<comp_unit_item_t> > ());          }
-#line 1158 "parser.cc"
+#line 1148 "parser.cc"
     break;
 
-  case 4: // comp_unit: comp_unit comp_unit_item
+  case 4:
 #line 74 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<comp_unit_t> > () = yystack_[1].value.as < std::shared_ptr<comp_unit_t> > (); yylhs.value.as < std::shared_ptr<comp_unit_t> > ()->children.push_back(yystack_[0].value.as < std::shared_ptr<comp_unit_item_t> > ()); }
-#line 1164 "parser.cc"
+#line 1154 "parser.cc"
     break;
 
-  case 5: // comp_unit_item: func_def
+  case 5:
 #line 79 "parser.yy"
                 { yylhs.value.as < std::shared_ptr<comp_unit_item_t> > () = std::make_shared<comp_unit_item_func_def_t>(yystack_[0].value.as < std::shared_ptr<func_def_t> > ()); }
-#line 1170 "parser.cc"
+#line 1160 "parser.cc"
     break;
 
-  case 6: // comp_unit_item: decl
+  case 6:
 #line 80 "parser.yy"
                 { yylhs.value.as < std::shared_ptr<comp_unit_item_t> > () = std::make_shared<comp_unit_item_decl_t>(yystack_[0].value.as < std::shared_ptr<decl_t> > ());     }
-#line 1176 "parser.cc"
+#line 1166 "parser.cc"
     break;
 
-  case 7: // decl: const_decl_stmt
+  case 7:
 #line 85 "parser.yy"
                     { yylhs.value.as < std::shared_ptr<decl_t> > () = std::make_shared<decl_const_decl_t>(yystack_[0].value.as < std::shared_ptr<const_decl_t> > ()); }
-#line 1182 "parser.cc"
+#line 1172 "parser.cc"
     break;
 
-  case 8: // decl: var_decl
+  case 8:
 #line 86 "parser.yy"
                { yylhs.value.as < std::shared_ptr<decl_t> > () = std::make_shared<decl_var_decl_t>(yystack_[0].value.as < std::shared_ptr<var_decl_t> > ());   }
-#line 1188 "parser.cc"
+#line 1178 "parser.cc"
     break;
 
-  case 9: // const_decl: "const" b_type const_def
+  case 9:
 #line 92 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<const_decl_t> > () = std::make_shared<const_decl_t>(); yylhs.value.as < std::shared_ptr<const_decl_t> > ()->b_type = yystack_[1].value.as < std::shared_ptr<b_type_t> > (); yylhs.value.as < std::shared_ptr<const_decl_t> > ()->const_defs.push_back(yystack_[0].value.as < std::shared_ptr<const_def_t> > ()); }
-#line 1194 "parser.cc"
+#line 1184 "parser.cc"
     break;
 
-  case 10: // const_decl: const_decl "," const_def
+  case 10:
 #line 93 "parser.yy"
                              { yylhs.value.as < std::shared_ptr<const_decl_t> > () = yystack_[2].value.as < std::shared_ptr<const_decl_t> > (); yylhs.value.as < std::shared_ptr<const_decl_t> > ()->const_defs.push_back(yystack_[0].value.as < std::shared_ptr<const_def_t> > ());}
-#line 1200 "parser.cc"
+#line 1190 "parser.cc"
     break;
 
-  case 11: // const_decl_stmt: const_decl ";"
+  case 11:
 #line 96 "parser.yy"
                                 { yylhs.value.as < std::shared_ptr<const_decl_t> > () = yystack_[1].value.as < std::shared_ptr<const_decl_t> > (); }
-#line 1206 "parser.cc"
+#line 1196 "parser.cc"
     break;
 
-  case 12: // b_type: "int"
+  case 12:
 #line 100 "parser.yy"
           { yylhs.value.as < std::shared_ptr<b_type_t> > () = std::make_shared<b_type_t>(b_type_t::INT); }
-#line 1212 "parser.cc"
+#line 1202 "parser.cc"
     break;
 
-  case 13: // b_type: "void"
+  case 13:
 #line 101 "parser.yy"
            { yylhs.value.as < std::shared_ptr<b_type_t> > () = std::make_shared<b_type_t>(b_type_t::VOID); }
-#line 1218 "parser.cc"
+#line 1208 "parser.cc"
     break;
 
-  case 14: // const_def: ident array_dims "=" const_init_val
+  case 14:
 #line 105 "parser.yy"
                                                {
     yylhs.value.as < std::shared_ptr<const_def_t> > () = std::make_shared<const_def_t>(yystack_[3].value.as < std::string > (), yystack_[2].value.as < ptr_list_of<expr> > (), yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ());
 }
-#line 1226 "parser.cc"
+#line 1216 "parser.cc"
     break;
 
-  case 15: // array_dims: %empty
+  case 15:
 #line 111 "parser.yy"
            {}
-#line 1232 "parser.cc"
+#line 1222 "parser.cc"
     break;
 
-  case 16: // array_dims: array_dims "[" const_exp "]"
+  case 16:
 #line 112 "parser.yy"
                                  { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1238 "parser.cc"
+#line 1228 "parser.cc"
     break;
 
-  case 17: // const_init_val: const_exp
+  case 17:
 #line 117 "parser.yy"
               { yylhs.value.as < std::shared_ptr<const_init_val_t> > () = std::make_shared<const_init_val_scalar_t>(yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1244 "parser.cc"
+#line 1234 "parser.cc"
     break;
 
-  case 18: // const_init_val: "{" const_array_elements "}"
+  case 18:
 #line 118 "parser.yy"
                                  { yylhs.value.as < std::shared_ptr<const_init_val_t> > () = std::make_shared<const_init_val_array_t>(yystack_[1].value.as < ptr_list_of<const_init_val_t> > ()); }
-#line 1250 "parser.cc"
+#line 1240 "parser.cc"
     break;
 
-  case 19: // const_array_elements: %empty
+  case 19:
 #line 123 "parser.yy"
            {}
-#line 1256 "parser.cc"
+#line 1246 "parser.cc"
     break;
 
-  case 20: // const_array_elements: real_const_array_elements
+  case 20:
 #line 124 "parser.yy"
                               { yylhs.value.as < ptr_list_of<const_init_val_t> > () = yystack_[0].value.as < ptr_list_of<const_init_val_t> > (); }
-#line 1262 "parser.cc"
+#line 1252 "parser.cc"
     break;
 
-  case 21: // real_const_array_elements: real_const_array_elements "," const_init_val
+  case 21:
 #line 129 "parser.yy"
                                                  { yylhs.value.as < ptr_list_of<const_init_val_t> > () = yystack_[2].value.as < ptr_list_of<const_init_val_t> > (); yylhs.value.as < ptr_list_of<const_init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ()); }
-#line 1268 "parser.cc"
+#line 1258 "parser.cc"
     break;
 
-  case 22: // real_const_array_elements: const_init_val
+  case 22:
 #line 130 "parser.yy"
                    { yylhs.value.as < ptr_list_of<const_init_val_t> > () = ptr_list_of<const_init_val_t>(); yylhs.value.as < ptr_list_of<const_init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<const_init_val_t> > ()); }
-#line 1274 "parser.cc"
+#line 1264 "parser.cc"
     break;
 
-  case 23: // var_decl: b_type var_def_list ";"
+  case 23:
 #line 135 "parser.yy"
                             {
         yylhs.value.as < std::shared_ptr<var_decl_t> > () = std::make_shared<var_decl_t>(yystack_[2].value.as < std::shared_ptr<b_type_t> > (), yystack_[1].value.as < ptr_list_of<var_def_t> > ());
     }
-#line 1282 "parser.cc"
+#line 1272 "parser.cc"
     break;
 
-  case 24: // var_def_list: var_def
+  case 24:
 #line 142 "parser.yy"
             { yylhs.value.as < ptr_list_of<var_def_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<var_def_t> > ()); }
-#line 1288 "parser.cc"
+#line 1278 "parser.cc"
     break;
 
-  case 25: // var_def_list: var_def_list "," var_def
+  case 25:
 #line 143 "parser.yy"
                              { yylhs.value.as < ptr_list_of<var_def_t> > () = yystack_[2].value.as < ptr_list_of<var_def_t> > (); yylhs.value.as < ptr_list_of<var_def_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<var_def_t> > ()); }
-#line 1294 "parser.cc"
+#line 1284 "parser.cc"
     break;
 
-  case 26: // var_def: ident array_dims
+  case 26:
 #line 148 "parser.yy"
                                     { yylhs.value.as < std::shared_ptr<var_def_t> > () = std::make_shared<var_def_only_t>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < ptr_list_of<expr> > ()); }
-#line 1300 "parser.cc"
+#line 1290 "parser.cc"
     break;
 
-  case 27: // var_def: ident array_dims "=" init_val
+  case 27:
 #line 149 "parser.yy"
                                     { yylhs.value.as < std::shared_ptr<var_def_t> > () = std::make_shared<var_def_init_t>(yystack_[3].value.as < std::string > (), yystack_[2].value.as < ptr_list_of<expr> > (), yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
-#line 1306 "parser.cc"
+#line 1296 "parser.cc"
     break;
 
-  case 28: // init_val: exp
+  case 28:
 #line 154 "parser.yy"
         { yylhs.value.as < std::shared_ptr<init_val_t> > () = std::make_shared<init_val_scalar_t>(yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1312 "parser.cc"
+#line 1302 "parser.cc"
     break;
 
-  case 29: // init_val: "{" init_array_elements "}"
+  case 29:
 #line 155 "parser.yy"
                                 {{ yylhs.value.as < std::shared_ptr<init_val_t> > () = std::make_shared<init_val_array_t>(yystack_[1].value.as < ptr_list_of<init_val_t> > ()); }}
-#line 1318 "parser.cc"
+#line 1308 "parser.cc"
     break;
 
-  case 30: // init_array_elements: %empty
+  case 30:
 #line 159 "parser.yy"
            {}
-#line 1324 "parser.cc"
+#line 1314 "parser.cc"
     break;
 
-  case 31: // init_array_elements: real_init_array_elements
+  case 31:
 #line 160 "parser.yy"
                              { yylhs.value.as < ptr_list_of<init_val_t> > () = yystack_[0].value.as < ptr_list_of<init_val_t> > (); }
-#line 1330 "parser.cc"
+#line 1320 "parser.cc"
     break;
 
-  case 32: // real_init_array_elements: init_val
+  case 32:
 #line 165 "parser.yy"
              { yylhs.value.as < ptr_list_of<init_val_t> > () = ptr_list_of<init_val_t>(); yylhs.value.as < ptr_list_of<init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
-#line 1336 "parser.cc"
+#line 1326 "parser.cc"
     break;
 
-  case 33: // real_init_array_elements: real_init_array_elements "," init_val
+  case 33:
 #line 166 "parser.yy"
                                           { yylhs.value.as < ptr_list_of<init_val_t> > () = yystack_[2].value.as < ptr_list_of<init_val_t> > (); yylhs.value.as < ptr_list_of<init_val_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<init_val_t> > ()); }
-#line 1342 "parser.cc"
+#line 1332 "parser.cc"
     break;
 
-  case 34: // func_def: b_type ident "(" func_f_params ")" block
+  case 34:
 #line 170 "parser.yy"
                                                    {
     yylhs.value.as < std::shared_ptr<func_def_t> > () = std::make_shared<func_def_t>();
@@ -1350,34 +1340,34 @@ namespace yy {
     yylhs.value.as < std::shared_ptr<func_def_t> > ()->params = yystack_[2].value.as < std::shared_ptr<func_f_params_t> > ();
     yylhs.value.as < std::shared_ptr<func_def_t> > ()->block = yystack_[0].value.as < std::shared_ptr<block_t> > ();
 }
-#line 1354 "parser.cc"
+#line 1344 "parser.cc"
     break;
 
-  case 35: // func_f_params: %empty
+  case 35:
 #line 180 "parser.yy"
            { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = std::make_shared<func_f_params_t>(); }
-#line 1360 "parser.cc"
+#line 1350 "parser.cc"
     break;
 
-  case 36: // func_f_params: real_func_f_params
+  case 36:
 #line 181 "parser.yy"
                        { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = yystack_[0].value.as < std::shared_ptr<func_f_params_t> > (); }
-#line 1366 "parser.cc"
+#line 1356 "parser.cc"
     break;
 
-  case 37: // real_func_f_params: real_func_f_params "," func_f_param
+  case 37:
 #line 186 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = yystack_[2].value.as < std::shared_ptr<func_f_params_t> > (); yylhs.value.as < std::shared_ptr<func_f_params_t> > ()->params.push_back(yystack_[0].value.as < std::shared_ptr<func_f_param_t> > ()); }
-#line 1372 "parser.cc"
+#line 1362 "parser.cc"
     break;
 
-  case 38: // real_func_f_params: func_f_param
+  case 38:
 #line 187 "parser.yy"
                  { yylhs.value.as < std::shared_ptr<func_f_params_t> > () = std::make_shared<func_f_params_t>(); yylhs.value.as < std::shared_ptr<func_f_params_t> > ()->params.push_back(yystack_[0].value.as < std::shared_ptr<func_f_param_t> > ()); }
-#line 1378 "parser.cc"
+#line 1368 "parser.cc"
     break;
 
-  case 39: // func_f_param: b_type ident array_dims_func_param
+  case 39:
 #line 191 "parser.yy"
                                                  {
     yylhs.value.as < std::shared_ptr<func_f_param_t> > () = std::make_shared<func_f_param_t>();
@@ -1385,100 +1375,100 @@ namespace yy {
     yylhs.value.as < std::shared_ptr<func_f_param_t> > ()->ident = yystack_[1].value.as < std::string > ();
     yylhs.value.as < std::shared_ptr<func_f_param_t> > ()->array_dims = yystack_[0].value.as < ptr_list_of<expr> > ();
 }
-#line 1389 "parser.cc"
+#line 1379 "parser.cc"
     break;
 
-  case 40: // array_dims_func_param: %empty
+  case 40:
 #line 200 "parser.yy"
            {}
-#line 1395 "parser.cc"
+#line 1385 "parser.cc"
     break;
 
-  case 41: // array_dims_func_param: array_dims_func_param_real
+  case 41:
 #line 201 "parser.yy"
                                { yylhs.value.as < ptr_list_of<expr> > () = yystack_[0].value.as < ptr_list_of<expr> > (); }
-#line 1401 "parser.cc"
+#line 1391 "parser.cc"
     break;
 
-  case 42: // array_dims_func_param_real: "[" "]"
+  case 42:
 #line 206 "parser.yy"
             { yylhs.value.as < ptr_list_of<expr> > ().push_back(nullptr); }
-#line 1407 "parser.cc"
+#line 1397 "parser.cc"
     break;
 
-  case 43: // array_dims_func_param_real: array_dims_func_param_real "[" exp "]"
+  case 43:
 #line 207 "parser.yy"
                                            { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1413 "parser.cc"
+#line 1403 "parser.cc"
     break;
 
-  case 44: // block: "{" block_elements "}"
+  case 44:
 #line 211 "parser.yy"
                               { yylhs.value.as < std::shared_ptr<block_t> > () = std::make_shared<block_t>(yystack_[1].value.as < ptr_list_of<block_item_t> > ()); }
-#line 1419 "parser.cc"
+#line 1409 "parser.cc"
     break;
 
-  case 45: // block_elements: %empty
+  case 45:
 #line 215 "parser.yy"
            {}
-#line 1425 "parser.cc"
+#line 1415 "parser.cc"
     break;
 
-  case 46: // block_elements: block_elements block_item
+  case 46:
 #line 216 "parser.yy"
                               { yylhs.value.as < ptr_list_of<block_item_t> > () = yystack_[1].value.as < ptr_list_of<block_item_t> > (); yylhs.value.as < ptr_list_of<block_item_t> > ().push_back(yystack_[0].value.as < std::shared_ptr<block_item_t> > ()); }
-#line 1431 "parser.cc"
+#line 1421 "parser.cc"
     break;
 
-  case 47: // block_item: decl
+  case 47:
 #line 221 "parser.yy"
          { yylhs.value.as < std::shared_ptr<block_item_t> > () = std::make_shared<block_item_decl_t>(yystack_[0].value.as < std::shared_ptr<decl_t> > ()); }
-#line 1437 "parser.cc"
+#line 1427 "parser.cc"
     break;
 
-  case 48: // block_item: stmt
+  case 48:
 #line 222 "parser.yy"
          { yylhs.value.as < std::shared_ptr<block_item_t> > () = std::make_shared<block_item_stmt_t>(yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
-#line 1443 "parser.cc"
+#line 1433 "parser.cc"
     break;
 
-  case 49: // ident: "identifier"
+  case 49:
 #line 225 "parser.yy"
              { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 1449 "parser.cc"
+#line 1439 "parser.cc"
     break;
 
-  case 50: // stmt: l_val "=" exp ";"
+  case 50:
 #line 229 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_assign_t>(yystack_[3].value.as < std::shared_ptr<l_val_t> > (), yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1455 "parser.cc"
+#line 1445 "parser.cc"
     break;
 
-  case 51: // stmt: exp ";"
+  case 51:
 #line 230 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_exp_t>(yystack_[1].value.as < std::shared_ptr<expr> > ());        }
-#line 1461 "parser.cc"
+#line 1451 "parser.cc"
     break;
 
-  case 52: // stmt: ";"
+  case 52:
 #line 231 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::shared_ptr<stmt_exp_t>(nullptr);    }
-#line 1467 "parser.cc"
+#line 1457 "parser.cc"
     break;
 
-  case 53: // stmt: block
+  case 53:
 #line 232 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_block_t>(yystack_[0].value.as < std::shared_ptr<block_t> > ());      }
-#line 1473 "parser.cc"
+#line 1463 "parser.cc"
     break;
 
-  case 54: // stmt: "if" "(" cond ")" stmt
+  case 54:
 #line 233 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_if_t>(yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > (), nullptr); }
-#line 1479 "parser.cc"
+#line 1469 "parser.cc"
     break;
 
-  case 55: // stmt: "if" "(" cond ")" stmt "else" stmt
+  case 55:
 #line 234 "parser.yy"
                                         { 
       /* 做就近匹配 */
@@ -1493,283 +1483,283 @@ namespace yy {
           }
       }
   }
-#line 1497 "parser.cc"
+#line 1487 "parser.cc"
     break;
 
-  case 56: // stmt: "while" "(" cond ")" stmt
+  case 56:
 #line 247 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_while_t>(yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<stmt_t> > ()); }
-#line 1503 "parser.cc"
+#line 1493 "parser.cc"
     break;
 
-  case 57: // stmt: "break" ";"
+  case 57:
 #line 248 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_break_t>();       }
-#line 1509 "parser.cc"
+#line 1499 "parser.cc"
     break;
 
-  case 58: // stmt: "continue" ";"
+  case 58:
 #line 249 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_continue_t>();    }
-#line 1515 "parser.cc"
+#line 1505 "parser.cc"
     break;
 
-  case 59: // stmt: "return" ";"
+  case 59:
 #line 250 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_return_t>(nullptr); }
-#line 1521 "parser.cc"
+#line 1511 "parser.cc"
     break;
 
-  case 60: // stmt: "return" exp ";"
+  case 60:
 #line 251 "parser.yy"
                                         { yylhs.value.as < std::shared_ptr<stmt_t> > () = std::make_shared<stmt_return_t>(yystack_[1].value.as < std::shared_ptr<expr> > ());    }
-#line 1527 "parser.cc"
+#line 1517 "parser.cc"
     break;
 
-  case 61: // exp: add_exp
+  case 61:
 #line 256 "parser.yy"
              { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1533 "parser.cc"
+#line 1523 "parser.cc"
     break;
 
-  case 62: // cond: l_or_exp
+  case 62:
 #line 259 "parser.yy"
                { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1539 "parser.cc"
+#line 1529 "parser.cc"
     break;
 
-  case 63: // l_val: ident array_indices
+  case 63:
 #line 263 "parser.yy"
                         { yylhs.value.as < std::shared_ptr<l_val_t> > () = std::make_shared<l_val_t>(yystack_[1].value.as < std::string > (), yystack_[0].value.as < ptr_list_of<expr> > ()); }
-#line 1545 "parser.cc"
+#line 1535 "parser.cc"
     break;
 
-  case 64: // l_val: ident
+  case 64:
 #line 264 "parser.yy"
           { yylhs.value.as < std::shared_ptr<l_val_t> > ()=std::make_shared<l_val_t>(yystack_[0].value.as < std::string > (), ptr_list_of<expr>()); }
-#line 1551 "parser.cc"
+#line 1541 "parser.cc"
     break;
 
-  case 65: // array_indices: "[" exp "]"
+  case 65:
 #line 269 "parser.yy"
                  {{ yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }}
-#line 1557 "parser.cc"
+#line 1547 "parser.cc"
     break;
 
-  case 66: // array_indices: array_indices "[" exp "]"
+  case 66:
 #line 270 "parser.yy"
                                { yylhs.value.as < ptr_list_of<expr> > () = yystack_[3].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[1].value.as < std::shared_ptr<expr> > ()); }
-#line 1563 "parser.cc"
+#line 1553 "parser.cc"
     break;
 
-  case 67: // primary_exp: "(" exp ")"
+  case 67:
 #line 275 "parser.yy"
                     { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[1].value.as < std::shared_ptr<expr> > (); }
-#line 1569 "parser.cc"
+#line 1559 "parser.cc"
     break;
 
-  case 68: // primary_exp: l_val
+  case 68:
 #line 276 "parser.yy"
                     { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<l_val_t> > (); }
-#line 1575 "parser.cc"
+#line 1565 "parser.cc"
     break;
 
-  case 69: // primary_exp: number
+  case 69:
 #line 277 "parser.yy"
                     { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<number_literal_t> > (); }
-#line 1581 "parser.cc"
+#line 1571 "parser.cc"
     break;
 
-  case 70: // number: "integer"
+  case 70:
 #line 281 "parser.yy"
                   { yylhs.value.as < std::shared_ptr<number_literal_t> > () = std::make_shared<number_literal_t>(yystack_[0].value.as < long long > ()); }
-#line 1587 "parser.cc"
+#line 1577 "parser.cc"
     break;
 
-  case 71: // unary_exp: primary_exp
+  case 71:
 #line 285 "parser.yy"
                   { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1593 "parser.cc"
+#line 1583 "parser.cc"
     break;
 
-  case 72: // unary_exp: ident "(" func_r_params ")"
+  case 72:
 #line 286 "parser.yy"
                                 { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<func_call_t>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::shared_ptr<func_r_params_t> > ()); }
-#line 1599 "parser.cc"
+#line 1589 "parser.cc"
     break;
 
-  case 73: // unary_exp: "+" unary_exp
+  case 73:
 #line 287 "parser.yy"
                     { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1605 "parser.cc"
+#line 1595 "parser.cc"
     break;
 
-  case 74: // unary_exp: "-" unary_exp
+  case 74:
 #line 288 "parser.yy"
                     { 
       auto e = dynamic_pointer_cast<negative_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ());
       if(e) yylhs.value.as < std::shared_ptr<expr> > () = e->src;
       else  yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<negative_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ()); 
     }
-#line 1615 "parser.cc"
+#line 1605 "parser.cc"
     break;
 
-  case 75: // unary_exp: "!" unary_exp
+  case 75:
 #line 293 "parser.yy"
                     { 
       auto e = dynamic_pointer_cast<logical_not_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ());
       if(e) yylhs.value.as < std::shared_ptr<expr> > () = e->src;
       else  yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<logical_not_expr>(yystack_[0].value.as < std::shared_ptr<expr> > ());
     }
-#line 1625 "parser.cc"
+#line 1615 "parser.cc"
     break;
 
-  case 76: // func_r_params: %empty
+  case 76:
 #line 303 "parser.yy"
                 { yylhs.value.as < std::shared_ptr<func_r_params_t> > () = std::make_shared<func_r_params_t>(); }
-#line 1631 "parser.cc"
+#line 1621 "parser.cc"
     break;
 
-  case 77: // func_r_params: func_r_params_elements
+  case 77:
 #line 304 "parser.yy"
                            { yylhs.value.as < std::shared_ptr<func_r_params_t> > () = std::make_shared<func_r_params_t>(yystack_[0].value.as < ptr_list_of<expr> > ()); }
-#line 1637 "parser.cc"
+#line 1627 "parser.cc"
     break;
 
-  case 78: // func_r_params_elements: exp
+  case 78:
 #line 309 "parser.yy"
                                      { yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[0].value.as < std::shared_ptr<expr> > ());            }
-#line 1643 "parser.cc"
+#line 1633 "parser.cc"
     break;
 
-  case 79: // func_r_params_elements: func_r_params_elements "," exp
+  case 79:
 #line 310 "parser.yy"
                                      { yylhs.value.as < ptr_list_of<expr> > () = yystack_[2].value.as < ptr_list_of<expr> > (); yylhs.value.as < ptr_list_of<expr> > ().push_back(yystack_[0].value.as < std::shared_ptr<expr> > ());   }
-#line 1649 "parser.cc"
+#line 1639 "parser.cc"
     break;
 
-  case 80: // mul_exp: unary_exp
+  case 80:
 #line 315 "parser.yy"
                { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1655 "parser.cc"
+#line 1645 "parser.cc"
     break;
 
-  case 81: // mul_exp: mul_exp "*" unary_exp
+  case 81:
 #line 316 "parser.yy"
                            { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MULTIPLY, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1661 "parser.cc"
+#line 1651 "parser.cc"
     break;
 
-  case 82: // mul_exp: mul_exp "/" unary_exp
+  case 82:
 #line 317 "parser.yy"
                            { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::DIVIDE  , yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1667 "parser.cc"
+#line 1657 "parser.cc"
     break;
 
-  case 83: // mul_exp: mul_exp "%" unary_exp
+  case 83:
 #line 318 "parser.yy"
                            { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MODULE  , yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1673 "parser.cc"
+#line 1663 "parser.cc"
     break;
 
-  case 84: // add_exp: mul_exp
+  case 84:
 #line 323 "parser.yy"
              { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1679 "parser.cc"
+#line 1669 "parser.cc"
     break;
 
-  case 85: // add_exp: add_exp "+" mul_exp
+  case 85:
 #line 324 "parser.yy"
                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::PLUS,  yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1685 "parser.cc"
+#line 1675 "parser.cc"
     break;
 
-  case 86: // add_exp: add_exp "-" mul_exp
+  case 86:
 #line 325 "parser.yy"
                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::MINUS, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1691 "parser.cc"
+#line 1681 "parser.cc"
     break;
 
-  case 87: // rel_exp: add_exp
+  case 87:
 #line 330 "parser.yy"
              { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1697 "parser.cc"
+#line 1687 "parser.cc"
     break;
 
-  case 88: // rel_exp: add_exp "<" add_exp
+  case 88:
 #line 331 "parser.yy"
                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LESS, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1703 "parser.cc"
+#line 1693 "parser.cc"
     break;
 
-  case 89: // rel_exp: add_exp ">" add_exp
+  case 89:
 #line 332 "parser.yy"
                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::GREATER, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1709 "parser.cc"
+#line 1699 "parser.cc"
     break;
 
-  case 90: // rel_exp: add_exp "<=" add_exp
+  case 90:
 #line 333 "parser.yy"
                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LESS_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1715 "parser.cc"
+#line 1705 "parser.cc"
     break;
 
-  case 91: // rel_exp: add_exp ">=" add_exp
+  case 91:
 #line 334 "parser.yy"
                           { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::GREATER_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1721 "parser.cc"
+#line 1711 "parser.cc"
     break;
 
-  case 92: // eq_exp: rel_exp
+  case 92:
 #line 339 "parser.yy"
              { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1727 "parser.cc"
+#line 1717 "parser.cc"
     break;
 
-  case 93: // eq_exp: eq_exp "==" rel_exp
+  case 93:
 #line 340 "parser.yy"
                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1733 "parser.cc"
+#line 1723 "parser.cc"
     break;
 
-  case 94: // eq_exp: eq_exp "!=" rel_exp
+  case 94:
 #line 341 "parser.yy"
                          { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::NOT_EQUAL, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1739 "parser.cc"
+#line 1729 "parser.cc"
     break;
 
-  case 95: // l_and_exp: eq_exp
+  case 95:
 #line 346 "parser.yy"
             { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1745 "parser.cc"
+#line 1735 "parser.cc"
     break;
 
-  case 96: // l_and_exp: l_and_exp "&&" eq_exp
+  case 96:
 #line 347 "parser.yy"
                             { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LOGICAL_AND, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1751 "parser.cc"
+#line 1741 "parser.cc"
     break;
 
-  case 97: // l_or_exp: l_and_exp
+  case 97:
 #line 352 "parser.yy"
                { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1757 "parser.cc"
+#line 1747 "parser.cc"
     break;
 
-  case 98: // l_or_exp: l_or_exp "||" l_and_exp
+  case 98:
 #line 353 "parser.yy"
                               { yylhs.value.as < std::shared_ptr<expr> > () = std::make_shared<binary_expr>(operator_t::LOGICAL_OR, yystack_[2].value.as < std::shared_ptr<expr> > (), yystack_[0].value.as < std::shared_ptr<expr> > ()); }
-#line 1763 "parser.cc"
+#line 1753 "parser.cc"
     break;
 
-  case 99: // const_exp: add_exp
+  case 99:
 #line 357 "parser.yy"
                    { yylhs.value.as < std::shared_ptr<expr> > () = yystack_[0].value.as < std::shared_ptr<expr> > (); }
-#line 1769 "parser.cc"
+#line 1759 "parser.cc"
     break;
 
 
-#line 1773 "parser.cc"
+#line 1763 "parser.cc"
 
             default:
               break;
@@ -1786,6 +1776,7 @@ namespace yy {
       YY_SYMBOL_PRINT ("-> $$ =", yylhs);
       yypop_ (yylen);
       yylen = 0;
+      YY_STACK_PRINT ();
 
       // Shift the result of the reduction.
       yypush_ (YY_NULLPTR, YY_MOVE (yylhs));
@@ -1801,8 +1792,7 @@ namespace yy {
     if (!yyerrstatus_)
       {
         ++yynerrs_;
-        std::string msg = YY_("syntax error");
-        error (YY_MOVE (msg));
+        error (yysyntax_error_ (yystack_[0].state, yyla));
       }
 
 
@@ -1812,7 +1802,7 @@ namespace yy {
            error, discard it.  */
 
         // Return failure if at end of input.
-        if (yyla.kind () == symbol_kind::S_YYEOF)
+        if (yyla.type_get () == yyeof_)
           YYABORT;
         else if (!yyla.empty ())
           {
@@ -1838,7 +1828,6 @@ namespace yy {
        this YYERROR.  */
     yypop_ (yylen);
     yylen = 0;
-    YY_STACK_PRINT ();
     goto yyerrlab1;
 
 
@@ -1847,32 +1836,30 @@ namespace yy {
   `-------------------------------------------------------------*/
   yyerrlab1:
     yyerrstatus_ = 3;   // Each real token shifted decrements this.
-    // Pop stack until we find a state that shifts the error token.
-    for (;;)
-      {
-        yyn = yypact_[+yystack_[0].state];
-        if (!yy_pact_value_is_default_ (yyn))
-          {
-            yyn += symbol_kind::S_YYerror;
-            if (0 <= yyn && yyn <= yylast_
-                && yycheck_[yyn] == symbol_kind::S_YYerror)
-              {
-                yyn = yytable_[yyn];
-                if (0 < yyn)
-                  break;
-              }
-          }
-
-        // Pop the current state because it cannot handle the error token.
-        if (yystack_.size () == 1)
-          YYABORT;
-
-        yy_destroy_ ("Error: popping", yystack_[0]);
-        yypop_ ();
-        YY_STACK_PRINT ();
-      }
     {
       stack_symbol_type error_token;
+      for (;;)
+        {
+          yyn = yypact_[+yystack_[0].state];
+          if (!yy_pact_value_is_default_ (yyn))
+            {
+              yyn += yy_error_token_;
+              if (0 <= yyn && yyn <= yylast_ && yycheck_[yyn] == yy_error_token_)
+                {
+                  yyn = yytable_[yyn];
+                  if (0 < yyn)
+                    break;
+                }
+            }
+
+          // Pop the current state because it cannot handle the error token.
+          if (yystack_.size () == 1)
+            YYABORT;
+
+          yy_destroy_ ("Error: popping", yystack_[0]);
+          yypop_ ();
+          YY_STACK_PRINT ();
+        }
 
 
       // Shift the error token.
@@ -1908,7 +1895,6 @@ namespace yy {
     /* Do not reclaim the symbols of the rule whose action triggered
        this YYABORT or YYACCEPT.  */
     yypop_ (yylen);
-    YY_STACK_PRINT ();
     while (1 < yystack_.size ())
       {
         yy_destroy_ ("Cleanup: popping", yystack_[0]);
@@ -1942,16 +1928,12 @@ namespace yy {
     error (yyexc.what ());
   }
 
-#if YYDEBUG || 0
-  const char *
-  parser::symbol_name (symbol_kind_type yysymbol)
+  // Generate an error message.
+  std::string
+  parser::yysyntax_error_ (state_type, const symbol_type&) const
   {
-    return yytname_[yysymbol];
+    return YY_("syntax error");
   }
-#endif // #if YYDEBUG || 0
-
-
-
 
 
   const short parser::yypact_ninf_ = -135;
@@ -2012,10 +1994,10 @@ namespace yy {
      -37,   -83,    30,    31,  -135,   149
   };
 
-  const unsigned char
+  const short
   parser::yydefgoto_[] =
   {
-       0,     4,     5,     6,     7,     8,     9,    10,    22,    28,
+      -1,     4,     5,     6,     7,     8,     9,    10,    22,    28,
       60,    85,    86,    11,    19,    20,    48,    73,    74,    12,
       33,    34,    35,    63,    64,   115,    89,   116,    49,   117,
      118,   137,    51,    77,    52,    53,    54,    94,    95,    55,
@@ -2125,11 +2107,11 @@ namespace yy {
 
 #if YYDEBUG
   // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
-  // First, the terminals, then, starting at \a YYNTOKENS, nonterminals.
+  // First, the terminals, then, starting at \a yyntokens_, nonterminals.
   const char*
   const parser::yytname_[] =
   {
-  "\"end of file\"", "error", "\"invalid token\"", "\"integer\"",
+  "\"end of file\"", "error", "$undefined", "\"integer\"",
   "\"identifier\"", "\"void\"", "\"int\"", "\"const\"", "\"if\"",
   "\"else\"", "\"while\"", "\"break\"", "\"continue\"", "\"return\"",
   "\">=\"", "\"<=\"", "\"==\"", "\"!=\"", "\"&&\"", "\"||\"", "\">\"",
@@ -2147,10 +2129,8 @@ namespace yy {
   "mul_exp", "add_exp", "rel_exp", "eq_exp", "l_and_exp", "l_or_exp",
   "const_exp", YY_NULLPTR
   };
-#endif
 
 
-#if YYDEBUG
   const short
   parser::yyrline_[] =
   {
@@ -2166,8 +2146,9 @@ namespace yy {
      333,   334,   339,   340,   341,   346,   347,   352,   353,   357
   };
 
+  // Print the state stack on the debug stream.
   void
-  parser::yy_stack_print_ () const
+  parser::yystack_print_ ()
   {
     *yycdebug_ << "Stack now";
     for (stack_type::const_iterator
@@ -2178,8 +2159,9 @@ namespace yy {
     *yycdebug_ << '\n';
   }
 
+  // Report on the debug stream that the rule \a yyrule is going to be reduced.
   void
-  parser::yy_reduce_print_ (int yyrule) const
+  parser::yy_reduce_print_ (int yyrule)
   {
     int yylno = yyrline_[yyrule];
     int yynrhs = yyr2_[yyrule];
@@ -2195,7 +2177,7 @@ namespace yy {
 
 
 } // yy
-#line 2199 "parser.cc"
+#line 2181 "parser.cc"
 
 #line 360 "parser.yy"
 

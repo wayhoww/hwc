@@ -12,6 +12,7 @@ hwc
 *.s
 *.o
 .idea/
+codegen2.cc
 
 
 # Prerequisites

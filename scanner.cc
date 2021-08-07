@@ -1,6 +1,6 @@
-#line 1 "scanner.cc"
+#line 2 "scanner.cc"
 
-#line 3 "scanner.cc"
+#line 4 "scanner.cc"
 
 #define  YY_INT_ALIGNED short int
 
@@ -515,7 +515,7 @@ char *yytext;
 #define YY_NO_INPUT 1
 #line 5 "scanner.ll"
     #include "driver.hh"
-#line 518 "scanner.cc"
+#line 519 "scanner.cc"
 /**
  * 该部分是 SysY 语言的词法定义部分
  * 根据 “SysY 语言的终结符特征” 编写
@@ -525,7 +525,7 @@ char *yytext;
  * 文档中使用了 EBNF 表示词法特征。这里转成正则表达式
  **/
 
-#line 528 "scanner.cc"
+#line 529 "scanner.cc"
 
 #define INITIAL 0
 #define IN_BLOCK_COMMENT 1
@@ -746,7 +746,7 @@ YY_DECL
 
 
 
-#line 749 "scanner.cc"
+#line 750 "scanner.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1033,7 +1033,7 @@ YY_RULE_SETUP
 #line 93 "scanner.ll"
 ECHO;
 	YY_BREAK
-#line 1036 "scanner.cc"
+#line 1037 "scanner.cc"
 
 	case YY_END_OF_BUFFER:
 		{

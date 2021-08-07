@@ -1,8 +1,8 @@
-// A Bison parser, made by GNU Bison 3.7.6.
+// A Bison parser, made by GNU Bison 3.5.1.
 
 // Skeleton interface for Bison LALR(1) parsers in C++
 
-// Copyright (C) 2002-2015, 2018-2021 Free Software Foundation, Inc.
+// Copyright (C) 2002-2015, 2018-2020 Free Software Foundation, Inc.
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // As a special exception, you may create a larger work that contains
 // part or all of the Bison parser skeleton and distribute that work
@@ -38,9 +38,8 @@
 
 // C++ LALR(1) parser skeleton written by Akim Demaille.
 
-// DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
-// especially those whose name start with YY_ or yy_.  They are
-// private implementation details that can be changed or removed.
+// Undocumented macros, especially those whose name start with YY_,
+// are private implementation details.  Do not rely on them.
 
 #ifndef YY_YY_PARSER_HH_INCLUDED
 # define YY_YY_PARSER_HH_INCLUDED
@@ -50,7 +49,7 @@
     class driver;
     #include "constructs.hh"
 
-#line 54 "parser.hh"
+#line 53 "parser.hh"
 
 
 # include <cstdlib> // std::abort
@@ -97,6 +96,11 @@
 #endif
 
 
+#ifndef YY_ASSERT
+# include <cassert>
+# define YY_ASSERT assert
+#endif
+
 
 #ifndef YY_ATTRIBUTE_PURE
 # if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
@@ -116,9 +120,9 @@
 
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YY_USE(E) ((void) (E))
+# define YYUSE(E) ((void) (E))
 #else
-# define YY_USE(E) /* empty */
+# define YYUSE(E) /* empty */
 #endif
 
 #if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
@@ -179,7 +183,7 @@
 #endif
 
 namespace yy {
-#line 183 "parser.hh"
+#line 187 "parser.hh"
 
 
 
@@ -209,15 +213,9 @@ namespace yy {
     template <typename T>
     semantic_type (YY_RVREF (T) t)
     {
+      YY_ASSERT (sizeof (T) <= size);
       new (yyas_<T> ()) T (YY_MOVE (t));
     }
-
-#if 201103L <= YY_CPLUSPLUS
-    /// Non copyable.
-    semantic_type (const self_type&) = delete;
-    /// Non copyable.
-    self_type& operator= (const self_type&) = delete;
-#endif
 
     /// Destruction, allowed only if empty.
     ~semantic_type () YY_NOEXCEPT
@@ -342,12 +340,9 @@ namespace yy {
     }
 
   private:
-#if YY_CPLUSPLUS < 201103L
-    /// Non copyable.
-    semantic_type (const self_type&);
-    /// Non copyable.
+    /// Prohibit blind copies.
     self_type& operator= (const self_type&);
-#endif
+    semantic_type (const self_type&);
 
     /// Accessor to raw memory as \a T.
     template <typename T>
@@ -503,163 +498,65 @@ namespace yy {
       ~syntax_error () YY_NOEXCEPT YY_NOTHROW;
     };
 
-    /// Token kinds.
+    /// Tokens.
     struct token
     {
-      enum token_kind_type
+      enum yytokentype
       {
-        YYEMPTY = -2,
-    YYEOF = 0,                     // "end of file"
-    YYerror = 256,                 // error
-    YYUNDEF = 257,                 // "invalid token"
-    INT_CONST = 258,               // "integer"
-    IDENT = 259,                   // "identifier"
-    VOID = 260,                    // "void"
-    INT = 261,                     // "int"
-    CONST = 262,                   // "const"
-    IF = 263,                      // "if"
-    ELSE = 264,                    // "else"
-    WHILE = 265,                   // "while"
-    BREAK = 266,                   // "break"
-    CONTINUE = 267,                // "continue"
-    RETURN = 268,                  // "return"
-    GE = 269,                      // ">="
-    LE = 270,                      // "<="
-    EQ = 271,                      // "=="
-    NE = 272,                      // "!="
-    AND = 273,                     // "&&"
-    OR = 274,                      // "||"
-    GT = 275,                      // ">"
-    LT = 276,                      // "<"
-    ASSIGN = 277,                  // "="
-    NOT = 278,                     // "!"
-    ADD = 279,                     // "+"
-    SUB = 280,                     // "-"
-    MUL = 281,                     // "*"
-    DIV = 282,                     // "/"
-    MOD = 283,                     // "%"
-    COMMA = 284,                   // ","
-    SEMI = 285,                    // ";"
-    LEFT_PAREN = 286,              // "("
-    RIGHT_PAREN = 287,             // ")"
-    LEFT_BRACKET = 288,            // "["
-    RIGHT_BRACKET = 289,           // "]"
-    LEFT_BRACE = 290,              // "{"
-    RIGHT_BRACE = 291              // "}"
-      };
-      /// Backward compatibility alias (Bison 3.6).
-      typedef token_kind_type yytokentype;
-    };
-
-    /// Token kind, as returned by yylex.
-    typedef token::yytokentype token_kind_type;
-
-    /// Backward compatibility alias (Bison 3.6).
-    typedef token_kind_type token_type;
-
-    /// Symbol kinds.
-    struct symbol_kind
-    {
-      enum symbol_kind_type
-      {
-        YYNTOKENS = 37, ///< Number of tokens.
-        S_YYEMPTY = -2,
-        S_YYEOF = 0,                             // "end of file"
-        S_YYerror = 1,                           // error
-        S_YYUNDEF = 2,                           // "invalid token"
-        S_INT_CONST = 3,                         // "integer"
-        S_IDENT = 4,                             // "identifier"
-        S_VOID = 5,                              // "void"
-        S_INT = 6,                               // "int"
-        S_CONST = 7,                             // "const"
-        S_IF = 8,                                // "if"
-        S_ELSE = 9,                              // "else"
-        S_WHILE = 10,                            // "while"
-        S_BREAK = 11,                            // "break"
-        S_CONTINUE = 12,                         // "continue"
-        S_RETURN = 13,                           // "return"
-        S_GE = 14,                               // ">="
-        S_LE = 15,                               // "<="
-        S_EQ = 16,                               // "=="
-        S_NE = 17,                               // "!="
-        S_AND = 18,                              // "&&"
-        S_OR = 19,                               // "||"
-        S_GT = 20,                               // ">"
-        S_LT = 21,                               // "<"
-        S_ASSIGN = 22,                           // "="
-        S_NOT = 23,                              // "!"
-        S_ADD = 24,                              // "+"
-        S_SUB = 25,                              // "-"
-        S_MUL = 26,                              // "*"
-        S_DIV = 27,                              // "/"
-        S_MOD = 28,                              // "%"
-        S_COMMA = 29,                            // ","
-        S_SEMI = 30,                             // ";"
-        S_LEFT_PAREN = 31,                       // "("
-        S_RIGHT_PAREN = 32,                      // ")"
-        S_LEFT_BRACKET = 33,                     // "["
-        S_RIGHT_BRACKET = 34,                    // "]"
-        S_LEFT_BRACE = 35,                       // "{"
-        S_RIGHT_BRACE = 36,                      // "}"
-        S_YYACCEPT = 37,                         // $accept
-        S_start_symbol = 38,                     // start_symbol
-        S_comp_unit = 39,                        // comp_unit
-        S_comp_unit_item = 40,                   // comp_unit_item
-        S_decl = 41,                             // decl
-        S_const_decl = 42,                       // const_decl
-        S_const_decl_stmt = 43,                  // const_decl_stmt
-        S_b_type = 44,                           // b_type
-        S_const_def = 45,                        // const_def
-        S_array_dims = 46,                       // array_dims
-        S_const_init_val = 47,                   // const_init_val
-        S_const_array_elements = 48,             // const_array_elements
-        S_real_const_array_elements = 49,        // real_const_array_elements
-        S_var_decl = 50,                         // var_decl
-        S_var_def_list = 51,                     // var_def_list
-        S_var_def = 52,                          // var_def
-        S_init_val = 53,                         // init_val
-        S_init_array_elements = 54,              // init_array_elements
-        S_real_init_array_elements = 55,         // real_init_array_elements
-        S_func_def = 56,                         // func_def
-        S_func_f_params = 57,                    // func_f_params
-        S_real_func_f_params = 58,               // real_func_f_params
-        S_func_f_param = 59,                     // func_f_param
-        S_array_dims_func_param = 60,            // array_dims_func_param
-        S_array_dims_func_param_real = 61,       // array_dims_func_param_real
-        S_block = 62,                            // block
-        S_block_elements = 63,                   // block_elements
-        S_block_item = 64,                       // block_item
-        S_ident = 65,                            // ident
-        S_stmt = 66,                             // stmt
-        S_exp = 67,                              // exp
-        S_cond = 68,                             // cond
-        S_l_val = 69,                            // l_val
-        S_array_indices = 70,                    // array_indices
-        S_primary_exp = 71,                      // primary_exp
-        S_number = 72,                           // number
-        S_unary_exp = 73,                        // unary_exp
-        S_func_r_params = 74,                    // func_r_params
-        S_func_r_params_elements = 75,           // func_r_params_elements
-        S_mul_exp = 76,                          // mul_exp
-        S_add_exp = 77,                          // add_exp
-        S_rel_exp = 78,                          // rel_exp
-        S_eq_exp = 79,                           // eq_exp
-        S_l_and_exp = 80,                        // l_and_exp
-        S_l_or_exp = 81,                         // l_or_exp
-        S_const_exp = 82                         // const_exp
+        YYEOF = 0,
+        INT_CONST = 258,
+        IDENT = 259,
+        VOID = 260,
+        INT = 261,
+        CONST = 262,
+        IF = 263,
+        ELSE = 264,
+        WHILE = 265,
+        BREAK = 266,
+        CONTINUE = 267,
+        RETURN = 268,
+        GE = 269,
+        LE = 270,
+        EQ = 271,
+        NE = 272,
+        AND = 273,
+        OR = 274,
+        GT = 275,
+        LT = 276,
+        ASSIGN = 277,
+        NOT = 278,
+        ADD = 279,
+        SUB = 280,
+        MUL = 281,
+        DIV = 282,
+        MOD = 283,
+        COMMA = 284,
+        SEMI = 285,
+        LEFT_PAREN = 286,
+        RIGHT_PAREN = 287,
+        LEFT_BRACKET = 288,
+        RIGHT_BRACKET = 289,
+        LEFT_BRACE = 290,
+        RIGHT_BRACE = 291
       };
     };
 
-    /// (Internal) symbol kind.
-    typedef symbol_kind::symbol_kind_type symbol_kind_type;
+    /// (External) token type, as returned by yylex.
+    typedef token::yytokentype token_type;
 
-    /// The number of tokens.
-    static const symbol_kind_type YYNTOKENS = symbol_kind::YYNTOKENS;
+    /// Symbol type: an internal symbol number.
+    typedef int symbol_number_type;
+
+    /// The symbol type number to denote an empty symbol.
+    enum { empty_symbol = -2 };
+
+    /// Internal symbol number for tokens (subsumed by symbol_number_type).
+    typedef signed char token_number_type;
 
     /// A complete symbol.
     ///
-    /// Expects its Base type to provide access to the symbol kind
-    /// via kind ().
+    /// Expects its Base type to provide access to the symbol type
+    /// via type_get ().
     ///
     /// Provide access to semantic value.
     template <typename Base>
@@ -675,151 +572,13 @@ namespace yy {
 
 #if 201103L <= YY_CPLUSPLUS
       /// Move constructor.
-      basic_symbol (basic_symbol&& that)
-        : Base (std::move (that))
-        , value ()
-      {
-        switch (this->kind ())
-    {
-      case symbol_kind::S_INT_CONST: // "integer"
-        value.move< long long > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_block_elements: // block_elements
-        value.move< ptr_list_of<block_item_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
-        value.move< ptr_list_of<const_init_val_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
-        value.move< ptr_list_of<expr> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
-        value.move< ptr_list_of<init_val_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_var_def_list: // var_def_list
-        value.move< ptr_list_of<var_def_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_b_type: // b_type
-        value.move< std::shared_ptr<b_type_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_block_item: // block_item
-        value.move< std::shared_ptr<block_item_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_block: // block
-        value.move< std::shared_ptr<block_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
-        value.move< std::shared_ptr<comp_unit_item_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
-        value.move< std::shared_ptr<comp_unit_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
-        value.move< std::shared_ptr<const_decl_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_const_def: // const_def
-        value.move< std::shared_ptr<const_def_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_const_init_val: // const_init_val
-        value.move< std::shared_ptr<const_init_val_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_decl: // decl
-        value.move< std::shared_ptr<decl_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
-        value.move< std::shared_ptr<expr> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_func_def: // func_def
-        value.move< std::shared_ptr<func_def_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_func_f_param: // func_f_param
-        value.move< std::shared_ptr<func_f_param_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
-        value.move< std::shared_ptr<func_f_params_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_func_r_params: // func_r_params
-        value.move< std::shared_ptr<func_r_params_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_init_val: // init_val
-        value.move< std::shared_ptr<init_val_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_l_val: // l_val
-        value.move< std::shared_ptr<l_val_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_number: // number
-        value.move< std::shared_ptr<number_literal_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_stmt: // stmt
-        value.move< std::shared_ptr<stmt_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_var_decl: // var_decl
-        value.move< std::shared_ptr<var_decl_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_var_def: // var_def
-        value.move< std::shared_ptr<var_def_t> > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
-        value.move< std::string > (std::move (that.value));
-        break;
-
-      default:
-        break;
-    }
-
-      }
+      basic_symbol (basic_symbol&& that);
 #endif
 
       /// Copy constructor.
       basic_symbol (const basic_symbol& that);
 
-      /// Constructors for typed symbols.
+      /// Constructor for valueless symbols, and symbols from each type.
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t)
         : Base (t)
@@ -829,7 +588,6 @@ namespace yy {
         : Base (t)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, long long&& v)
         : Base (t)
@@ -841,7 +599,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<block_item_t>&& v)
         : Base (t)
@@ -853,7 +610,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<const_init_val_t>&& v)
         : Base (t)
@@ -865,7 +621,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<expr>&& v)
         : Base (t)
@@ -877,7 +632,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<init_val_t>&& v)
         : Base (t)
@@ -889,7 +643,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ptr_list_of<var_def_t>&& v)
         : Base (t)
@@ -901,7 +654,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<b_type_t>&& v)
         : Base (t)
@@ -913,7 +665,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<block_item_t>&& v)
         : Base (t)
@@ -925,7 +676,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<block_t>&& v)
         : Base (t)
@@ -937,7 +687,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<comp_unit_item_t>&& v)
         : Base (t)
@@ -949,7 +698,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<comp_unit_t>&& v)
         : Base (t)
@@ -961,7 +709,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<const_decl_t>&& v)
         : Base (t)
@@ -973,7 +720,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<const_def_t>&& v)
         : Base (t)
@@ -985,7 +731,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<const_init_val_t>&& v)
         : Base (t)
@@ -997,7 +742,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<decl_t>&& v)
         : Base (t)
@@ -1009,7 +753,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<expr>&& v)
         : Base (t)
@@ -1021,7 +764,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<func_def_t>&& v)
         : Base (t)
@@ -1033,7 +775,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<func_f_param_t>&& v)
         : Base (t)
@@ -1045,7 +786,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<func_f_params_t>&& v)
         : Base (t)
@@ -1057,7 +797,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<func_r_params_t>&& v)
         : Base (t)
@@ -1069,7 +808,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<init_val_t>&& v)
         : Base (t)
@@ -1081,7 +819,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<l_val_t>&& v)
         : Base (t)
@@ -1093,7 +830,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<number_literal_t>&& v)
         : Base (t)
@@ -1105,7 +841,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<stmt_t>&& v)
         : Base (t)
@@ -1117,7 +852,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<var_decl_t>&& v)
         : Base (t)
@@ -1129,7 +863,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<var_def_t>&& v)
         : Base (t)
@@ -1141,7 +874,6 @@ namespace yy {
         , value (v)
       {}
 #endif
-
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::string&& v)
         : Base (t)
@@ -1161,146 +893,146 @@ namespace yy {
       }
 
       /// Destroy contents, and record that is empty.
-      void clear () YY_NOEXCEPT
+      void clear ()
       {
         // User destructor.
-        symbol_kind_type yykind = this->kind ();
+        symbol_number_type yytype = this->type_get ();
         basic_symbol<Base>& yysym = *this;
         (void) yysym;
-        switch (yykind)
+        switch (yytype)
         {
        default:
           break;
         }
 
-        // Value type destructor.
-switch (yykind)
+        // Type destructor.
+switch (yytype)
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.template destroy< long long > ();
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.template destroy< ptr_list_of<block_item_t> > ();
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.template destroy< ptr_list_of<const_init_val_t> > ();
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.template destroy< ptr_list_of<expr> > ();
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.template destroy< ptr_list_of<init_val_t> > ();
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.template destroy< ptr_list_of<var_def_t> > ();
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.template destroy< std::shared_ptr<b_type_t> > ();
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.template destroy< std::shared_ptr<block_item_t> > ();
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.template destroy< std::shared_ptr<block_t> > ();
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.template destroy< std::shared_ptr<comp_unit_item_t> > ();
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.template destroy< std::shared_ptr<comp_unit_t> > ();
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.template destroy< std::shared_ptr<const_decl_t> > ();
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.template destroy< std::shared_ptr<const_def_t> > ();
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.template destroy< std::shared_ptr<const_init_val_t> > ();
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.template destroy< std::shared_ptr<decl_t> > ();
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.template destroy< std::shared_ptr<expr> > ();
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.template destroy< std::shared_ptr<func_def_t> > ();
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.template destroy< std::shared_ptr<func_f_param_t> > ();
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.template destroy< std::shared_ptr<func_f_params_t> > ();
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.template destroy< std::shared_ptr<func_r_params_t> > ();
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.template destroy< std::shared_ptr<init_val_t> > ();
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.template destroy< std::shared_ptr<l_val_t> > ();
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.template destroy< std::shared_ptr<number_literal_t> > ();
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.template destroy< std::shared_ptr<stmt_t> > ();
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.template destroy< std::shared_ptr<var_decl_t> > ();
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.template destroy< std::shared_ptr<var_def_t> > ();
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.template destroy< std::string > ();
         break;
 
@@ -1310,18 +1042,6 @@ switch (yykind)
 
         Base::clear ();
       }
-
-#if YYDEBUG || 0
-      /// The user-facing name of this symbol.
-      const char *name () const YY_NOEXCEPT
-      {
-        return parser::symbol_name (this->kind ());
-      }
-#endif // #if YYDEBUG || 0
-
-
-      /// Backward compatibility (Bison 3.6).
-      symbol_kind_type type_get () const YY_NOEXCEPT;
 
       /// Whether empty.
       bool empty () const YY_NOEXCEPT;
@@ -1340,51 +1060,46 @@ switch (yykind)
     };
 
     /// Type access provider for token (enum) based symbols.
-    struct by_kind
+    struct by_type
     {
       /// Default constructor.
-      by_kind ();
+      by_type ();
 
 #if 201103L <= YY_CPLUSPLUS
       /// Move constructor.
-      by_kind (by_kind&& that);
+      by_type (by_type&& that);
 #endif
 
       /// Copy constructor.
-      by_kind (const by_kind& that);
+      by_type (const by_type& that);
 
-      /// The symbol kind as needed by the constructor.
-      typedef token_kind_type kind_type;
+      /// The symbol type as needed by the constructor.
+      typedef token_type kind_type;
 
       /// Constructor from (external) token numbers.
-      by_kind (kind_type t);
+      by_type (kind_type t);
 
       /// Record that this symbol is empty.
-      void clear () YY_NOEXCEPT;
+      void clear ();
 
-      /// Steal the symbol kind from \a that.
-      void move (by_kind& that);
+      /// Steal the symbol type from \a that.
+      void move (by_type& that);
 
       /// The (internal) type number (corresponding to \a type).
       /// \a empty when empty.
-      symbol_kind_type kind () const YY_NOEXCEPT;
+      symbol_number_type type_get () const YY_NOEXCEPT;
 
-      /// Backward compatibility (Bison 3.6).
-      symbol_kind_type type_get () const YY_NOEXCEPT;
-
-      /// The symbol kind.
-      /// \a S_YYEMPTY when empty.
-      symbol_kind_type kind_;
+      /// The symbol type.
+      /// \a empty_symbol when empty.
+      /// An int, not token_number_type, to be able to store empty_symbol.
+      int type;
     };
 
-    /// Backward compatibility for a private implementation detail (Bison 3.6).
-    typedef by_kind by_type;
-
     /// "External" symbols: returned by the scanner.
-    struct symbol_type : basic_symbol<by_kind>
+    struct symbol_type : basic_symbol<by_type>
     {
       /// Superclass.
-      typedef basic_symbol<by_kind> super_type;
+      typedef basic_symbol<by_type> super_type;
 
       /// Empty symbol.
       symbol_type () {}
@@ -1393,39 +1108,47 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok)
         : super_type(token_type (tok))
+      {
+        YY_ASSERT (tok == token::YYEOF || tok == token::VOID || tok == token::INT || tok == token::CONST || tok == token::IF || tok == token::ELSE || tok == token::WHILE || tok == token::BREAK || tok == token::CONTINUE || tok == token::RETURN || tok == token::GE || tok == token::LE || tok == token::EQ || tok == token::NE || tok == token::AND || tok == token::OR || tok == token::GT || tok == token::LT || tok == token::ASSIGN || tok == token::NOT || tok == token::ADD || tok == token::SUB || tok == token::MUL || tok == token::DIV || tok == token::MOD || tok == token::COMMA || tok == token::SEMI || tok == token::LEFT_PAREN || tok == token::RIGHT_PAREN || tok == token::LEFT_BRACKET || tok == token::RIGHT_BRACKET || tok == token::LEFT_BRACE || tok == token::RIGHT_BRACE);
+      }
 #else
       symbol_type (int tok)
         : super_type(token_type (tok))
+      {
+        YY_ASSERT (tok == token::YYEOF || tok == token::VOID || tok == token::INT || tok == token::CONST || tok == token::IF || tok == token::ELSE || tok == token::WHILE || tok == token::BREAK || tok == token::CONTINUE || tok == token::RETURN || tok == token::GE || tok == token::LE || tok == token::EQ || tok == token::NE || tok == token::AND || tok == token::OR || tok == token::GT || tok == token::LT || tok == token::ASSIGN || tok == token::NOT || tok == token::ADD || tok == token::SUB || tok == token::MUL || tok == token::DIV || tok == token::MOD || tok == token::COMMA || tok == token::SEMI || tok == token::LEFT_PAREN || tok == token::RIGHT_PAREN || tok == token::LEFT_BRACKET || tok == token::RIGHT_BRACKET || tok == token::LEFT_BRACE || tok == token::RIGHT_BRACE);
+      }
 #endif
-      {}
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, long long v)
         : super_type(token_type (tok), std::move (v))
+      {
+        YY_ASSERT (tok == token::INT_CONST);
+      }
 #else
       symbol_type (int tok, const long long& v)
         : super_type(token_type (tok), v)
+      {
+        YY_ASSERT (tok == token::INT_CONST);
+      }
 #endif
-      {}
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, std::string v)
         : super_type(token_type (tok), std::move (v))
+      {
+        YY_ASSERT (tok == token::IDENT);
+      }
 #else
       symbol_type (int tok, const std::string& v)
         : super_type(token_type (tok), v)
+      {
+        YY_ASSERT (tok == token::IDENT);
+      }
 #endif
-      {}
     };
 
     /// Build a parser object.
     parser (driver& drv_yyarg);
     virtual ~parser ();
-
-#if 201103L <= YY_CPLUSPLUS
-    /// Non copyable.
-    parser (const parser&) = delete;
-    /// Non copyable.
-    parser& operator= (const parser&) = delete;
-#endif
 
     /// Parse.  An alias for parse ().
     /// \returns  0 iff parsing succeeded.
@@ -1456,13 +1179,6 @@ switch (yykind)
     /// Report a syntax error.
     void error (const syntax_error& err);
 
-#if YYDEBUG || 0
-    /// The user-facing name of the symbol whose (internal) number is
-    /// YYSYMBOL.  No bounds checking.
-    static const char *symbol_name (symbol_kind_type yysymbol);
-#endif // #if YYDEBUG || 0
-
-
     // Implementation of make_symbol for each symbol type.
 #if 201103L <= YY_CPLUSPLUS
       static
@@ -1477,36 +1193,6 @@ switch (yykind)
       make_YYEOF ()
       {
         return symbol_type (token::YYEOF);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_YYerror ()
-      {
-        return symbol_type (token::YYerror);
-      }
-#else
-      static
-      symbol_type
-      make_YYerror ()
-      {
-        return symbol_type (token::YYerror);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_YYUNDEF ()
-      {
-        return symbol_type (token::YYUNDEF);
-      }
-#else
-      static
-      symbol_type
-      make_YYUNDEF ()
-      {
-        return symbol_type (token::YYUNDEF);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -2022,16 +1708,18 @@ switch (yykind)
 
 
   private:
-#if YY_CPLUSPLUS < 201103L
-    /// Non copyable.
+    /// This class is not copyable.
     parser (const parser&);
-    /// Non copyable.
     parser& operator= (const parser&);
-#endif
-
 
     /// Stored state numbers (used for stacks).
     typedef unsigned char state_type;
+
+    /// Generate an error message.
+    /// \param yystate   the state where the error occurred.
+    /// \param yyla      the lookahead token.
+    virtual std::string yysyntax_error_ (state_type yystate,
+                                         const symbol_type& yyla) const;
 
     /// Compute post-reduction state.
     /// \param yystate   the current state
@@ -2049,16 +1737,10 @@ switch (yykind)
     static const short yypact_ninf_;
     static const signed char yytable_ninf_;
 
-    /// Convert a scanner token kind \a t to a symbol kind.
-    /// In theory \a t should be a token_kind_type, but character literals
+    /// Convert a scanner token number \a t to a symbol number.
+    /// In theory \a t should be a token_type, but character literals
     /// are valid, yet not members of the token_type enum.
-    static symbol_kind_type yytranslate_ (int t);
-
-#if YYDEBUG || 0
-    /// For a symbol, its name in clear.
-    static const char* const yytname_[];
-#endif // #if YYDEBUG || 0
-
+    static token_number_type yytranslate_ (int t);
 
     // Tables.
     // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -2074,7 +1756,7 @@ switch (yykind)
     static const short yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
-    static const unsigned char yydefgoto_[];
+    static const short yydefgoto_[];
 
     // YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
     // positive, shift that token.  If negative, reduce the rule whose
@@ -2095,19 +1777,22 @@ switch (yykind)
 
 
 #if YYDEBUG
+    /// For a symbol, its name in clear.
+    static const char* const yytname_[];
+
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
     static const short yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
-    virtual void yy_reduce_print_ (int r) const;
+    virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
-    virtual void yy_stack_print_ () const;
+    virtual void yystack_print_ ();
 
     /// Debugging level.
     int yydebug_;
     /// Debug stream.
     std::ostream* yycdebug_;
 
-    /// \brief Display a symbol kind, value and location.
+    /// \brief Display a symbol type, value and location.
     /// \param yyo    The output stream.
     /// \param yysym  The symbol.
     template <typename Base>
@@ -2128,7 +1813,7 @@ switch (yykind)
       /// Default constructor.
       by_state () YY_NOEXCEPT;
 
-      /// The symbol kind as needed by the constructor.
+      /// The symbol type as needed by the constructor.
       typedef state_type kind_type;
 
       /// Constructor.
@@ -2140,12 +1825,12 @@ switch (yykind)
       /// Record that this symbol is empty.
       void clear () YY_NOEXCEPT;
 
-      /// Steal the symbol kind from \a that.
+      /// Steal the symbol type from \a that.
       void move (by_state& that);
 
-      /// The symbol kind (corresponding to \a state).
-      /// \a symbol_kind::S_YYEMPTY when empty.
-      symbol_kind_type kind () const YY_NOEXCEPT;
+      /// The (internal) type number (corresponding to \a state).
+      /// \a empty_symbol when empty.
+      symbol_number_type type_get () const YY_NOEXCEPT;
 
       /// The state number used to denote an empty symbol.
       /// We use the initial state, as it does not have a value.
@@ -2184,21 +1869,14 @@ switch (yykind)
     {
     public:
       // Hide our reversed order.
-      typedef typename S::iterator iterator;
-      typedef typename S::const_iterator const_iterator;
+      typedef typename S::reverse_iterator iterator;
+      typedef typename S::const_reverse_iterator const_iterator;
       typedef typename S::size_type size_type;
       typedef typename std::ptrdiff_t index_type;
 
       stack (size_type n = 200)
         : seq_ (n)
       {}
-
-#if 201103L <= YY_CPLUSPLUS
-      /// Non copyable.
-      stack (const stack&) = delete;
-      /// Non copyable.
-      stack& operator= (const stack&) = delete;
-#endif
 
       /// Random access.
       ///
@@ -2250,18 +1928,24 @@ switch (yykind)
         return index_type (seq_.size ());
       }
 
+      std::ptrdiff_t
+      ssize () const YY_NOEXCEPT
+      {
+        return std::ptrdiff_t (size ());
+      }
+
       /// Iterator on top of the stack (going downwards).
       const_iterator
       begin () const YY_NOEXCEPT
       {
-        return seq_.begin ();
+        return seq_.rbegin ();
       }
 
       /// Bottom of the stack.
       const_iterator
       end () const YY_NOEXCEPT
       {
-        return seq_.end ();
+        return seq_.rend ();
       }
 
       /// Present a slice of the top of a stack.
@@ -2285,12 +1969,8 @@ switch (yykind)
       };
 
     private:
-#if YY_CPLUSPLUS < 201103L
-      /// Non copyable.
       stack (const stack&);
-      /// Non copyable.
       stack& operator= (const stack&);
-#endif
       /// The wrapped container.
       S seq_;
     };
@@ -2320,28 +2000,33 @@ switch (yykind)
     /// Pop \a n symbols from the stack.
     void yypop_ (int n = 1);
 
+    /// Some specific tokens.
+    static const token_number_type yy_error_token_ = 1;
+    static const token_number_type yy_undef_token_ = 2;
+
     /// Constants.
     enum
     {
+      yyeof_ = 0,
       yylast_ = 186,     ///< Last index in yytable_.
       yynnts_ = 46,  ///< Number of nonterminal symbols.
-      yyfinal_ = 14 ///< Termination state number.
+      yyfinal_ = 14, ///< Termination state number.
+      yyntokens_ = 37  ///< Number of tokens.
     };
 
 
     // User arguments.
     driver& drv;
-
   };
 
   inline
-  parser::symbol_kind_type
+  parser::token_number_type
   parser::yytranslate_ (int t)
   {
     // YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to
     // TOKEN-NUM as returned by yylex.
     static
-    const signed char
+    const token_number_type
     translate_table[] =
     {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -2375,150 +2060,292 @@ switch (yykind)
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36
     };
-    // Last valid token kind.
-    const int code_max = 291;
+    const int user_token_number_max_ = 291;
 
     if (t <= 0)
-      return symbol_kind::S_YYEOF;
-    else if (t <= code_max)
-      return YY_CAST (symbol_kind_type, translate_table[t]);
+      return yyeof_;
+    else if (t <= user_token_number_max_)
+      return translate_table[t];
     else
-      return symbol_kind::S_YYUNDEF;
+      return yy_undef_token_;
   }
 
   // basic_symbol.
+#if 201103L <= YY_CPLUSPLUS
+  template <typename Base>
+  parser::basic_symbol<Base>::basic_symbol (basic_symbol&& that)
+    : Base (std::move (that))
+    , value ()
+  {
+    switch (this->type_get ())
+    {
+      case 3: // "integer"
+        value.move< long long > (std::move (that.value));
+        break;
+
+      case 63: // block_elements
+        value.move< ptr_list_of<block_item_t> > (std::move (that.value));
+        break;
+
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
+        value.move< ptr_list_of<const_init_val_t> > (std::move (that.value));
+        break;
+
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
+        value.move< ptr_list_of<expr> > (std::move (that.value));
+        break;
+
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
+        value.move< ptr_list_of<init_val_t> > (std::move (that.value));
+        break;
+
+      case 51: // var_def_list
+        value.move< ptr_list_of<var_def_t> > (std::move (that.value));
+        break;
+
+      case 44: // b_type
+        value.move< std::shared_ptr<b_type_t> > (std::move (that.value));
+        break;
+
+      case 64: // block_item
+        value.move< std::shared_ptr<block_item_t> > (std::move (that.value));
+        break;
+
+      case 62: // block
+        value.move< std::shared_ptr<block_t> > (std::move (that.value));
+        break;
+
+      case 40: // comp_unit_item
+        value.move< std::shared_ptr<comp_unit_item_t> > (std::move (that.value));
+        break;
+
+      case 38: // start_symbol
+      case 39: // comp_unit
+        value.move< std::shared_ptr<comp_unit_t> > (std::move (that.value));
+        break;
+
+      case 42: // const_decl
+      case 43: // const_decl_stmt
+        value.move< std::shared_ptr<const_decl_t> > (std::move (that.value));
+        break;
+
+      case 45: // const_def
+        value.move< std::shared_ptr<const_def_t> > (std::move (that.value));
+        break;
+
+      case 47: // const_init_val
+        value.move< std::shared_ptr<const_init_val_t> > (std::move (that.value));
+        break;
+
+      case 41: // decl
+        value.move< std::shared_ptr<decl_t> > (std::move (that.value));
+        break;
+
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
+        value.move< std::shared_ptr<expr> > (std::move (that.value));
+        break;
+
+      case 56: // func_def
+        value.move< std::shared_ptr<func_def_t> > (std::move (that.value));
+        break;
+
+      case 59: // func_f_param
+        value.move< std::shared_ptr<func_f_param_t> > (std::move (that.value));
+        break;
+
+      case 57: // func_f_params
+      case 58: // real_func_f_params
+        value.move< std::shared_ptr<func_f_params_t> > (std::move (that.value));
+        break;
+
+      case 74: // func_r_params
+        value.move< std::shared_ptr<func_r_params_t> > (std::move (that.value));
+        break;
+
+      case 53: // init_val
+        value.move< std::shared_ptr<init_val_t> > (std::move (that.value));
+        break;
+
+      case 69: // l_val
+        value.move< std::shared_ptr<l_val_t> > (std::move (that.value));
+        break;
+
+      case 72: // number
+        value.move< std::shared_ptr<number_literal_t> > (std::move (that.value));
+        break;
+
+      case 66: // stmt
+        value.move< std::shared_ptr<stmt_t> > (std::move (that.value));
+        break;
+
+      case 50: // var_decl
+        value.move< std::shared_ptr<var_decl_t> > (std::move (that.value));
+        break;
+
+      case 52: // var_def
+        value.move< std::shared_ptr<var_def_t> > (std::move (that.value));
+        break;
+
+      case 4: // "identifier"
+      case 65: // ident
+        value.move< std::string > (std::move (that.value));
+        break;
+
+      default:
+        break;
+    }
+
+  }
+#endif
+
   template <typename Base>
   parser::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
     : Base (that)
     , value ()
   {
-    switch (this->kind ())
+    switch (this->type_get ())
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.copy< long long > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.copy< ptr_list_of<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.copy< ptr_list_of<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.copy< ptr_list_of<expr> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.copy< ptr_list_of<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.copy< ptr_list_of<var_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.copy< std::shared_ptr<b_type_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.copy< std::shared_ptr<block_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.copy< std::shared_ptr<block_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.copy< std::shared_ptr<comp_unit_item_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.copy< std::shared_ptr<comp_unit_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.copy< std::shared_ptr<const_decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.copy< std::shared_ptr<const_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.copy< std::shared_ptr<const_init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.copy< std::shared_ptr<decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.copy< std::shared_ptr<expr> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.copy< std::shared_ptr<func_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.copy< std::shared_ptr<func_f_param_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.copy< std::shared_ptr<func_f_params_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.copy< std::shared_ptr<func_r_params_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.copy< std::shared_ptr<init_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.copy< std::shared_ptr<l_val_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.copy< std::shared_ptr<number_literal_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.copy< std::shared_ptr<stmt_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.copy< std::shared_ptr<var_decl_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.copy< std::shared_ptr<var_def_t> > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -2531,17 +2358,10 @@ switch (yykind)
 
 
   template <typename Base>
-  parser::symbol_kind_type
-  parser::basic_symbol<Base>::type_get () const YY_NOEXCEPT
-  {
-    return this->kind ();
-  }
-
-  template <typename Base>
   bool
   parser::basic_symbol<Base>::empty () const YY_NOEXCEPT
   {
-    return this->kind () == symbol_kind::S_YYEMPTY;
+    return Base::type_get () == empty_symbol;
   }
 
   template <typename Base>
@@ -2549,133 +2369,133 @@ switch (yykind)
   parser::basic_symbol<Base>::move (basic_symbol& s)
   {
     super_type::move (s);
-    switch (this->kind ())
+    switch (this->type_get ())
     {
-      case symbol_kind::S_INT_CONST: // "integer"
+      case 3: // "integer"
         value.move< long long > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_block_elements: // block_elements
+      case 63: // block_elements
         value.move< ptr_list_of<block_item_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_const_array_elements: // const_array_elements
-      case symbol_kind::S_real_const_array_elements: // real_const_array_elements
+      case 48: // const_array_elements
+      case 49: // real_const_array_elements
         value.move< ptr_list_of<const_init_val_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_array_dims: // array_dims
-      case symbol_kind::S_array_dims_func_param: // array_dims_func_param
-      case symbol_kind::S_array_dims_func_param_real: // array_dims_func_param_real
-      case symbol_kind::S_array_indices: // array_indices
-      case symbol_kind::S_func_r_params_elements: // func_r_params_elements
+      case 46: // array_dims
+      case 60: // array_dims_func_param
+      case 61: // array_dims_func_param_real
+      case 70: // array_indices
+      case 75: // func_r_params_elements
         value.move< ptr_list_of<expr> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_init_array_elements: // init_array_elements
-      case symbol_kind::S_real_init_array_elements: // real_init_array_elements
+      case 54: // init_array_elements
+      case 55: // real_init_array_elements
         value.move< ptr_list_of<init_val_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_var_def_list: // var_def_list
+      case 51: // var_def_list
         value.move< ptr_list_of<var_def_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_b_type: // b_type
+      case 44: // b_type
         value.move< std::shared_ptr<b_type_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_block_item: // block_item
+      case 64: // block_item
         value.move< std::shared_ptr<block_item_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_block: // block
+      case 62: // block
         value.move< std::shared_ptr<block_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_comp_unit_item: // comp_unit_item
+      case 40: // comp_unit_item
         value.move< std::shared_ptr<comp_unit_item_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_start_symbol: // start_symbol
-      case symbol_kind::S_comp_unit: // comp_unit
+      case 38: // start_symbol
+      case 39: // comp_unit
         value.move< std::shared_ptr<comp_unit_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_const_decl: // const_decl
-      case symbol_kind::S_const_decl_stmt: // const_decl_stmt
+      case 42: // const_decl
+      case 43: // const_decl_stmt
         value.move< std::shared_ptr<const_decl_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_const_def: // const_def
+      case 45: // const_def
         value.move< std::shared_ptr<const_def_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_const_init_val: // const_init_val
+      case 47: // const_init_val
         value.move< std::shared_ptr<const_init_val_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_decl: // decl
+      case 41: // decl
         value.move< std::shared_ptr<decl_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_exp: // exp
-      case symbol_kind::S_cond: // cond
-      case symbol_kind::S_primary_exp: // primary_exp
-      case symbol_kind::S_unary_exp: // unary_exp
-      case symbol_kind::S_mul_exp: // mul_exp
-      case symbol_kind::S_add_exp: // add_exp
-      case symbol_kind::S_rel_exp: // rel_exp
-      case symbol_kind::S_eq_exp: // eq_exp
-      case symbol_kind::S_l_and_exp: // l_and_exp
-      case symbol_kind::S_l_or_exp: // l_or_exp
-      case symbol_kind::S_const_exp: // const_exp
+      case 67: // exp
+      case 68: // cond
+      case 71: // primary_exp
+      case 73: // unary_exp
+      case 76: // mul_exp
+      case 77: // add_exp
+      case 78: // rel_exp
+      case 79: // eq_exp
+      case 80: // l_and_exp
+      case 81: // l_or_exp
+      case 82: // const_exp
         value.move< std::shared_ptr<expr> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_func_def: // func_def
+      case 56: // func_def
         value.move< std::shared_ptr<func_def_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_func_f_param: // func_f_param
+      case 59: // func_f_param
         value.move< std::shared_ptr<func_f_param_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_func_f_params: // func_f_params
-      case symbol_kind::S_real_func_f_params: // real_func_f_params
+      case 57: // func_f_params
+      case 58: // real_func_f_params
         value.move< std::shared_ptr<func_f_params_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_func_r_params: // func_r_params
+      case 74: // func_r_params
         value.move< std::shared_ptr<func_r_params_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_init_val: // init_val
+      case 53: // init_val
         value.move< std::shared_ptr<init_val_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_l_val: // l_val
+      case 69: // l_val
         value.move< std::shared_ptr<l_val_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_number: // number
+      case 72: // number
         value.move< std::shared_ptr<number_literal_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_stmt: // stmt
+      case 66: // stmt
         value.move< std::shared_ptr<stmt_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_var_decl: // var_decl
+      case 50: // var_decl
         value.move< std::shared_ptr<var_decl_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_var_def: // var_def
+      case 52: // var_def
         value.move< std::shared_ptr<var_def_t> > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_IDENT: // "identifier"
-      case symbol_kind::S_ident: // ident
+      case 4: // "identifier"
+      case 65: // ident
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
@@ -2685,62 +2505,56 @@ switch (yykind)
 
   }
 
-  // by_kind.
+  // by_type.
   inline
-  parser::by_kind::by_kind ()
-    : kind_ (symbol_kind::S_YYEMPTY)
+  parser::by_type::by_type ()
+    : type (empty_symbol)
   {}
 
 #if 201103L <= YY_CPLUSPLUS
   inline
-  parser::by_kind::by_kind (by_kind&& that)
-    : kind_ (that.kind_)
+  parser::by_type::by_type (by_type&& that)
+    : type (that.type)
   {
     that.clear ();
   }
 #endif
 
   inline
-  parser::by_kind::by_kind (const by_kind& that)
-    : kind_ (that.kind_)
+  parser::by_type::by_type (const by_type& that)
+    : type (that.type)
   {}
 
   inline
-  parser::by_kind::by_kind (token_kind_type t)
-    : kind_ (yytranslate_ (t))
+  parser::by_type::by_type (token_type t)
+    : type (yytranslate_ (t))
   {}
 
   inline
   void
-  parser::by_kind::clear () YY_NOEXCEPT
+  parser::by_type::clear ()
   {
-    kind_ = symbol_kind::S_YYEMPTY;
+    type = empty_symbol;
   }
 
   inline
   void
-  parser::by_kind::move (by_kind& that)
+  parser::by_type::move (by_type& that)
   {
-    kind_ = that.kind_;
+    type = that.type;
     that.clear ();
   }
 
   inline
-  parser::symbol_kind_type
-  parser::by_kind::kind () const YY_NOEXCEPT
+  int
+  parser::by_type::type_get () const YY_NOEXCEPT
   {
-    return kind_;
-  }
-
-  inline
-  parser::symbol_kind_type
-  parser::by_kind::type_get () const YY_NOEXCEPT
-  {
-    return this->kind ();
+    return type;
   }
 
 } // yy
-#line 2744 "parser.hh"
+#line 2557 "parser.hh"
+
 
 
 
