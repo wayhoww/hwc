@@ -284,18 +284,23 @@ void codegen(const ImProgram &program) {
                 isParm[program.imcodes[codeIndex].dest.value] = true;
                 int parmindex = program.imcodes[codeIndex].src1.value;
                 if (parmindex < 4) {
+                    var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                    varFunctionIndex--;
                     getvar("str", "r" + std::to_string(program.imcodes[codeIndex].src1.value),
                            program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr" << program.imcodes[codeIndex].src1.value << ", "
 //                            << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
-                    var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
-                    varFunctionIndex--;
                 } else {
                     var[program.imcodes[codeIndex].dest.value] =
-                            varSizeNeedByFunction - floatStack + (parmindex - 3) * 4;
+                            (parmindex - 4) * 4 - floatStack+16;
+                    getvar("ldr", "r3",program.imcodes[codeIndex].dest.value, program);
+                    var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                    varFunctionIndex--;
+                    getvar("str", "r3",
+                           program.imcodes[codeIndex].dest.value, program);
                 }
             } else if (Operator == ImCode::CALL) {
-                for (int i = program.imcodes[codeIndex].arguments.size()-1; i >=0;  i--) {
+                for (int i = program.imcodes[codeIndex].arguments.size() - 1; i >= 0; i--) {
                     if (i < 4) {
                         //如果是变量
                         if (!IsArray(program.imcodes[codeIndex].arguments[i])) {
