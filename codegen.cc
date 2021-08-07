@@ -231,7 +231,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
     int floatStack; //最开始的栈偏移量，和numPrams有关
     int codeIndex = 0;
     for (int i = 0; i < numFunction; i++) {
-        if (program.functions[i].declarationOnly || program.functions[i].identifier == "__hwc_start") {
+        if (program.functions[i].declarationOnly) {
             if (!functionEntrance.empty()) {
                 nextFunction = functionEntrance.top();
                 functionEntrance.pop();
@@ -612,8 +612,8 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
 //            outfile << "\tpop\t{r4, r5, fp}" << endl;
 //            outfile << "\tbx\tlr\n";
 //        }__hwc_start
-        if (name == "main") {
-//      if (name == "__hwc_start") {
+//        if (name == "main") {
+      if (name == "__hwc_start") {
             outfile << "\tbx\tlr\n"
                     << "\t.size\tmain, .-main\n"
                     << "\t.ident\t\"GCC: (Raspbian 8.3.0-6+rpi1) 8.3.0\"\n"
