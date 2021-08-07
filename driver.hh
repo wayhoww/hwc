@@ -97,7 +97,7 @@ struct ImProgram {
     int startFunction; // 入口函数的函数编号
 };
 
-void codegen(const ImProgram& program);
+void codegen(const ImProgram& program, const std::string&);
 
 /* 中间代码数据结构 END */
 

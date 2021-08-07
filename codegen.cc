@@ -167,7 +167,7 @@ void PrintImeVar(std::string reg, int item) {
     }
 }
 
-void codegen(const ImProgram &program) {
+void codegen(const ImProgram &program, const std::string& outputpath) {
     PrintImeVar("r1", 5120000);
     PrintImeVar("r1", -5120000);
     std::vector<int> labelCode = get_label_info(program);
@@ -179,7 +179,7 @@ void codegen(const ImProgram &program) {
     functionEntrance.pop();
     printf("Starting Codegen");
     globalNum = program.globalVars.size();
-    outfile.open("code.S");
+    outfile.open(outputpath);
     outfile << "\t.arch armv7-a\n"
                "\t.arch_extension virt\n"
                "\t.arch_extension idiv\n"
@@ -353,11 +353,11 @@ void codegen(const ImProgram &program) {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
 //                    outfile << "\tldr\tr3, " << getvar(program.imcodes[codeIndex].src1.value, program) << endl;
                     outfile << "\tmov\tr0, r3" << endl;
-                    outfile << "\tb\tlllllllll" << functionIndex << endl;
+                    outfile << "\tb\tfunc_ret" << functionIndex << endl;
                 } else {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
                     outfile << "\tmov\tr0, r3" << endl;
-                    outfile << "\tb\tlllllllll" << functionIndex << endl;
+                    outfile << "\tb\tfunc_ret" << functionIndex << endl;
                 }
             } else if (Operator == ImCode::ASSIGN) {
                 PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
@@ -604,7 +604,7 @@ void codegen(const ImProgram &program) {
             functionIndex++;
         }
 
-        outfile << "lllllllll" << functionIndex - 1 << ":" << endl;
+        outfile << "func_ret" << functionIndex - 1 << ":" << endl;
         PrintImeVar("r3", floatStack);
         outfile << "\tsub\tsp, fp, r3" << endl;
         outfile << "\tpop\t{r4, r5, fp, pc}" << endl;
