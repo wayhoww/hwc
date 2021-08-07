@@ -130,6 +130,26 @@ void callFunction(const struct ImCode &code, std::string &name, bool &hasReturn)
 
 }
 
+void PrintImeVar(std::string reg, int item) {
+    int a = ((item >> 16) & 0xffff);
+    if (a != 0) {
+        outfile << "\tmovw\t" << reg << ", #" << (item & 0xffff) << endl;
+        outfile << "\tmovt\t" << reg << ", " << a << endl;
+    } else{
+        outfile << "\tmov\t" << reg << ", #" << (item & 0xffff) << endl;
+    }
+}
+
+void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
+    if (index < globalNum) {
+        outfile << "\tmovw\t" << reg << ", #:lower16:" << program.globalVars[index].identifier << endl
+                << "\tmovt\t" << reg << ", #:upper16:" << program.globalVars[index].identifier << endl;
+    } else {
+        PrintImeVar(reg, var[index]);
+        outfile << "\tadd\t" << reg << ", fp, " << reg << "\n";
+    }
+}
+
 void getvar(std::string ope, std::string reg, int index, const ImProgram &program, std::string fp = "fp") {
     if (index < globalNum) {
         std::string anotherReg = "r2";
@@ -159,15 +179,7 @@ bool IsParm(int index) {
     return true;
 }
 
-void PrintImeVar(std::string reg, int item) {
-    int a = ((item >> 16) & 0xffff);
-    outfile << "\tmov\t" << reg << ", #" << (item & 0xffff) << endl;
-    if (a != 0) {
-        outfile << "\tmovt\t" << reg << ", " << a << endl;
-    }
-}
-
-void codegen(const ImProgram &program, const std::string& sourcefile, const std::string& outputpath) {
+void codegen(const ImProgram &program, const std::string &sourcefile, const std::string &outputpath) {
     std::vector<int> labelCode = get_label_info(program);
     std::priority_queue<int, std::vector<int>, std::greater<int>> functionEntrance;
     for (auto function:program.functions) {
@@ -242,6 +254,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
             continue;
         }
         var.clear();
+        isParm.clear();
         auto function = program.functions[i];
         name = function.identifier;
         outfile << "\t.text\n"
@@ -307,9 +320,10 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
 //                            outfile << "\tldr\tr" << i << ", "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-                            PrintImeVar("r3", var[program.imcodes[codeIndex].arguments[i]]);
-                            outfile << "\tadd\tr3, fp, r3\n"
-                                       "\tmov\tr" << i << ", r3" << endl;
+                            getNumsFirstAddress("r0", program.imcodes[codeIndex].arguments[i], program);
+                            if (i != 0) {
+                                outfile << "\tmov\tr" << i << ", r0" << endl;
+                            }
 //                            outfile << "\tmovs\tr" << i << ", #" << program.imcodes[codeIndex].arguments[i] << endl;
                         }
                     } else {
@@ -319,8 +333,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
 //                            outfile << "\tldr\tr3, "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-                            PrintImeVar("r3", var[program.imcodes[codeIndex].arguments[i]]);
-                            outfile << "\tadd\tr3, fp, r3\n";
+                            getNumsFirstAddress("r3", program.imcodes[codeIndex].arguments[i], program);
                         }
                         if (i == 4) {
                             outfile << "\tstr\tr3, [sp]" << endl;
@@ -572,19 +585,45 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::ALLOC) {// 分配数组，dest为数组id，src1为大小
+                varFunctionIndex -= program.imcodes[codeIndex].src1.value / 4 - 1;
                 var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
-                varFunctionIndex -= program.imcodes[codeIndex].src1.value;
-            } else if (Operator == ImCode::DAGET) {//给数组赋值对应的值，src1表示数组id，src2表示偏移地址，dest表示值
-                getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                PrintImeVar("r2", program.imcodes[codeIndex].src2.value * 4);
+                varFunctionIndex--;
+            } else if (Operator == ImCode::DAGET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
+                int index = program.imcodes[codeIndex].src1.value;
+                //提取首地址放于r3
+                if (isParm[index]) {
+                    getvar("ldr", "r3", index, program);
+                } else {
+                    getNumsFirstAddress("r3", index, program);
+                }
+                getvar("ldr","r2", program.imcodes[codeIndex].src2.value,program);
+//                PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                outfile << "\t" << "ldr" << "\t" << "r3" << ", [" << "r3" << ", r2]" << endl;
 
-                outfile << "\tldr\tr3, [r3, r2]" << endl
-                        << "\tldr\tr3, [fp, #" << var[program.imcodes[codeIndex].dest.value] << "]\n";
-            } else if (Operator == ImCode::DASET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
-                int index = var[program.imcodes[codeIndex].src1.value];
-                outfile << "\tldr\tr3, [fp, #" << index << "]\n";
-                getvar("ldr", "r2", program.imcodes[codeIndex].dest.value, program);
-                outfile << "\tstr\tr2, [r3, #" << program.imcodes[codeIndex].src2.value * 4 << "]" << endl;
+                if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
+                    var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                    varFunctionIndex--;
+                    getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
+                } else {
+                    getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
+                }
+            } else if (Operator == ImCode::DASET) {//给数组赋值对应的值，src1表示数组id，src2表示偏移地址，dest表示值
+                if (program.imcodes[codeIndex].dest.type == ImCode::Oprand::IMMEDIATE) {
+                    PrintImeVar("r2", program.imcodes[codeIndex].dest.value);
+                } else {
+                    getvar("ldr", "r2", program.imcodes[codeIndex].dest.value, program);
+                }
+                int index = program.imcodes[codeIndex].src1.value;
+                //提取首地址放于r3
+                if (isParm[index]) {
+                    getvar("ldr", "r3", index, program);
+                } else {
+                    getNumsFirstAddress("r3", index, program);
+                }
+                getvar("ldr","r1", program.imcodes[codeIndex].src2.value,program);
+                outfile << "\t" << "str" << "\t" << "r2" << ", [" << "r3" << ", r1]" << endl;
             } else {
                 outfile << "\t这儿缺少了下标为" << codeIndex << "的代码:\t\t" << format(program.imcodes[codeIndex].op).c_str()
                         << "\t"
@@ -592,6 +631,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
                         << "\t" << format(program.imcodes[codeIndex].src2).c_str()
                         << "\t" << format(program.imcodes[codeIndex].dest).c_str() << endl;
             }
+//            outfile<<"\n\n\n";
         }
         if (!functionEntrance.empty()) {
             nextFunction = functionEntrance.top();
@@ -613,7 +653,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
 //            outfile << "\tbx\tlr\n";
 //        }__hwc_start
 //        if (name == "main") {
-      if (name == "__hwc_start") {
+        if (name == "__hwc_start") {
             outfile << "\tbx\tlr\n"
                     << "\t.size\tmain, .-main\n"
                     << "\t.ident\t\"GCC: (Raspbian 8.3.0-6+rpi1) 8.3.0\"\n"
