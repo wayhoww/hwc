@@ -142,12 +142,8 @@ void PrintImeVar(std::string reg, int item) {
 
 void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
     if (index < globalNum) {
-        std::string anotherReg = "r2";
-        if (reg == anotherReg) {
-            anotherReg = "r3";
-        }
-        outfile << "\tmovw\t" << anotherReg << ", #:lower16:" << program.globalVars[index].identifier << endl
-                << "\tmovt\t" << anotherReg << ", #:upper16:" << program.globalVars[index].identifier << endl;
+        outfile << "\tmovw\t" << reg << ", #:lower16:" << program.globalVars[index].identifier << endl
+                << "\tmovt\t" << reg << ", #:upper16:" << program.globalVars[index].identifier << endl;
     } else {
         PrintImeVar(reg, var[index]);
         outfile << "\tadd\t" << reg << ", fp, " << reg << "\n";
