@@ -64,7 +64,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<stmt_if_t>& stmt)
     backpatch(c->true_exits, nxq());
     if(auto r = dynamic_pointer_cast<nonterm_controlflow>(compile(stmt->stmt_if_true))){
         info->break_exits = info->break_exits + r->break_exits;
-        info->continue_exits = info->continue_exits + r->break_exits;
+        info->continue_exits = info->continue_exits + r->continue_exits;
     }  
     if(stmt->stmt_if_false) gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), 0);
     auto need_update = nxq() - 1;
@@ -73,7 +73,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<stmt_if_t>& stmt)
     if(stmt->stmt_if_false) {
         if(auto r = dynamic_pointer_cast<nonterm_controlflow>(compile(stmt->stmt_if_false))){
             info->break_exits = info->break_exits + r->break_exits;
-            info->continue_exits = info->continue_exits + r->break_exits;
+            info->continue_exits = info->continue_exits + r->continue_exits;
         }  
         imcodes()[need_update].dest.value = nxq();
     } 
