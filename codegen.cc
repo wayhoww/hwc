@@ -168,8 +168,6 @@ void PrintImeVar(std::string reg, int item) {
 }
 
 void codegen(const ImProgram &program, const std::string& sourcefile, const std::string& outputpath) {
-    PrintImeVar("r1", 5120000);
-    PrintImeVar("r1", -5120000);
     std::vector<int> labelCode = get_label_info(program);
     std::priority_queue<int, std::vector<int>, std::greater<int>> functionEntrance;
     for (auto function:program.functions) {
@@ -177,7 +175,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
     }
     functionEntrance.push(program.imcodes.size());
     functionEntrance.pop();
-    printf("Starting Codegen");
+//    printf("Starting Codegen");
     globalNum = program.globalVars.size();
     outfile.open(outputpath);
     outfile << "\t.arch armv7-a\n"
@@ -233,7 +231,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
     int floatStack; //最开始的栈偏移量，和numPrams有关
     int codeIndex = 0;
     for (int i = 0; i < numFunction; i++) {
-        if (program.functions[i].declarationOnly || program.functions[i].identifier == "__hwc_start") {
+        if (program.functions[i].declarationOnly) {
             if (!functionEntrance.empty()) {
                 nextFunction = functionEntrance.top();
                 functionEntrance.pop();
@@ -614,8 +612,8 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
 //            outfile << "\tpop\t{r4, r5, fp}" << endl;
 //            outfile << "\tbx\tlr\n";
 //        }__hwc_start
-        if (name == "main") {
-//      if (name == "__hwc_start") {
+//        if (name == "main") {
+      if (name == "__hwc_start") {
             outfile << "\tbx\tlr\n"
                     << "\t.size\tmain, .-main\n"
                     << "\t.ident\t\"GCC: (Raspbian 8.3.0-6+rpi1) 8.3.0\"\n"
