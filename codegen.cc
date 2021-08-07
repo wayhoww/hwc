@@ -135,7 +135,7 @@ void PrintImeVar(std::string reg, int item) {
     if (a != 0) {
         outfile << "\tmovw\t" << reg << ", #" << (item & 0xffff) << endl;
         outfile << "\tmovt\t" << reg << ", " << a << endl;
-    } else{
+    } else {
         outfile << "\tmov\t" << reg << ", #" << (item & 0xffff) << endl;
     }
 }
@@ -219,7 +219,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
             outfile << "\t.comm\t" << name << "," << i.size << ",4" << endl;
         } else {
             outfile << "\t.global\t" << name << endl;
-            if (!i.isArray) {
+            if (i.isArray) {
                 outfile << "\t.data" << endl;
                 isArray[varIndex] = true;
             }
@@ -320,7 +320,11 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
 //                            outfile << "\tldr\tr" << i << ", "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-                            getNumsFirstAddress("r0", program.imcodes[codeIndex].arguments[i], program);
+                            if (isParm[program.imcodes[codeIndex].arguments[i]]) {
+                                getvar("ldr", "r0", program.imcodes[codeIndex].arguments[i], program);
+                            } else {
+                                getNumsFirstAddress("r0", program.imcodes[codeIndex].arguments[i], program);
+                            }
                             if (i != 0) {
                                 outfile << "\tmov\tr" << i << ", r0" << endl;
                             }
@@ -333,7 +337,11 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
 //                            outfile << "\tldr\tr3, "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-                            getNumsFirstAddress("r3", program.imcodes[codeIndex].arguments[i], program);
+                            if (isParm[program.imcodes[codeIndex].arguments[i]]) {
+                                getvar("ldr", "r0", program.imcodes[codeIndex].arguments[i], program);
+                            } else {
+                                getNumsFirstAddress("r3", program.imcodes[codeIndex].arguments[i], program);
+                            }
                         }
                         if (i == 4) {
                             outfile << "\tstr\tr3, [sp]" << endl;
@@ -596,7 +604,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 } else {
                     getNumsFirstAddress("r3", index, program);
                 }
-                getvar("ldr","r2", program.imcodes[codeIndex].src2.value,program);
+                getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
 //                PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
                 outfile << "\t" << "ldr" << "\t" << "r3" << ", [" << "r3" << ", r2]" << endl;
 
@@ -622,7 +630,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 } else {
                     getNumsFirstAddress("r3", index, program);
                 }
-                getvar("ldr","r1", program.imcodes[codeIndex].src2.value,program);
+                getvar("ldr", "r1", program.imcodes[codeIndex].src2.value, program);
                 outfile << "\t" << "str" << "\t" << "r2" << ", [" << "r3" << ", r1]" << endl;
             } else {
                 outfile << "\t这儿缺少了下标为" << codeIndex << "的代码:\t\t" << format(program.imcodes[codeIndex].op).c_str()
@@ -631,7 +639,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                         << "\t" << format(program.imcodes[codeIndex].src2).c_str()
                         << "\t" << format(program.imcodes[codeIndex].dest).c_str() << endl;
             }
-//            outfile<<"\n\n\n";
+            outfile<<"\n\n\n";
         }
         if (!functionEntrance.empty()) {
             nextFunction = functionEntrance.top();
