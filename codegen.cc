@@ -261,6 +261,7 @@ void codegen(const ImProgram &program) {
 //        } else {
 //            outfile << "\tpush\t{r4, r5, fp, lr}" << endl;
 //        }
+        varSizeNeedByFunction += 4;
         if (varSizeNeedByFunction % 8 != 0) {
             varSizeNeedByFunction += 4;
         }
@@ -332,7 +333,16 @@ void codegen(const ImProgram &program) {
                 }
                 outfile << "\tbl\t" << program.functions[program.imcodes[codeIndex].src1.value].identifier << endl;
                 if (!program.functions[program.imcodes[codeIndex].src1.value].returnVoid) {
-                    getvar("str", "r0", program.imcodes[codeIndex].dest.value, program);
+                    if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
+                        var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                        varFunctionIndex--;
+                        getvar("str", "r0", program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
+                    } else {
+                        getvar("str", "r0", program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
+                    }
+//                    getvar("str", "r0", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr0, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
                 }
 //                callFunction(program.imcodes[codeIndex],
