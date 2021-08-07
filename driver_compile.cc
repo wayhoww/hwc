@@ -660,15 +660,14 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         auto id = add_var(def_init->ident, dims, false, {});
         symbols[id].need_init = true;
         if(!dims.empty()) {
-            gen_imcode(ImCode::ALLOC, nonterm_constant::newsp(size * 4), nonterm_void::newsp(), nonterm_integer::newsp(id));        
-            auto flat_exps = flatten(def_init->init_val);
-            auto index = nonterm_integer::newsp(add_temp());
-            gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), index);
-
-            std::vector<std::shared_ptr<expr>> buffer(size, nullptr);
-            recursive_compile(def_init->init_val, dims, 0, size, 0, buffer);
-          
+            
             if(current_depth > 0) {
+                gen_imcode(ImCode::ALLOC, nonterm_constant::newsp(size * 4), nonterm_void::newsp(), nonterm_integer::newsp(id));        
+                auto index = nonterm_integer::newsp(add_temp());
+                gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), index);
+                std::vector<std::shared_ptr<expr>> buffer(size, nullptr);
+                recursive_compile(def_init->init_val, dims, 0, size, 0, buffer);
+            
                 for(int i = 0; i < size; i++){
                     auto val = buffer[i] ? compile(buffer[i]) : nonterm_constant::newsp(0);
                     gen_imcode(ImCode::DASET, nonterm_integer::newsp(id), index, val);
@@ -677,6 +676,8 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
                     }
                 }
             }else{
+                std::vector<std::shared_ptr<expr>> buffer(size, nullptr);
+                recursive_compile(def_init->init_val, dims, 0, size, 0, buffer);
                 symbols[id].init_expr = buffer;
             }
         
