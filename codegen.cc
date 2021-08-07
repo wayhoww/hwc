@@ -202,7 +202,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
         if (varIndex == 0) {
             outfile << "\t.text" << endl;
         }
-        name = "var" + std::to_string(varIndex);
+        name = i.identifier;
         if (i.initValue.size() == 0) {
             outfile << "\t.comm\t" << name << "," << i.size << ",4" << endl;
         } else {
