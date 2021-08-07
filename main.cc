@@ -36,7 +36,7 @@ int main(int argc, char** argv){
         if(imcode_verbose){
             drv.dump_to(stderr);
         }
-        codegen(drv.imProgram, std::string(outputfile));
+        codegen(drv.imProgram, filename, std::string(outputfile));
         return 0;
     }
     fprintf(stderr, "failed to parse\n");

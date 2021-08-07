@@ -167,7 +167,7 @@ void PrintImeVar(std::string reg, int item) {
     }
 }
 
-void codegen(const ImProgram &program, const std::string& outputpath) {
+void codegen(const ImProgram &program, const std::string& sourcefile, const std::string& outputpath) {
     PrintImeVar("r1", 5120000);
     PrintImeVar("r1", -5120000);
     std::vector<int> labelCode = get_label_info(program);
@@ -195,7 +195,7 @@ void codegen(const ImProgram &program, const std::string& outputpath) {
                "\t.eabi_attribute 30, 6\n"
                "\t.eabi_attribute 34, 1\n"
                "\t.eabi_attribute 18, 4" << endl
-            << "\t.file	\"test.c\"" << endl;
+            << "\t.file	\"" << sourcefile << "\"" << endl;
     //输出全局变量
     int varIndex = -1;
     std::string name;
