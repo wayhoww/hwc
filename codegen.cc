@@ -168,8 +168,6 @@ void PrintImeVar(std::string reg, int item) {
 }
 
 void codegen(const ImProgram &program, const std::string& sourcefile, const std::string& outputpath) {
-    PrintImeVar("r1", 5120000);
-    PrintImeVar("r1", -5120000);
     std::vector<int> labelCode = get_label_info(program);
     std::priority_queue<int, std::vector<int>, std::greater<int>> functionEntrance;
     for (auto function:program.functions) {
