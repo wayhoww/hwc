@@ -167,11 +167,15 @@ void getvar(std::string ope, std::string reg, int index, const ImProgram &progra
     }
 }
 
-bool IsArray(int index) {
+bool IsArray(int index, const ImProgram &program) {
+    if (index < globalNum) {
+        return program.globalVars[index].isArray;
+    }
     if (isArray.find(index) == isArray.end())
         return false;
     return true;
 }
+
 
 bool IsParm(int index) {
     if (isParm.find(index) == isParm.end())
@@ -255,6 +259,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
         }
         var.clear();
         isParm.clear();
+        isArray.clear();
         auto function = program.functions[i];
         name = function.identifier;
         outfile << "\t.text\n"
@@ -314,16 +319,18 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
             } else if (Operator == ImCode::CALL) {
                 for (int i = program.imcodes[codeIndex].arguments.size() - 1; i >= 0; i--) {
                     if (i < 4) {
+                        int index = program.imcodes[codeIndex].arguments[i];
+//                        index =0;
                         //如果是变量
-                        if (!IsArray(program.imcodes[codeIndex].arguments[i])) {
-                            getvar("ldr", "r" + std::to_string(i), program.imcodes[codeIndex].arguments[i], program);
+                        if (!IsArray(index, program)) {
+                            getvar("ldr", "r" + std::to_string(i), index, program);
 //                            outfile << "\tldr\tr" << i << ", "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-                            if (isParm[program.imcodes[codeIndex].arguments[i]]) {
-                                getvar("ldr", "r0", program.imcodes[codeIndex].arguments[i], program);
+                            if (isParm.find(index) != isParm.end()) {
+                                getvar("ldr", "r0", index, program);
                             } else {
-                                getNumsFirstAddress("r0", program.imcodes[codeIndex].arguments[i], program);
+                                getNumsFirstAddress("r0", index, program);
                             }
                             if (i != 0) {
                                 outfile << "\tmov\tr" << i << ", r0" << endl;
@@ -332,12 +339,13 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                         }
                     } else {
                         //如果是变量
-                        if (!IsArray(program.imcodes[codeIndex].arguments[i])) {
+                        if (!IsArray(program.imcodes[codeIndex].arguments[i], program)) {
                             getvar("ldr", "r3", program.imcodes[codeIndex].arguments[i], program);
 //                            outfile << "\tldr\tr3, "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-                            if (isParm[program.imcodes[codeIndex].arguments[i]]) {
+
+                            if (isParm.find(program.imcodes[codeIndex].arguments[i]) != isParm.end()) {
                                 getvar("ldr", "r0", program.imcodes[codeIndex].arguments[i], program);
                             } else {
                                 getNumsFirstAddress("r3", program.imcodes[codeIndex].arguments[i], program);
@@ -596,10 +604,11 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 varFunctionIndex -= program.imcodes[codeIndex].src1.value / 4 - 1;
                 var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                 varFunctionIndex--;
+                isArray[program.imcodes[codeIndex].dest.value] = true;
             } else if (Operator == ImCode::DAGET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = program.imcodes[codeIndex].src1.value;
                 //提取首地址放于r3
-                if (isParm[index]) {
+                if (isParm.find(index) != isParm.end()) {
                     getvar("ldr", "r3", index, program);
                 } else {
                     getNumsFirstAddress("r3", index, program);
@@ -625,7 +634,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 }
                 int index = program.imcodes[codeIndex].src1.value;
                 //提取首地址放于r3
-                if (isParm[index]) {
+                if (isParm.find(index) != isParm.end()) {
                     getvar("ldr", "r3", index, program);
                 } else {
                     getNumsFirstAddress("r3", index, program);
@@ -639,7 +648,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                         << "\t" << format(program.imcodes[codeIndex].src2).c_str()
                         << "\t" << format(program.imcodes[codeIndex].dest).c_str() << endl;
             }
-            outfile<<"\n\n\n";
+            outfile << "\n\n\n";
         }
         if (!functionEntrance.empty()) {
             nextFunction = functionEntrance.top();
