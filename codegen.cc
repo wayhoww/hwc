@@ -293,8 +293,8 @@ void codegen(const ImProgram &program, const std::string& outputpath) {
 //                            << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
                 } else {
                     var[program.imcodes[codeIndex].dest.value] =
-                            (parmindex - 4) * 4 - floatStack+16;
-                    getvar("ldr", "r3",program.imcodes[codeIndex].dest.value, program);
+                            (parmindex - 4) * 4 - floatStack + 16;
+                    getvar("ldr", "r3", program.imcodes[codeIndex].dest.value, program);
                     var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                     varFunctionIndex--;
                     getvar("str", "r3",
@@ -584,9 +584,9 @@ void codegen(const ImProgram &program, const std::string& outputpath) {
                         << "\tldr\tr3, [fp, #" << var[program.imcodes[codeIndex].dest.value] << "]\n";
             } else if (Operator == ImCode::DASET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = var[program.imcodes[codeIndex].src1.value];
-                outfile << "\tldr\tr3, [fp, #" << index << "]\n"
-                        << "\tldr\tr2, [fp, #" << var[program.imcodes[codeIndex].dest.value] << "]\n"
-                        << "\tldr\tr2, [r3, #" << program.imcodes[codeIndex].src2.value * 4 << "]" << endl;
+                outfile << "\tldr\tr3, [fp, #" << index << "]\n";
+                getvar("ldr", "r2", program.imcodes[codeIndex].dest.value, program);
+                outfile << "\tstr\tr2, [r3, #" << program.imcodes[codeIndex].src2.value * 4 << "]" << endl;
             } else {
                 outfile << "\t这儿缺少了下标为" << codeIndex << "的代码:\t\t" << format(program.imcodes[codeIndex].op).c_str()
                         << "\t"
