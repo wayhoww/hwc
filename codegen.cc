@@ -581,12 +581,12 @@ void codegen(const ImProgram &program, const std::string& outputpath) {
                 outfile << "\tldr\tr3, [fp, #" << index << "]\n"
                         << "\tldr\tr3, [r3, #"
                         << program.imcodes[codeIndex].src2.value * 4 << "]" << endl
-                        << "\tsdr\tr3, [fp, #" << var[program.imcodes[codeIndex].dest.value] << "]\n";
+                        << "\tldr\tr3, [fp, #" << var[program.imcodes[codeIndex].dest.value] << "]\n";
             } else if (Operator == ImCode::DASET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = var[program.imcodes[codeIndex].src1.value];
                 outfile << "\tldr\tr3, [fp, #" << index << "]\n"
                         << "\tldr\tr2, [fp, #" << var[program.imcodes[codeIndex].dest.value] << "]\n"
-                        << "\tsdr\tr2, [r3, #" << program.imcodes[codeIndex].src2.value * 4 << "]" << endl;
+                        << "\tldr\tr2, [r3, #" << program.imcodes[codeIndex].src2.value * 4 << "]" << endl;
             } else {
                 outfile << "\t这儿缺少了下标为" << codeIndex << "的代码:\t\t" << format(program.imcodes[codeIndex].op).c_str()
                         << "\t"
