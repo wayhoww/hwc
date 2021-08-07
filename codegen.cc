@@ -599,8 +599,8 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
             varFunctionIndex = -2;
             varSizeNeedByFunction = get_func_size(functionIndex, program);
             numPrams = get_max_func_call_parm(functionIndex, program);//该函数内调用的时候最多的参数数量
-            functionIndex++;
         }
+        functionIndex++;
 
         outfile << "func_ret" << functionIndex - 1 << ":" << endl;
         PrintImeVar("r3", floatStack);
