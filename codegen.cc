@@ -175,7 +175,7 @@ void codegen(const ImProgram &program, const std::string& sourcefile, const std:
     }
     functionEntrance.push(program.imcodes.size());
     functionEntrance.pop();
-    printf("Starting Codegen");
+//    printf("Starting Codegen");
     globalNum = program.globalVars.size();
     outfile.open(outputpath);
     outfile << "\t.arch armv7-a\n"
