@@ -430,7 +430,6 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         assert(false);
     }
 
-    std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<stmt_if_t>& stmt);
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<stmt_return_t>& stmt) {
         ImCode code;
         code.op = ImCode::RET;
