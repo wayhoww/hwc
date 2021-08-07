@@ -160,7 +160,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     }else if(auto r = dynamic_pointer_cast<l_val_t>(root)) {
         auto var_id = query_var(r->ident);
         auto sym = symbols[var_id];
-        if(sym.dims.empty()) {
+        if(r->exps.empty()) {
             return nonterm_integer::newsp(var_id);
         } else {
             if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
