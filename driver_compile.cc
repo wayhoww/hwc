@@ -453,7 +453,6 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         if(s_continue)  {  return compile(s_continue  );  }  
         if(s_exp     )  {  return compile(s_exp       );  }  
         if(s_break   )  {  return compile(s_break     );  }  
-        if(!stmt     )  {  return nonterm_void::newsp();  }
         exit(89); assert(false);
     }
 
