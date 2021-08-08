@@ -152,9 +152,9 @@ void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
 
 void getvar(std::string ope, std::string reg, int index, const ImProgram &program, std::string fp = "fp") {
     if (index < globalNum) {
-        std::string anotherReg = "r2";
+        std::string anotherReg = "r6";
         if (reg == anotherReg) {
-            anotherReg = "r3";
+            anotherReg = "r5";
         }
         outfile << "\tmovw\t" << anotherReg << ", #:lower16:" << program.globalVars[index].identifier << endl
                 << "\tmovt\t" << anotherReg << ", #:upper16:" << program.globalVars[index].identifier << endl;
@@ -634,14 +634,21 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                             << "\tbeq\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JNE) {//   如果不为0则跳转
-                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
+                            << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    PrintImeVar("r0", 0);
                     outfile << "\tcmp\tr3, r0" << endl
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
-                    PrintImeVar("r0", 0);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
                     outfile << "\tcmp\tr3, r0" << endl
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
