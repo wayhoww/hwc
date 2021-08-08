@@ -161,7 +161,12 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         auto var_id = query_var(r->ident);
         auto sym = symbols[var_id];
         if(r->exps.empty()) {
-            return nonterm_integer::newsp(var_id);
+            if(store_place != nullptr) {
+                gen_imcode(ImCode::ASSIGN, nonterm_integer::newsp(var_id), nonterm_void::newsp(), store_place);
+                return store_place;
+            }else{
+                return nonterm_integer::newsp(var_id);
+            }
         } else {
             if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
             auto offset = compile_offset(r->exps, sym.dims);
