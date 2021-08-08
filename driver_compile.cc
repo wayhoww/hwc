@@ -403,7 +403,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
 
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<func_f_param_t>& param, int param_index) {
-        if(param->b_type->type =!= b_type_t::INT) {
+        if(param->b_type->type != b_type_t::INT) {
             exit(87); assert(false);
         }
         
