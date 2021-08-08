@@ -154,7 +154,7 @@ void getvar(std::string ope, std::string reg, int index, const ImProgram &progra
     if (index < globalNum) {
         std::string anotherReg = "r6";
         if (reg == anotherReg) {
-            anotherReg = "r3";
+            anotherReg = "r5";
         }
         outfile << "\tmovw\t" << anotherReg << ", #:lower16:" << program.globalVars[index].identifier << endl
                 << "\tmovt\t" << anotherReg << ", #:upper16:" << program.globalVars[index].identifier << endl;
