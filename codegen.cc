@@ -160,8 +160,10 @@ void getvar(std::string ope, std::string reg, int index, const ImProgram &progra
                 << "\tmovt\t" << anotherReg << ", #:upper16:" << program.globalVars[index].identifier << endl;
         outfile << "\t" << ope << "\t" << reg << ", [" << anotherReg << "]" << endl;
     } else {
-        if (var[index] != 0)
-            outfile << "\t" << ope << "\t" << reg << ", [" << fp << ", #" + std::to_string(var[index]) + "]" << endl;
+        if (var[index] != 0) {
+            PrintImeVar("r6", var[index]);
+            outfile << "\t" << ope << "\t" << reg << ", [" << fp << ", r6]" << endl;
+        }
         else
             outfile << "\t" << ope << "\t" << reg << ", [" << fp << "]" << endl;
     }
