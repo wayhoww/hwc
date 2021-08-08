@@ -17,7 +17,7 @@ int main(int argc, char** argv){
         } else if(strcmp(argv[i], "-o") == 0) {
             i++;
             outputfile = argv[i];
-        } else {
+        } else if(argv[i][0] != '-') {
             filename = argv[i];
         }
     }
