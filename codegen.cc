@@ -223,8 +223,8 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
             outfile << "\t.comm\t" << name << "," << i.size << ",4" << endl;
         } else {
             outfile << "\t.global\t" << name << endl;
+            outfile << "\t.data" << endl;
             if (i.isArray) {
-                outfile << "\t.data" << endl;
                 isArray[varIndex] = true;
             }
             outfile << "\t.align\t2" << endl;
