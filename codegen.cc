@@ -152,7 +152,7 @@ void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
 
 void getvar(std::string ope, std::string reg, int index, const ImProgram &program, std::string fp = "fp") {
     if (index < globalNum) {
-        std::string anotherReg = "r2";
+        std::string anotherReg = "r6";
         if (reg == anotherReg) {
             anotherReg = "r3";
         }
