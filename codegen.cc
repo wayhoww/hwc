@@ -287,10 +287,10 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
             floatStack = (numPrams - 4) * 4;
         }
         floatStack = 4;//模仿gcc
-        PrintImeVar("r3", floatStack);
-        outfile << "\tadd\tfp, sp, r3" << endl;
-        PrintImeVar("r3", varSizeNeedByFunction);
-        outfile << "\tsub\tsp, sp, r3" << endl;
+        PrintImeVar("r7", floatStack);
+        outfile << "\tadd\tfp, sp, r7" << endl;
+        PrintImeVar("r7", varSizeNeedByFunction);
+        outfile << "\tsub\tsp, sp, r7" << endl;
         int varFunctionIndex = -2;
         for (; codeIndex < program.imcodes.size() && codeIndex < nextFunction; codeIndex++) {
             if (labelCode[codeIndex] != -1) {
