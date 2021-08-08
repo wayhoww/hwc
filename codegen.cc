@@ -278,6 +278,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
 //            outfile << "\tpush\t{r4, r5, fp, lr}" << endl;
 //        }
         varSizeNeedByFunction += 4;
+        varSizeNeedByFunction+=numPrams*4;
         if (varSizeNeedByFunction % 8 != 0) {
             varSizeNeedByFunction += 4;
         }
