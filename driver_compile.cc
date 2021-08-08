@@ -239,6 +239,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         functions()[add_function("putch", -1, true, {Argument()})    ].declarationOnly = true;
         functions()[add_function("putarray", -1, true, { Argument(), Argument({-1})})].declarationOnly = true;
 
+        functions()[add_function("before_main", -1, true, {})].declarationOnly = true;
+        functions()[add_function("after_main", -1, true, {})].declarationOnly = true;
+
         for(auto child: comp_unit->children) {
             if(auto r = dynamic_pointer_cast<comp_unit_item_func_def_t>(child)) {
                 compile(r->func_def, true, false);
