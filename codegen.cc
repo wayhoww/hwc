@@ -399,7 +399,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
 //                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
                     }
                 } else{
-                    getvar("str", "r3", program.imcodes[codeIndex].src1.value, program);
+                    getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
                     if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
                         var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                         varFunctionIndex--;
