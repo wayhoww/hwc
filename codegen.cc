@@ -658,7 +658,11 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 } else {
                     getNumsFirstAddress("r3", index, program);
                 }
-                getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
+                if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE) {
+                    PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                } else {
+                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
+                }
 //                PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
                 outfile << "\t" << "ldr" << "\t" << "r3" << ", [" << "r3" << ", r2]" << endl;
 
@@ -671,7 +675,26 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                     getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
                 }
-            } else if (Operator == ImCode::GETADD) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
+            }else if (Operator == ImCode::DASET) {//给数组赋值对应的值，src1表示数组id，src2表示偏移地址，dest表示值
+                if (program.imcodes[codeIndex].dest.type == ImCode::Oprand::IMMEDIATE) {
+                    PrintImeVar("r2", program.imcodes[codeIndex].dest.value);
+                } else {
+                    getvar("ldr", "r2", program.imcodes[codeIndex].dest.value, program);
+                }
+                int index = program.imcodes[codeIndex].src1.value;
+                //提取首地址放于r3
+                if (isParm.find(index) != isParm.end()) {
+                    getvar("ldr", "r3", index, program);
+                } else {
+                    getNumsFirstAddress("r3", index, program);
+                }
+                if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE) {
+                    PrintImeVar("r1", program.imcodes[codeIndex].src2.value);
+                } else {
+                    getvar("ldr", "r1", program.imcodes[codeIndex].src2.value, program);
+                }
+                outfile << "\t" << "str" << "\t" << "r2" << ", [" << "r3" << ", r1]" << endl;
+            }  else if (Operator == ImCode::GETADD) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = program.imcodes[codeIndex].src1.value;
                 //提取首地址放于r3
                 if (isParm.find(index) != isParm.end()) {
@@ -688,21 +711,6 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                     getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
                 }
-            } else if (Operator == ImCode::DASET) {//给数组赋值对应的值，src1表示数组id，src2表示偏移地址，dest表示值
-                if (program.imcodes[codeIndex].dest.type == ImCode::Oprand::IMMEDIATE) {
-                    PrintImeVar("r2", program.imcodes[codeIndex].dest.value);
-                } else {
-                    getvar("ldr", "r2", program.imcodes[codeIndex].dest.value, program);
-                }
-                int index = program.imcodes[codeIndex].src1.value;
-                //提取首地址放于r3
-                if (isParm.find(index) != isParm.end()) {
-                    getvar("ldr", "r3", index, program);
-                } else {
-                    getNumsFirstAddress("r3", index, program);
-                }
-                getvar("ldr", "r1", program.imcodes[codeIndex].src2.value, program);
-                outfile << "\t" << "str" << "\t" << "r2" << ", [" << "r3" << ", r1]" << endl;
             } else {
                 outfile << "\t这儿缺少了下标为" << codeIndex << "的代码:\t\t" << format(program.imcodes[codeIndex].op).c_str()
                         << "\t"
