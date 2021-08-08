@@ -387,15 +387,28 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                     outfile << "\tb\tfunc_ret" << functionIndex << endl;
                 }
             } else if (Operator == ImCode::ASSIGN) {
-                PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
-                if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
-                    var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
-                    varFunctionIndex--;
-                    getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
+                if(program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE) {
+                    PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
+                    if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
+                        var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                        varFunctionIndex--;
+                        getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr3, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
-                } else {
-                    getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
+                    } else {
+                        getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
+                    }
+                } else{
+                    getvar("str", "r3", program.imcodes[codeIndex].src1.value, program);
+                    if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
+                        var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
+                        varFunctionIndex--;
+                        getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(program.imcodes[codeIndex].dest.value, program) << endl;
+                    } else {
+                        getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
+//                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
+                    }
                 }
             } else if (Operator == ImCode::PLUS) {
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
