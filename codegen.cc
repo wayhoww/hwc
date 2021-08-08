@@ -634,14 +634,21 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                             << "\tbeq\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JNE) {//   如果不为0则跳转
-                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
+                    program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
+                    PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
+                            << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
+                } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
+                           program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    PrintImeVar("r0", 0);
                     outfile << "\tcmp\tr3, r0" << endl
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
-                    PrintImeVar("r0", 0);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
                     outfile << "\tcmp\tr3, r0" << endl
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
