@@ -22,6 +22,7 @@ std::string format(ImCode::Operator op) {
     case ImCode::Operator::MULTIPLY :   return "*";
     case ImCode::Operator::PLUS :       return "+";
     case ImCode::Operator::RET :        return "ret";
+    case ImCode::Operator::GETADD :     return "getadd";
     default:
         assert(false);
         return "error";
