@@ -728,7 +728,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                         << "\t" << format(program.imcodes[codeIndex].src2).c_str()
                         << "\t" << format(program.imcodes[codeIndex].dest).c_str() << endl;
             }
-            outfile << "\n";
+//            outfile << "\n";
         }
         if (!functionEntrance.empty()) {
             nextFunction = functionEntrance.top();
