@@ -28,13 +28,7 @@
             }  
             return value;
         }else{
-            int value = 0;
-            for(int i = 1; i < s.size(); i++) {
-                int c = s[i];
-                value *= 10;
-                value += c - '0';
-            }  
-            return value;
+            return std::stoi(s);
         }
     } 
 %}
