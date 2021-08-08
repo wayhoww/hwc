@@ -6,7 +6,7 @@ int32_t driver::entry(const std::string& ident, const std::vector<int32_t>& dims
             break;
         }
         if(symbols[i].identifier == ident){
-            assert(false);
+            exit(101); assert(false);
         }
     }
     symbol_info sym;
@@ -27,19 +27,19 @@ int32_t driver::query_var(const std::string& ident) {
             return i;
         }
     }
-    assert(false);
+    exit(102); assert(false);
     return 0;
 }
 
 int32_t driver::add_function(const std::string& ident, int32_t entrance, bool returnVoid, const std::vector<Argument>& arguments) {
     for(int i = 0; i < functions().size(); i++) {
         if(functions()[i].identifier == ident){
-            assert(false);
+            exit(103); assert(false);
         }
     }
     for(int i = 0; i < global_vars().size(); i++) {
         if(global_vars()[i].identifier == ident) {
-            assert(false);
+            exit(104); assert(false);
         }
     }
     FunctionDef func;
@@ -58,7 +58,7 @@ int32_t driver::query_function(const std::string& ident) {
             return i;
         }
     }
-    assert(false);
+    exit(105); assert(false);
     return 0;
 }
 
@@ -67,12 +67,12 @@ int32_t driver::add_var(const std::string& ident, const std::vector<int32_t>& di
     if(current_depth == 0) {
         for(int i = 0; i < functions().size(); i++) {
             if(functions()[i].identifier == ident){
-                assert(false);
+                exit(106); assert(false);
             }
         }
         for(int i = 0; i < global_vars().size(); i++) {
             if(global_vars()[i].identifier == ident) {
-                assert(false);
+                exit(107); assert(false);
             }
         }
     }

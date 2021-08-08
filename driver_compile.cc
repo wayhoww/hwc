@@ -17,7 +17,9 @@ std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& in
 }
 
 std::shared_ptr<nonterm_boolean> driver::to_nonterm_boolean(const shared_ptr<nonterm_info>& origin) {
-    assert(!dynamic_pointer_cast<nonterm_void>(origin));
+    if(dynamic_pointer_cast<nonterm_void>(origin)) {
+        exit(80); assert(false);
+    }
     if(auto info = dynamic_pointer_cast<nonterm_boolean>(origin)) {
         return info;
     }else {
@@ -46,7 +48,7 @@ std::shared_ptr<nonterm_integer> driver::to_nonterm_integer(
         gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), store_place);
         return store_place;
     } else {
-        assert(false);
+        exit(81); assert(false);
     }
 }
 
@@ -155,7 +157,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
                 auto c2 = to_nonterm_boolean(compile(r->src2));
                 return nonterm_boolean::newsp(c1->true_exits + c2->true_exits, c2->false_exits);
             } else {
-                assert(false);
+                exit(82); assert(false);
             }
         }
     }else if(auto r = dynamic_pointer_cast<l_val_t>(root)) {
@@ -220,7 +222,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
 
         return rst;
     }else{
-        assert(false);
+        exit(83); assert(false);
     }
 }
 
@@ -243,7 +245,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             } else if(auto r = dynamic_pointer_cast<comp_unit_item_decl_t>(child)) {
                 compile(r->decl);
             } else { 
-                assert(false);
+                exit(84); assert(false);
             }
         }
         
@@ -257,7 +259,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         int main_id = -1;
         for(int i = 0; i < functions().size(); i++){
             auto func = functions()[i];
-            assert(func.entrance >= 0 || func.declarationOnly);
+            if(!(func.entrance >= 0 || func.declarationOnly)) {
+                exit(85); assert(false);
+            }
             if(func.identifier == "main") {
                 main_id = i;
             }
@@ -390,7 +394,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         } else if(stmt){
             return compile(stmt->stmt);
         } else {
-            assert(false);
+            exit(86); assert(false);
         }
         // todo
         return nonterm_void::newsp();
@@ -399,7 +403,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
 
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<func_f_param_t>& param, int param_index) {
-        assert(param->b_type->type == b_type_t::INT);
+        if(param->b_type->type =!= b_type_t::INT) {
+            exit(87); assert(false);
+        }
         
     // 不需要 const ？ 去看一下语义
     //    auto [size, dims] = static_array_dims(param->array_dims);
@@ -408,7 +414,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         for(auto exp: dimexps) {
             if(exp) {
                 auto [ok, val] = static_eval(exp);
-                assert(ok);
+                if(!ok) {
+                    exit(88); assert(false);
+                }
                 dims.push_back(val);
             } else {
                 dims.push_back(0);
@@ -445,7 +453,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         if(s_continue)  {  return compile(s_continue  );  }  
         if(s_exp     )  {  return compile(s_exp       );  }  
         if(s_break   )  {  return compile(s_break     );  }  
-        assert(false);
+        exit(89); assert(false);
     }
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<stmt_return_t>& stmt) {
@@ -478,7 +486,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         auto dest = nonterm_integer::newsp(query_var(ident));
 
         auto dims = symbols[dest->var_id].dims;
-        assert(stmt->l_val->exps.size() == dims.size());
+        if(stmt->l_val->exps.size() != dims.size()) {
+            exit(90); assert(false);
+        }
         
        
         if(dims.size() == 0) {
@@ -518,9 +528,11 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         code.dest = get_oprand(dest);
         // 除非是 DASET/RET，不然 dest 必须是 integer
 
-        assert( dynamic_pointer_cast<nonterm_integer>(dest) ||
+        if(!( dynamic_pointer_cast<nonterm_integer>(dest) ||
                 (code.op == ImCode::RET && dynamic_pointer_cast<nonterm_void>(dest)) ||
-                (code.op == ImCode::DASET && dynamic_pointer_cast<nonterm_constant>(dest)));
+                (code.op == ImCode::DASET && dynamic_pointer_cast<nonterm_constant>(dest)))){
+                    exit(91); assert(false);
+                }
         imcodes().push_back(code);
     } 
 
@@ -548,7 +560,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             return op;
         }
         
-        assert(false);
+        exit(92); assert(false);
     }
 
 
@@ -578,14 +590,16 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         }else if(const_decl) {
             return compile(const_decl->const_decl);
         }else{
-            assert(false);
+            exit(93); assert(false);
         }
 
         return nonterm_void::newsp();
     }
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<var_decl_t>& decl) {
-        assert(decl->b_type->type == b_type_t::INT);
+        if(decl->b_type->type != b_type_t::INT) {
+            exit(94); assert(false);
+        }
         for(auto def: decl->var_defs) {
             compile(def);
         }
@@ -601,7 +615,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         } else if(definit) {
             return compile(definit);
         } else {
-            assert(false);
+            exit(95); assert(false);
         }
     }
 
@@ -708,7 +722,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
                     symbols[id].init_expr = { r->exp };
                 }
             } else {
-                assert(false);
+                exit(96); assert(false);
             }
         }
 
@@ -716,7 +730,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     }
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<const_decl_t>& decl) {
-        assert(decl->b_type->type == b_type_t::INT);
+        if(decl->b_type->type != b_type_t::INT) {
+            exit(97); assert(false);
+        }
         for(auto def: decl->const_defs) {
             compile(def);
         }
@@ -749,7 +765,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             std::vector<int32_t>& buffer) {
         if (auto r = dynamic_pointer_cast<const_init_val_scalar_t>(init_val)) {
             auto [ok, val] = static_eval(r->const_exp);
-            assert(ok);
+            if(!ok) {
+                exit(98); assert(false);
+            }
             buffer[offset] = val;
         } else if (auto r = dynamic_pointer_cast<const_init_val_array_t>(init_val)) {
             if(r->array_elements.size() == 0) {
@@ -759,7 +777,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             } else if(auto flat = flatten(init_val); flat.size() == layer_size) {
                 for(int i = 0; i < layer_size; i++) {
                     auto [ok, val] = static_eval(flat[i]);
-                    assert(ok);
+                    if(!ok) {
+                        exit(99); assert(false);
+                    }
                     buffer[offset + i] = val;
                 }
             } else {
@@ -801,7 +821,9 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
                 size *= 0;
             }else {
                 auto [ok, val] = static_eval(dim);
-                assert(ok);
+                if(!ok) {
+                    exit(100); assert(false);
+                }
                 size *= val;
                 dims.push_back(val);
             }
