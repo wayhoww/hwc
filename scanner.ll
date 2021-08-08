@@ -3,6 +3,33 @@
 
 %{
     #include "driver.hh"
+
+
+    int e_stoi(const std::string& s) {
+        if(s.size() > 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+            // hex
+            int value = 0;
+            for(int i = 2; i < s.size(); i++) {
+                int c = s[i];
+                if(c >= '0' && c <= '9') c -= '0';
+                else c -= 'A' - 10;
+                value *= 16;
+                value += c;
+            }  
+            return value;
+        }else if(s.size() > 1 && s[0] == '0') {
+            // oct
+            int value = 0;
+            for(int i = 1; i < s.size(); i++) {
+                int c = s[i];
+                value *= 8;
+                value += c - '0';
+            }  
+            return value;
+        }else{
+            return std::stoi(s);
+        }
+    } 
 %}
 
 /**
@@ -72,7 +99,7 @@ integer_const       {decimal_const}|{octal_const}|{hexadecimal_const}
     "}"                 { return yy::parser::make_RIGHT_BRACE();    }
     
     {identifier}        { return yy::parser::make_IDENT(yytext); };
-    {integer_const}     { return yy::parser::make_INT_CONST(std::stoi(yytext)); };
+    {integer_const}     { return yy::parser::make_INT_CONST(e_stoi(yytext)); };
 }
 
 <IN_BLOCK_COMMENT>{

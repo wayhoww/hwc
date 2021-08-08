@@ -40,9 +40,10 @@ std::shared_ptr<nonterm_integer> driver::to_nonterm_integer(
         if(store_place == nullptr) store_place = nonterm_integer::newsp(add_temp());
         backpatch(s->true_exits, nxq());
         gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), store_place);
-        gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), nxq() + 1);
+        int after_end = nxq() + 2;
+        gen_imcode(ImCode::JUMP, nonterm_void::newsp(), nonterm_void::newsp(), after_end);
         backpatch(s->false_exits, nxq());
-        gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(1), nonterm_void::newsp(), store_place);
+        gen_imcode(ImCode::ASSIGN, nonterm_constant::newsp(0), nonterm_void::newsp(), store_place);
         return store_place;
     } else {
         assert(false);
