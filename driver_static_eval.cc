@@ -53,7 +53,7 @@ std::pair<bool, int32_t> driver::static_eval(shared_ptr<expr> root, bool for_ini
         case operator_t::LESS_EQUAL:    rst = val1 <= val2; break;
         case operator_t::LOGICAL_AND:   rst = val1 && val2; break;
         case operator_t::LOGICAL_OR:    rst = val1 || val2; break;
-        default: assert(false); break;
+        default: exit(108); assert(false); break;
         }
     }else if(auto r = dynamic_pointer_cast<l_val_t>(root); 
                 r && (

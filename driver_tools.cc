@@ -24,7 +24,7 @@ std::string format(ImCode::Operator op) {
     case ImCode::Operator::RET :        return "ret";
     case ImCode::Operator::GETADD :     return "getadd";
     default:
-        assert(false);
+        exit(109); assert(false);
         return "error";
     }
 }
@@ -57,7 +57,7 @@ std::string format(const ImCode::Oprand& oprand) {
         break;
     default:
         sprintf(buffer, " ");
-        assert(false);
+        exit(110); assert(false);
         break;
     }
     return std::string(buffer);
