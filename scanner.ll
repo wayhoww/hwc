@@ -12,7 +12,8 @@
             for(int i = 2; i < s.size(); i++) {
                 int c = s[i];
                 if(c >= '0' && c <= '9') c -= '0';
-                else c -= 'A' - 10;
+                else if (c >= 'A' && c <= 'F') c -= 'A' - 10;
+                else c -= 'a' - 10;
                 value *= 16;
                 value += c;
             }  
