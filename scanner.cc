@@ -540,10 +540,16 @@ char *yytext;
             }  
             return value;
         }else{
-            return std::stoi(s);
+            int value = 0;
+            for(int i = 1; i < s.size(); i++) {
+                int c = s[i];
+                value *= 10;
+                value += c - '0';
+            }  
+            return value;
         }
     } 
-#line 547 "scanner.cc"
+#line 553 "scanner.cc"
 /**
  * 该部分是 SysY 语言的词法定义部分
  * 根据 “SysY 语言的终结符特征” 编写
@@ -553,7 +559,7 @@ char *yytext;
  * 文档中使用了 EBNF 表示词法特征。这里转成正则表达式
  **/
 
-#line 557 "scanner.cc"
+#line 563 "scanner.cc"
 
 #define INITIAL 0
 #define IN_BLOCK_COMMENT 1
@@ -770,11 +776,11 @@ YY_DECL
 		}
 
 	{
-#line 61 "scanner.ll"
+#line 67 "scanner.ll"
 
 
 
-#line 778 "scanner.cc"
+#line 784 "scanner.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -829,239 +835,239 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 64 "scanner.ll"
+#line 70 "scanner.ll"
 http://westes.github.io/flex/manual/How-can-I-match-C_002dstyle-comments_003f.html
 	YY_BREAK
 
 case 2:
 YY_RULE_SETUP
-#line 67 "scanner.ll"
+#line 73 "scanner.ll"
 BEGIN(IN_BLOCK_COMMENT);
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 68 "scanner.ll"
+#line 74 "scanner.ll"
 BEGIN(IN_LINE_COMMENT);
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 69 "scanner.ll"
+#line 75 "scanner.ll"
 { return yy::parser::make_VOID(); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 70 "scanner.ll"
+#line 76 "scanner.ll"
 { return yy::parser::make_INT(); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 71 "scanner.ll"
+#line 77 "scanner.ll"
 { return yy::parser::make_CONST(); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 72 "scanner.ll"
+#line 78 "scanner.ll"
 { return yy::parser::make_IF(); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 73 "scanner.ll"
+#line 79 "scanner.ll"
 { return yy::parser::make_ELSE(); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 74 "scanner.ll"
+#line 80 "scanner.ll"
 { return yy::parser::make_WHILE(); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 75 "scanner.ll"
+#line 81 "scanner.ll"
 { return yy::parser::make_BREAK(); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 76 "scanner.ll"
+#line 82 "scanner.ll"
 { return yy::parser::make_CONTINUE(); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 77 "scanner.ll"
+#line 83 "scanner.ll"
 { return yy::parser::make_RETURN(); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 78 "scanner.ll"
+#line 84 "scanner.ll"
 { return yy::parser::make_GE();     }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 79 "scanner.ll"
+#line 85 "scanner.ll"
 { return yy::parser::make_LE();     }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 80 "scanner.ll"
+#line 86 "scanner.ll"
 { return yy::parser::make_EQ();     }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 81 "scanner.ll"
+#line 87 "scanner.ll"
 { return yy::parser::make_NE();     }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 82 "scanner.ll"
+#line 88 "scanner.ll"
 { return yy::parser::make_AND();    }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 83 "scanner.ll"
+#line 89 "scanner.ll"
 { return yy::parser::make_OR();     }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 84 "scanner.ll"
+#line 90 "scanner.ll"
 { return yy::parser::make_GT();     }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 85 "scanner.ll"
+#line 91 "scanner.ll"
 { return yy::parser::make_LT();     }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 86 "scanner.ll"
+#line 92 "scanner.ll"
 { return yy::parser::make_ASSIGN(); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 87 "scanner.ll"
+#line 93 "scanner.ll"
 { return yy::parser::make_NOT();    }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 88 "scanner.ll"
+#line 94 "scanner.ll"
 { return yy::parser::make_ADD();    }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 89 "scanner.ll"
+#line 95 "scanner.ll"
 { return yy::parser::make_SUB();    }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 90 "scanner.ll"
+#line 96 "scanner.ll"
 { return yy::parser::make_MUL();    }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 91 "scanner.ll"
+#line 97 "scanner.ll"
 { return yy::parser::make_DIV();    }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 92 "scanner.ll"
+#line 98 "scanner.ll"
 { return yy::parser::make_MOD();    }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 93 "scanner.ll"
+#line 99 "scanner.ll"
 { return yy::parser::make_COMMA();    }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 94 "scanner.ll"
+#line 100 "scanner.ll"
 { return yy::parser::make_SEMI();    }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 95 "scanner.ll"
+#line 101 "scanner.ll"
 { return yy::parser::make_LEFT_PAREN();    }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 96 "scanner.ll"
+#line 102 "scanner.ll"
 { return yy::parser::make_RIGHT_PAREN();    }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 97 "scanner.ll"
+#line 103 "scanner.ll"
 { return yy::parser::make_LEFT_BRACKET();    }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 98 "scanner.ll"
+#line 104 "scanner.ll"
 { return yy::parser::make_RIGHT_BRACKET();    }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 99 "scanner.ll"
+#line 105 "scanner.ll"
 { return yy::parser::make_LEFT_BRACE();    }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 100 "scanner.ll"
+#line 106 "scanner.ll"
 { return yy::parser::make_RIGHT_BRACE();    }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 102 "scanner.ll"
+#line 108 "scanner.ll"
 { return yy::parser::make_IDENT(yytext); };
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 103 "scanner.ll"
+#line 109 "scanner.ll"
 { return yy::parser::make_INT_CONST(e_stoi(yytext)); };
 	YY_BREAK
 
 
 case 38:
 YY_RULE_SETUP
-#line 107 "scanner.ll"
+#line 113 "scanner.ll"
 BEGIN(INITIAL);
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 108 "scanner.ll"
+#line 114 "scanner.ll"
 // eat comment in chunks
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 109 "scanner.ll"
+#line 115 "scanner.ll"
 // eat the lone star
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 110 "scanner.ll"
+#line 116 "scanner.ll"
 yylineno++;
 	YY_BREAK
 
 
 case 42:
 YY_RULE_SETUP
-#line 115 "scanner.ll"
+#line 121 "scanner.ll"
 // eat comment in chunks
 	YY_BREAK
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
-#line 116 "scanner.ll"
+#line 122 "scanner.ll"
 { BEGIN(INITIAL); yylineno++; }
 	YY_BREAK
 
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IN_BLOCK_COMMENT):
 case YY_STATE_EOF(IN_LINE_COMMENT):
-#line 119 "scanner.ll"
+#line 125 "scanner.ll"
 return yy::parser::make_YYEOF();
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 121 "scanner.ll"
+#line 127 "scanner.ll"
 ECHO;
 	YY_BREAK
-#line 1065 "scanner.cc"
+#line 1071 "scanner.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2028,6 +2034,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 121 "scanner.ll"
+#line 127 "scanner.ll"
 
 
