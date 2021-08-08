@@ -62,6 +62,7 @@ struct ImCode {
         ALLOC,  // 分配内存，dest 是指针位置， src1 是以字节计算的大小
         DASET,  // displacement addressing set， src1 目的地指针， src2 偏移地址（以byte），dest：实际上的src数字
         DAGET,  // displacement addressing get， 同上
+        GETADD, // 获取地址
         MARK,   // mark
         ASSIGN  // 赋值
     };

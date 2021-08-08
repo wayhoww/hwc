@@ -170,9 +170,21 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         } else {
             if(store_place == nullptr)  store_place = nonterm_integer::newsp(add_temp());
             auto offset = compile_offset(r->exps, sym.dims);
-            gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(4), offset);
-            gen_imcode(ImCode::DAGET, nonterm_integer::newsp(var_id), offset, store_place);
-            return store_place;
+            
+            if(r->exps.size() == sym.dims.size()) {
+                gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(4), offset);
+                gen_imcode(ImCode::DAGET, nonterm_integer::newsp(var_id), offset, store_place);
+                return store_place;
+            }else{
+                int mul = 1;
+                for(int i = r->exps.size(); i < sym.dims.size(); i++) {
+                    mul *= sym.dims[i];
+                }
+                gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(mul), offset);
+                gen_imcode(ImCode::GETADD,  nonterm_integer::newsp(var_id), nonterm_void::newsp(), store_place);
+                gen_imcode(ImCode::PLUS, store_place, offset, store_place);
+                return store_place;
+            }
         }
     }else if(auto r = dynamic_pointer_cast<number_literal_t>(root)) {
         // 应该不会出现这个情况
