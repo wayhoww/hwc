@@ -9,7 +9,7 @@ std::shared_ptr<nonterm_info> driver::compile_offset(const ptr_list_of<expr>& in
     for(auto exp: indices) {
         auto dim = compile(exp);
         gen_imcode(ImCode::PLUS, offset, dim, offset);
-        if(index < dims.size()) {
+        if(index < indices.size()) {
             gen_imcode(ImCode::MULTIPLY, offset, nonterm_constant::newsp(dims[index++]), offset);
         }
     }
@@ -176,7 +176,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
                 gen_imcode(ImCode::DAGET, nonterm_integer::newsp(var_id), offset, store_place);
                 return store_place;
             }else{
-                int mul = 1;
+                int mul = 4;
                 for(int i = r->exps.size(); i < sym.dims.size(); i++) {
                     mul *= sym.dims[i];
                 }
