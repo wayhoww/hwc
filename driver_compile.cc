@@ -555,8 +555,17 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             op.value = constant->value;
             return op;
         }
+
+        if(auto boolean = dynamic_pointer_cast<nonterm_boolean>(info)){
+            auto variable = to_nonterm_integer(boolean);
+            auto sym = symbols[variable->var_id];
+            op.type = ImCode::Oprand::VAR;
+            op.var.isTemp = sym.is_temp;
+            op.var.varID = variable->var_id;
+            return op;
+        }
         
-        if(dynamic_pointer_cast<nonterm_void>(info)){
+        if(dynamic_pointer_cast<nonterm_void>(info) || dynamic_pointer_cast<nonterm_controlflow>(info)){
             op.type = ImCode::Oprand::INVALID;
             return op;
         }
