@@ -542,107 +542,107 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
                     program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tblt\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
                            program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
-                    PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tblt\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tblt\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JLE) {//  小于等于
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
                     program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tble\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
                            program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
-                    PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tble\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tble\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JGT) {//  大于
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
                     program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbgt\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
                            program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
-                    PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbgt\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbgt\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JGE) {//   大于等于
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
                     program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbge\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
                            program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
-                    PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbge\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbge\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JEQ) {//    如果相等则跳转
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE &&
                     program.imcodes[codeIndex].src2.type == ImCode::Oprand::VAR) {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbeq\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else if (program.imcodes[codeIndex].src2.type == ImCode::Oprand::IMMEDIATE &&
                            program.imcodes[codeIndex].src1.type == ImCode::Oprand::VAR) {
-                    PrintImeVar("r2", program.imcodes[codeIndex].src2.value);
+                    PrintImeVar("r0", program.imcodes[codeIndex].src2.value);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbeq\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    getvar("ldr", "r2", program.imcodes[codeIndex].src2.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    getvar("ldr", "r0", program.imcodes[codeIndex].src2.value, program);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbeq\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::JNE) {//   如果不为0则跳转
                 if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE) {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    PrintImeVar("r2", 0);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    PrintImeVar("r0", 0);
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 } else {
-                    PrintImeVar("r2", 0);
+                    PrintImeVar("r0", 0);
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
-                    outfile << "\tcmp\tr3, r2" << endl
+                    outfile << "\tcmp\tr3, r0" << endl
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::ALLOC) {// 分配数组，dest为数组id，src1为大小
