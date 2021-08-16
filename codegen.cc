@@ -140,16 +140,6 @@ void PrintImeVar(std::string reg, int item) {
     }
 }
 
-void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
-    if (index < globalNum) {
-        outfile << "\tmovw\t" << reg << ", #:lower16:" << program.globalVars[index].identifier << endl
-                << "\tmovt\t" << reg << ", #:upper16:" << program.globalVars[index].identifier << endl;
-    } else {
-        PrintImeVar(reg, var[index]);
-        outfile << "\tadd\t" << reg << ", fp, " << reg << "\n";
-    }
-}
-
 void getvar(std::string ope, std::string reg, int index, const ImProgram &program, std::string fp = "fp") {
     if (index < globalNum) {
         std::string anotherReg = "r6";
@@ -165,6 +155,17 @@ void getvar(std::string ope, std::string reg, int index, const ImProgram &progra
             outfile << "\t" << ope << "\t" << reg << ", [" << fp << ", r6]" << endl;
         } else
             outfile << "\t" << ope << "\t" << reg << ", [" << fp << "]" << endl;
+    }
+}
+
+void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
+    if (index < globalNum) {
+        outfile << "\tmovw\t" << reg << ", #:lower16:" << program.globalVars[index].identifier << endl
+                << "\tmovt\t" << reg << ", #:upper16:" << program.globalVars[index].identifier << endl;
+    } else {
+        getvar("ldr", "r3", index, program);
+//        PrintImeVar(reg, var[index]);
+//        outfile << "\tadd\t" << reg << ", fp, " << reg << "\n";
     }
 }
 
@@ -362,7 +363,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                 }
                 if (program.functions[program.imcodes[codeIndex].src1.value].identifier == "starttime") {
                     outfile << "\tmov\tr0, 0" << endl;
-                    outfile << "\tbl\t_sysy_starttime"<< endl;
+                    outfile << "\tbl\t_sysy_starttime" << endl;
                 } else if (program.functions[program.imcodes[codeIndex].src1.value].identifier == "stoptime") {
                     outfile << "\tmov\tr0, 0" << endl;
                     outfile << "\tbl\t_sysy_stoptime" << endl;
@@ -663,10 +664,16 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::ALLOC) {// 分配数组，dest为数组id，src1为大小
-                varFunctionIndex -= program.imcodes[codeIndex].src1.value / 4 - 1;
                 var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                 varFunctionIndex--;
+                varFunctionIndex -= program.imcodes[codeIndex].src1.value / 4 - 1;
+                int firstAddress = varFunctionIndex * 4;
+                varFunctionIndex--;
+
+                PrintImeVar("r0", firstAddress);
+                outfile << "\tadd\t" << "r0" << ", fp, " << "r0" << "\n";
                 isArray[program.imcodes[codeIndex].dest.value] = true;
+                getvar("str", "r0", program.imcodes[codeIndex].dest.value, program);
             } else if (Operator == ImCode::DAGET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = program.imcodes[codeIndex].src1.value;
                 //提取首地址放于r3
