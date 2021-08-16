@@ -163,8 +163,7 @@ void getvar(std::string ope, std::string reg, int index, const ImProgram &progra
         if (var[index] != 0) {
             PrintImeVar("r6", var[index]);
             outfile << "\t" << ope << "\t" << reg << ", [" << fp << ", r6]" << endl;
-        }
-        else
+        } else
             outfile << "\t" << ope << "\t" << reg << ", [" << fp << "]" << endl;
     }
 }
@@ -280,7 +279,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
 //            outfile << "\tpush\t{r4, r5, fp, lr}" << endl;
 //        }
         varSizeNeedByFunction += 4;
-        varSizeNeedByFunction+=numPrams*4;
+        varSizeNeedByFunction += numPrams * 4;
         if (varSizeNeedByFunction % 8 != 0) {
             varSizeNeedByFunction += 4;
         }
@@ -361,7 +360,15 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                         }
                     }
                 }
-                outfile << "\tbl\t" << program.functions[program.imcodes[codeIndex].src1.value].identifier << endl;
+                if (program.functions[program.imcodes[codeIndex].src1.value].identifier == "starttime") {
+                    outfile << "\tmov\tr0, 0" << endl;
+                    outfile << "\tbl\t_sysy_starttime"<< endl;
+                } else if (program.functions[program.imcodes[codeIndex].src1.value].identifier == "stoptime") {
+                    outfile << "\tmov\tr0, 0" << endl;
+                    outfile << "\tbl\t_sysy_stoptime" << endl;
+                } else {
+                    outfile << "\tbl\t" << program.functions[program.imcodes[codeIndex].src1.value].identifier << endl;
+                }
                 if (!program.functions[program.imcodes[codeIndex].src1.value].returnVoid) {
                     if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
                         var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
@@ -390,7 +397,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                     outfile << "\tb\tfunc_ret" << functionIndex << endl;
                 }
             } else if (Operator == ImCode::ASSIGN) {
-                if(program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE) {
+                if (program.imcodes[codeIndex].src1.type == ImCode::Oprand::IMMEDIATE) {
                     PrintImeVar("r3", program.imcodes[codeIndex].src1.value);
                     if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
                         var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
@@ -401,7 +408,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                         getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
                     }
-                } else{
+                } else {
                     getvar("ldr", "r3", program.imcodes[codeIndex].src1.value, program);
                     if (var.find(program.imcodes[codeIndex].dest.value) == var.end()) {
                         var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
@@ -685,7 +692,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                     getvar("str", "r3", program.imcodes[codeIndex].dest.value, program);
 //                    outfile << "\tstr\tr3, " << getvar(var[program.imcodes[codeIndex].dest.value], program) << endl;
                 }
-            }else if (Operator == ImCode::DASET) {//给数组赋值对应的值，src1表示数组id，src2表示偏移地址，dest表示值
+            } else if (Operator == ImCode::DASET) {//给数组赋值对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 if (program.imcodes[codeIndex].dest.type == ImCode::Oprand::IMMEDIATE) {
                     PrintImeVar("r2", program.imcodes[codeIndex].dest.value);
                 } else {
@@ -704,7 +711,7 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                     getvar("ldr", "r1", program.imcodes[codeIndex].src2.value, program);
                 }
                 outfile << "\t" << "str" << "\t" << "r2" << ", [" << "r3" << ", r1]" << endl;
-            }  else if (Operator == ImCode::GETADD) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
+            } else if (Operator == ImCode::GETADD) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = program.imcodes[codeIndex].src1.value;
                 //提取首地址放于r3
                 if (isParm.find(index) != isParm.end()) {

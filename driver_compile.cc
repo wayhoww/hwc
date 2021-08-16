@@ -230,7 +230,8 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<comp_unit_t>& comp_unit){
         // predefined library function
-
+        functions()[add_function("starttime", -1, false, {})].declarationOnly = true;
+        functions()[add_function("stoptime", -1, false, {})].declarationOnly = true;
         functions()[add_function("getint", -1, false, {})  ].declarationOnly = true;
         functions()[add_function("getch", -1, false, {})   ].declarationOnly = true;
         functions()[add_function("getarray", -1, false, {Argument({-1})})].declarationOnly = true;
@@ -238,9 +239,6 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
         functions()[add_function("putint", -1, true, {Argument()} )   ].declarationOnly = true;
         functions()[add_function("putch", -1, true, {Argument()})    ].declarationOnly = true;
         functions()[add_function("putarray", -1, true, { Argument(), Argument({-1})})].declarationOnly = true;
-
-        functions()[add_function("starttime", -1, true, {})].declarationOnly = true;
-        functions()[add_function("stoptime", -1, true, {})].declarationOnly = true;
 
         for(auto child: comp_unit->children) {
             if(auto r = dynamic_pointer_cast<comp_unit_item_func_def_t>(child)) {
