@@ -370,7 +370,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
     }
 
     std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<block_t>& block, bool enter_new_scoop) {
-    //    if(enter_new_scoop) enter_scoop();
+        if(enter_new_scoop) enter_scoop();
 
         auto info = nonterm_controlflow::newsp({}, {});
 
@@ -381,7 +381,7 @@ std::shared_ptr<nonterm_info> driver::compile(const shared_ptr<expr>& root, std:
             }
         }
 
-    //    if(enter_new_scoop) exit_scoop();
+        if(enter_new_scoop) exit_scoop();
 
 
         return info;

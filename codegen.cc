@@ -67,11 +67,23 @@ int get_func_size(int funcid, const ImProgram &imProgram) {
         }
     }
 
+    
     int size = 0;
     for (auto[k, v]: sizes) {
         if (k < imProgram.globalVars.size()) continue;
         size += v;
     }
+
+    for (int i = entrance; i < exit; i++) {
+        auto code = imProgram.imcodes[i];
+
+        ImCode::Oprand oprands[] = {code.src1, code.src2, code.dest};
+
+        if (code.op == ImCode::ALLOC) {
+            size += code.src1.value;
+        }
+    }
+
     return size;
 }
 

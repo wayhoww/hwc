@@ -50,6 +50,7 @@ struct FunctionDef {
 struct Var {
     int32_t varID;
     bool isTemp;
+    bool isArray;
 };
 
 // 中间代码
