@@ -359,7 +359,6 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
 //                            outfile << "\tldr\tr3, "
 //                                    << getvar(program.imcodes[codeIndex].arguments[i], program) << endl;
                         } else {//如果是数组
-
                             if (isParm.find(program.imcodes[codeIndex].arguments[i]) != isParm.end()) {
                                 getvar("ldr", "r0", program.imcodes[codeIndex].arguments[i], program);
                             } else {
@@ -676,15 +675,16 @@ void codegen(const ImProgram &program, const std::string &sourcefile, const std:
                             << "\tbne\t.label" << labelCode[program.imcodes[codeIndex].dest.value] << endl;
                 }
             } else if (Operator == ImCode::ALLOC) {// 分配数组，dest为数组id，src1为大小
+
                 var[program.imcodes[codeIndex].dest.value] = varFunctionIndex * 4;
                 varFunctionIndex--;
                 varFunctionIndex -= program.imcodes[codeIndex].src1.value / 4 - 1;
                 int firstAddress = varFunctionIndex * 4;
                 varFunctionIndex--;
 
+                isArray[program.imcodes[codeIndex].dest.value] = true;
                 PrintImeVar("r0", firstAddress);
                 outfile << "\tadd\t" << "r0" << ", fp, " << "r0" << "\n";
-                isArray[program.imcodes[codeIndex].dest.value] = true;
                 getvar("str", "r0", program.imcodes[codeIndex].dest.value, program);
             } else if (Operator == ImCode::DAGET) {//取数组内对应的值，src1表示数组id，src2表示偏移地址，dest表示值
                 int index = program.imcodes[codeIndex].src1.value;
