@@ -67,7 +67,7 @@ int get_func_size(int funcid, const ImProgram &imProgram) {
         }
     }
 
-    
+
     int size = 0;
     for (auto[k, v]: sizes) {
         if (k < imProgram.globalVars.size()) continue;
@@ -175,7 +175,7 @@ void getNumsFirstAddress(std::string reg, int index, const ImProgram &program) {
         outfile << "\tmovw\t" << reg << ", #:lower16:" << program.globalVars[index].identifier << endl
                 << "\tmovt\t" << reg << ", #:upper16:" << program.globalVars[index].identifier << endl;
     } else {
-        getvar("ldr", "r3", index, program);
+        getvar("ldr", reg, index, program);
 //        PrintImeVar(reg, var[index]);
 //        outfile << "\tadd\t" << reg << ", fp, " << reg << "\n";
     }
