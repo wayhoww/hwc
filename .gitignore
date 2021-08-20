@@ -1,8 +1,5 @@
 # Samples
 samples
-.vscode
-Makefile
-CMakeLists.txt
 build
 cmake-build-debug/
 .vscode/
@@ -13,7 +10,6 @@ hwc_lw
 *.s
 *.o
 .idea/
-codegen2.cc
 
 
 
