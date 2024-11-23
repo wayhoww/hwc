@@ -3,7 +3,7 @@
 
 HWC, 一个 SysY 语言编译器，是2021年华为毕昇杯编译系统赛的产物。
 
-* GitHub: [https://github.com/yslking/hwc](https://github.com/yslking/hwc)
+* GitHub: [https://github.com/wayhoww/hwc](https://github.com/wayhoww/hwc)
 * 主办方 GitLab: [https://gitlab.eduxiji.net/wwh_lw/hwc](https://gitlab.eduxiji.net/wwh_lw/hwc)
 
 无 License
