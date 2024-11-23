@@ -1,7 +1,7 @@
 # hwc
 编译器能编译编译器 / 北京交通大学
 
-`hwc` (wangweiHao-liuWei Compiler, or HuaWei Compiler), 是 2021 年华为毕昇杯编译系统赛的产物。
+HWC, 一个 SysY 语言编译器，是2021年华为毕昇杯编译系统赛的产物。
 
 * GitHub: [https://github.com/yslking/hwc](https://github.com/yslking/hwc)
 * 主办方 GitLab: [https://gitlab.eduxiji.net/wwh_lw/hwc](https://gitlab.eduxiji.net/wwh_lw/hwc)
@@ -12,13 +12,7 @@
 
 作者：
 * wayen ([wayen@iwayen.cn](wayen@iwayen.cn))
-* yslking ([wweihao@outlook.com](wweihao@outlook.com))
-
-指导老师：
-* 于双元 ([shyyu@bjtu.edu.cn](shyyu@bjtu.edu.cn))
-
-wayen 和 yslking 都是北京交通大学计算机科学与技术专业 2022 届的学生。于双元博士是北京交通大学计算机与信息技术学院的副教授。
-
+* wayhoww ([wweihao@outlook.com](wweihao@outlook.com))
 
 ## 功能简介
 
@@ -56,8 +50,7 @@ Bison 开启了 C++ 模式 和 `std::variant` 模式
 ```sh
 make
 ```
-## TODO List
-或者说 havn't do list, 毕竟以后会不会补也不好说
+## Won't Do List
 + [ ] 各种优化
 + [ ] 未经初始化的全局量放 BSS
 + [ ] extern 全局变量
